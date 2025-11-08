@@ -20,17 +20,17 @@ export default {
       type: "json", // the color will be stored as a string
       intlLabel: {
         id: `${PLUGIN_ID}.full-tiptap-editor.label`,
-        defaultMessage: "Content",
+        defaultMessage: "Full Tiptap Editor",
       },
       intlDescription: {
         id: `${PLUGIN_ID}.full-tiptap-editor.description`,
-        defaultMessage: "Input content",
+        defaultMessage: "Tiptap Editor with full feature",
       },
       icon: PluginIcon,
       components: {
         Input: async () =>
           import('./components/FullEditorInput').then((module) => ({
-            default: module,
+            default: module.default,
           })),
       },
       options: {
@@ -44,17 +44,17 @@ export default {
       type: "json", // the color will be stored as a string
       intlLabel: {
         id: `${PLUGIN_ID}.simple-tiptap-editor.label`,
-        defaultMessage: "Content",
+        defaultMessage: "Simple Tiptap Editor",
       },
       intlDescription: {
         id: `${PLUGIN_ID}.simple-tiptap-editor.description`,
-        defaultMessage: "Input content",
+        defaultMessage: "Tiptap editor with minimal feature",
       },
       icon: PluginIcon,
       components: {
         Input: async () =>
           import('./components/SimpleEditorInput').then((module) => ({
-            default: module,
+            default: module.default,
           })),
       },
       options: {
