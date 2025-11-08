@@ -1,5 +1,3 @@
-"use client";
-
 import { useRef } from "react";
 
 import { type Editor } from "@tiptap/core";
@@ -22,6 +20,8 @@ import {
   type ToolbarButtonsType,
 } from "./partials/toolbar-buttons";
 import { BaseEditor, type BaseEditorProps } from "./_base-editor";
+
+import '@/src/styles.css'
 
 export type FullEditorProps = BaseEditorProps & {
   toolbars?: ToolbarButtonsType[];

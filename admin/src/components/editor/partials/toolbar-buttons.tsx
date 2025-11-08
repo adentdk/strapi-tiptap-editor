@@ -1,100 +1,97 @@
-"use client";
-
-import dynamic from "next/dynamic";
-import { Fragment, memo, useMemo } from "react";
-
+import { Fragment, memo, useMemo, lazy, Suspense } from "react";
 import { Separator } from "../../ui/separator";
 
-// Dynamic imports for toolbars
+// Lazy imports for toolbars (tanpa next/dynamic)
 const toolbarsMap = {
-  AlignmentToolbar: dynamic(
-    () => import("../toolbars/alignment").then((mod) => mod.AlignmentTooolbar),
-    { loading: () => null, ssr: false },
+  AlignmentToolbar: lazy(() =>
+    import("../toolbars/alignment").then((mod) => ({
+      default: mod.AlignmentTooolbar,
+    })),
   ),
-  BlockquoteToolbar: dynamic(
-    () => import("../toolbars/blockquote").then((mod) => mod.BlockquoteToolbar),
-    { loading: () => null, ssr: false },
+  BlockquoteToolbar: lazy(() =>
+    import("../toolbars/blockquote").then((mod) => ({
+      default: mod.BlockquoteToolbar,
+    })),
   ),
-  BoldToolbar: dynamic(
-    () => import("../toolbars/bold").then((mod) => mod.BoldToolbar),
-    { loading: () => null, ssr: false },
+  BoldToolbar: lazy(() =>
+    import("../toolbars/bold").then((mod) => ({
+      default: mod.BoldToolbar,
+    })),
   ),
-  BulletListToolbar: dynamic(
-    () =>
-      import("../toolbars/bullet-list").then((mod) => mod.BulletListToolbar),
-    { loading: () => null, ssr: false },
+  BulletListToolbar: lazy(() =>
+    import("../toolbars/bullet-list").then((mod) => ({
+      default: mod.BulletListToolbar,
+    })),
   ),
-  CodeToolbar: dynamic(
-    () => import("../toolbars/code").then((mod) => mod.CodeToolbar),
-    { loading: () => null, ssr: false },
+  CodeToolbar: lazy(() =>
+    import("../toolbars/code").then((mod) => ({
+      default: mod.CodeToolbar,
+    })),
   ),
-  CodeBlockToolbar: dynamic(
-    () => import("../toolbars/code-block").then((mod) => mod.CodeBlockToolbar),
-    { loading: () => null, ssr: false },
+  CodeBlockToolbar: lazy(() =>
+    import("../toolbars/code-block").then((mod) => ({
+      default: mod.CodeBlockToolbar,
+    })),
   ),
-  HardBreakToolbar: dynamic(
-    () => import("../toolbars/hard-break").then((mod) => mod.HardBreakToolbar),
-    { loading: () => null, ssr: false },
+  HardBreakToolbar: lazy(() =>
+    import("../toolbars/hard-break").then((mod) => ({
+      default: mod.HardBreakToolbar,
+    })),
   ),
-  HorizontalRuleToolbar: dynamic(
-    () =>
-      import("../toolbars/horizontal-rule").then(
-        (mod) => mod.HorizontalRuleToolbar,
-      ),
-    { loading: () => null, ssr: false },
+  HorizontalRuleToolbar: lazy(() =>
+    import("../toolbars/horizontal-rule").then((mod) => ({
+      default: mod.HorizontalRuleToolbar,
+    })),
   ),
-  ItalicToolbar: dynamic(
-    () => import("../toolbars/italic").then((mod) => mod.ItalicToolbar),
-    { loading: () => null, ssr: false },
+  ItalicToolbar: lazy(() =>
+    import("../toolbars/italic").then((mod) => ({
+      default: mod.ItalicToolbar,
+    })),
   ),
-  OrderedListToolbar: dynamic(
-    () =>
-      import("../toolbars/ordered-list").then((mod) => mod.OrderedListToolbar),
-    { loading: () => null, ssr: false },
+  OrderedListToolbar: lazy(() =>
+    import("../toolbars/ordered-list").then((mod) => ({
+      default: mod.OrderedListToolbar,
+    })),
   ),
-  RedoToolbar: dynamic(
-    () => import("../toolbars/redo").then((mod) => mod.RedoToolbar),
-    { loading: () => null, ssr: false },
+  RedoToolbar: lazy(() =>
+    import("../toolbars/redo").then((mod) => ({
+      default: mod.RedoToolbar,
+    })),
   ),
-  StrikeThroughToolbar: dynamic(
-    () =>
-      import("../toolbars/strikethrough").then(
-        (mod) => mod.StrikeThroughToolbar,
-      ),
-    { loading: () => null, ssr: false },
+  StrikeThroughToolbar: lazy(() =>
+    import("../toolbars/strikethrough").then((mod) => ({
+      default: mod.StrikeThroughToolbar,
+    })),
   ),
-  UndoToolbar: dynamic(
-    () => import("../toolbars/undo").then((mod) => mod.UndoToolbar),
-    { loading: () => null, ssr: false },
+  UndoToolbar: lazy(() =>
+    import("../toolbars/undo").then((mod) => ({
+      default: mod.UndoToolbar,
+    })),
   ),
-  ColorAndHighlightToolbar: dynamic(
-    () =>
-      import("../toolbars/color-and-highlight").then(
-        (mod) => mod.ColorAndHighlightToolbar,
-      ),
-    { loading: () => null, ssr: false },
+  ColorAndHighlightToolbar: lazy(() =>
+    import("../toolbars/color-and-highlight").then((mod) => ({
+      default: mod.ColorAndHighlightToolbar,
+    })),
   ),
-  ImagePlaceholderToolbar: dynamic(
-    () =>
-      import("../toolbars/image-placeholder").then(
-        (mod) => mod.ImagePlaceholderToolbar,
-      ),
-    { loading: () => null, ssr: false },
+  ImagePlaceholderToolbar: lazy(() =>
+    import("../toolbars/image-placeholder").then((mod) => ({
+      default: mod.ImagePlaceholderToolbar,
+    })),
   ),
-  SearchAndReplaceToolbar: dynamic(
-    () =>
-      import("../toolbars/search-and-replace").then(
-        (mod) => mod.SearchAndReplaceToolbar,
-      ),
-    { loading: () => null, ssr: false },
+  SearchAndReplaceToolbar: lazy(() =>
+    import("../toolbars/search-and-replace").then((mod) => ({
+      default: mod.SearchAndReplaceToolbar,
+    })),
   ),
-  LinkToolbar: dynamic(
-    () => import("../toolbars/link").then((mod) => mod.LinkToolbar),
-    { loading: () => null, ssr: false },
+  LinkToolbar: lazy(() =>
+    import("../toolbars/link").then((mod) => ({
+      default: mod.LinkToolbar,
+    })),
   ),
-  HeadingTooolbar: dynamic(
-    () => import("../toolbars/heading").then((mod) => mod.HeadingTooolbar),
-    { loading: () => null, ssr: false },
+  HeadingTooolbar: lazy(() =>
+    import("../toolbars/heading").then((mod) => ({
+      default: mod.HeadingTooolbar,
+    })),
   ),
 };
 
@@ -146,7 +143,9 @@ const ToolbarButtons: React.FC<{ toolbars?: ToolbarButtonsType[] }> = memo(
     return (
       <Fragment>
         {Components.map((c, index) => (
-          <c.Component {...c.props} key={index} />
+          <Suspense fallback={null} key={index}>
+            <c.Component {...c.props} />
+          </Suspense>
         ))}
       </Fragment>
     );

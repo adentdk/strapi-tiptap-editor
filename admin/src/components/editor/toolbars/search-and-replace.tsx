@@ -1,22 +1,20 @@
-"use client";
-
 import { useEffect, useState } from "react";
 
 import { ArrowLeft, ArrowRight, Repeat, X } from "lucide-react";
 
-import type { SearchAndReplaceStorage } from "@/components/editor/extensions/search-and-replace";
-import { useEditorContext } from "@/components/editor/partials/editor-provider";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import type { SearchAndReplaceStorage } from "@/src/components/editor/extensions/search-and-replace";
+import { useEditorContext } from "@/src/components/editor/partials/editor-provider";
+import { Button } from "@/src/components/ui/button";
+import { Checkbox } from "@/src/components/ui/checkbox";
+import { Input } from "@/src/components/ui/input";
+import { Label } from "@/src/components/ui/label";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { Separator } from "@/components/ui/separator";
-import { cn } from "@/lib/utils/classnames";
+} from "@/src/components/ui/popover";
+import { Separator } from "@/src/components/ui/separator";
+import { cn } from "@/src/utils/utils";
 
 import ToolbarButton from "../partials/toolbar-button";
 

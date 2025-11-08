@@ -1,5 +1,3 @@
-"use client";
-
 import {
   AlignCenter,
   AlignJustify,
@@ -9,19 +7,19 @@ import {
   ChevronDown,
 } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/src/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/src/components/ui/dropdown-menu";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from "@/src/components/ui/tooltip";
 
 import { useEditorContext } from "../partials/editor-provider";
 

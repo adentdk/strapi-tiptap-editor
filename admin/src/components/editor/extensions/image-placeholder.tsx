@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 
 import type { NodeViewProps } from "@tiptap/core";
@@ -13,16 +11,16 @@ import {
 } from "@tiptap/react";
 import { LucideImage, LucideLink, Upload } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/src/components/ui/button";
+import { Input } from "@/src/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { cn, isValidUrl } from "@/lib/utils/classnames";
-import { NODE_HANDLES_SELECTED_STYLE_CLASSNAME } from "@/lib/utils/classnames";
+} from "@/src/components/ui/popover";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/tabs";
+import { cn } from "@/src/utils/utils";
+import { isValidUrl, NODE_HANDLES_SELECTED_STYLE_CLASSNAME } from "../utils";
 
 export interface ImagePlaceholderOptions {
   HTMLAttributes: Record<string, any>;
@@ -51,9 +49,9 @@ export const ImagePlaceholder = Node.create<ImagePlaceholderOptions>({
   addOptions() {
     return {
       HTMLAttributes: {},
-      onDrop: () => {},
-      onDropRejected: () => {},
-      onEmbed: () => {},
+      onDrop: () => { },
+      onDropRejected: () => { },
+      onEmbed: () => { },
     };
   },
 

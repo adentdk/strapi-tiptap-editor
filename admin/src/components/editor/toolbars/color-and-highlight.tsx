@@ -1,18 +1,16 @@
-"use client";
-
 import type { Extension } from "@tiptap/core";
 import type { ColorOptions } from "@tiptap/extension-color";
 import type { HighlightOptions } from "@tiptap/extension-highlight";
 import { Check, ChevronDown } from "lucide-react";
 
-import { useEditorContext } from "@/components/editor/partials/editor-provider";
+import { useEditorContext } from "@/src/components/editor/partials/editor-provider";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
+} from "@/src/components/ui/popover";
+import { ScrollArea } from "@/src/components/ui/scroll-area";
+import { Separator } from "@/src/components/ui/separator";
 
 import ToolbarButton from "../partials/toolbar-button";
 

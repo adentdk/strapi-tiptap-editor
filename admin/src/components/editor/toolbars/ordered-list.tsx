@@ -1,10 +1,8 @@
-"use client";
-
 import { forwardRef } from "react";
 
 import { ListOrdered } from "lucide-react";
 
-import { useEditorContext } from "@/components/editor/partials/editor-provider";
+import { useEditorContext } from "@/src/components/editor/partials/editor-provider";
 
 import ToolbarButton, { ToolbarButtonProps } from "../partials/toolbar-button";
 

@@ -1,5 +1,3 @@
-"use client";
-
 import { useMemo } from "react";
 
 import type { Extension } from "@tiptap/core";
@@ -7,14 +5,14 @@ import { HeadingOptions } from "@tiptap/extension-heading";
 import { ParagraphOptions } from "@tiptap/extension-paragraph";
 import { Check, ChevronDown } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/src/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/src/components/ui/dropdown-menu";
 
 import { useEditorContext } from "../partials/editor-provider";
 import ToolbarButton from "../partials/toolbar-button";

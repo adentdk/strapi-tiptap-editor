@@ -28,11 +28,11 @@ import {
   useEditor as useEditorPrimitive,
   type UseEditorOptions as UseEditorPrimitiveOptions,
 } from "@tiptap/react";
-import { useDebounceCallback } from "usehooks-ts";
 
-import { cn } from "@/lib/utils/classnames";
+import { cn } from "@/src/utils/utils";
 
 import { ResetMarksOnEnter } from "./extensions/reset-marks-on-enter";
+import { useDebounceCallback } from "@/src/hooks/use-debounce-callback";
 
 export interface UseEditorOptions
   extends Omit<UseEditorPrimitiveOptions, "onUpdate" | "onBlur"> {

@@ -1,9 +1,7 @@
-"use client";
-
 import { type Content, Editor, EditorContent } from "@tiptap/react";
 
-import { EditorProvider } from "@/components/editor/partials/editor-provider";
-import { cn } from "@/lib/utils/classnames";
+import { EditorProvider } from "@/src/components/editor/partials/editor-provider";
+import { cn } from "@/src/utils/utils";
 
 import "./styles.css";
 

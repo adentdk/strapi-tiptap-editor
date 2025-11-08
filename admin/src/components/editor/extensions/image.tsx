@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useRef, useState } from "react";
 
 import { NodeViewProps } from "@tiptap/core";
@@ -15,17 +13,18 @@ import {
   MoreVertical,
   Trash,
 } from "lucide-react";
+import { Button } from "@/src/components/ui/button";
 
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Separator } from "@/components/ui/separator";
-import { cn, duplicateContent } from "@/lib/utils/classnames";
+} from "@/src/components/ui/dropdown-menu";
+import { Separator } from "@/src/components/ui/separator";
+import { cn } from "@/src/utils/utils"
+import { duplicateContent } from "../utils";
 
 export const ImageExtension = Image.extend({
   addAttributes() {
@@ -226,7 +225,7 @@ export function TiptapImageComponent(props: NodeViewProps) {
             Edit
           </button>
         </span>
-        <NodeViewContent as="figcaption" className="text-center">
+        <NodeViewContent as="div" className="text-center">
           {node.attrs.title}
         </NodeViewContent>
 
