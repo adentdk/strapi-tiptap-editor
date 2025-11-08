@@ -1,3 +1,3 @@
-# @adentdk/tiptap-editor
+# adentdk-tiptap-editor
 
 Tiptap editor for Strapi 5

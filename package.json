@@ -110,11 +110,11 @@
   },
   "strapi": {
     "kind": "plugin",
-    "name": "@adentdk/tiptap-editor",
+    "name": "adentdk-tiptap-editor",
     "displayName": "Tiptap editor",
     "description": "Tiptap editor for Strapi 5"
   },
-  "name": "@adentdk/tiptap-editor",
+  "name": "adentdk-tiptap-editor",
   "description": "Tiptap editor for Strapi 5",
   "license": "MIT",
   "repository": {

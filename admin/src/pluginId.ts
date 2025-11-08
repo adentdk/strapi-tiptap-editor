@@ -1,1 +1,1 @@
-export const PLUGIN_ID = '@adentdk/tiptap-editor';
+export const PLUGIN_ID = 'adentdk-tiptap-editor';
