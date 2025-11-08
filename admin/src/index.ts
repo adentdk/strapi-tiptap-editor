@@ -4,6 +4,8 @@ import { PLUGIN_ID } from './pluginId';
 import { Initializer } from './components/Initializer';
 import { PluginIcon } from './components/PluginIcon';
 import { EditIcon } from 'lucide-react';
+import SimpleEditorInput from './components/SimpleEditorInput';
+import FullEditorInput from './components/FullEditorInput';
 
 export default {
   register(app: any) {
@@ -28,10 +30,7 @@ export default {
       },
       icon: PluginIcon,
       components: {
-        Input: async () =>
-          import('./components/FullEditorInput').then((module) => ({
-            default: module.default,
-          })),
+        Input: FullEditorInput
       },
       options: {
         // declare options here
@@ -52,10 +51,7 @@ export default {
       },
       icon: PluginIcon,
       components: {
-        Input: async () =>
-          import('./components/SimpleEditorInput').then((module) => ({
-            default: module.default,
-          })),
+        Input: SimpleEditorInput
       },
       options: {
         // declare options here
