@@ -29,8 +29,8 @@ export default {
       icon: PluginIcon,
       components: {
         Input: async () =>
-          import('./components/editor/full-editor').then((module) => ({
-            default: module.FullEditor,
+          import('./components/FullEditorInput').then((module) => ({
+            default: module,
           })),
       },
       options: {
@@ -53,8 +53,8 @@ export default {
       icon: PluginIcon,
       components: {
         Input: async () =>
-          import('./components/editor/simple-editor').then((module) => ({
-            default: module.SimpleEditor,
+          import('./components/SimpleEditorInput').then((module) => ({
+            default: module,
           })),
       },
       options: {
