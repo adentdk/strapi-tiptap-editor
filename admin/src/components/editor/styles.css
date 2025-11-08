@@ -1,0 +1,20 @@
+.ProseMirror {
+     @apply flex max-w-full cursor-text flex-col;
+     @apply z-0 px-3 py-2;
+}
+
+.ProseMirror.ProseMirror-focused {
+     @apply focus:outline-none;
+}
+
+.tiptap p.is-editor-empty:first-child::before {
+     @apply pointer-events-none float-left h-0 text-accent-foreground;
+     content: attr(data-placeholder);
+}
+
+.ProseMirror h1.is-empty:nth-child(1)::before,
+.ProseMirror p.is-empty:nth-child(2):last-child::before {
+     @apply pointer-events-none float-left h-0 !text-muted-foreground;
+     content: attr(data-placeholder);
+}
+   
