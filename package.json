@@ -28,7 +28,8 @@
     "watch:link": "strapi-plugin watch:link",
     "verify": "strapi-plugin verify",
     "test:ts:front": "run -T tsc -p admin/tsconfig.json",
-    "test:ts:back": "run -T tsc -p server/tsconfig.json"
+    "test:ts:back": "run -T tsc -p server/tsconfig.json",
+    "prepare": "pnpm run build || yarn run build || npm build"
   },
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.3.3",
