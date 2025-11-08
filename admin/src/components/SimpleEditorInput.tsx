@@ -7,7 +7,7 @@ import { StrapiInputProps } from "src/types";
 /**
  * Tiptap Editor custom field input (for Strapi v5)
  */
-export const SimpleEditorInput = React.forwardRef<HTMLInputElement, StrapiInputProps>(
+const SimpleEditorInput = React.forwardRef<HTMLInputElement, StrapiInputProps>(
   (props, ref) => {
     const {
       attribute,
