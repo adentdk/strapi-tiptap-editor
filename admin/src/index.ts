@@ -28,7 +28,7 @@ export default {
       },
       icon: PluginIcon,
       components: {
-        Input: () => import('./components/FullEditorInput'),
+        Input: async () => await import('./components/FullEditorInput'),
       },
       options: {
         // declare options here
@@ -49,7 +49,7 @@ export default {
       },
       icon: PluginIcon,
       components: {
-        Input: () => import('./components/SimpleEditorInput'),
+        Input: async () => await import('./components/SimpleEditorInput'),
       },
       options: {
         // declare options here
