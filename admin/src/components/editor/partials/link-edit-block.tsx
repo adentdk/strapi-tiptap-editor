@@ -6,11 +6,11 @@ import {
   useState,
 } from "react";
 
-import { Button } from "@/src/components/ui/button";
-import { Input } from "@/src/components/ui/input";
-import { Label } from "@/src/components/ui/label";
-import { Switch } from "@/src/components/ui/switch";
-import { cn } from "@/src/utils/utils";
+import { Button } from "../../ui/button";
+import { Input } from "../../ui/input";
+import { Label } from "../../ui/label";
+import { Switch } from "../../ui/switch";
+import { cn } from "../../../utils/utils";
 
 export interface LinkEditorProps extends React.HTMLAttributes<HTMLDivElement> {
   defaultUrl?: string;

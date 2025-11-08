@@ -7,19 +7,19 @@ import {
   ChevronDown,
 } from "lucide-react";
 
-import { Button } from "@/src/components/ui/button";
+import { Button } from "../../ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/src/components/ui/dropdown-menu";
+} from "../../ui/dropdown-menu";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/src/components/ui/tooltip";
+} from "../../ui/tooltip";
 
 import { useEditorContext } from "../partials/editor-provider";
 

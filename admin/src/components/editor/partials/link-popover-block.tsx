@@ -2,13 +2,13 @@ import { useCallback, useState } from "react";
 
 import { Copy, ExternalLink, Unlink2 } from "lucide-react";
 
-import { Button } from "@/src/components/ui/button";
-import { Separator } from "@/src/components/ui/separator";
+import { Button } from "../../ui/button";
+import { Separator } from "../../ui/separator";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/src/components/ui/tooltip";
+} from "../../ui/tooltip";
 
 import ToolbarButton from "./toolbar-button";
 

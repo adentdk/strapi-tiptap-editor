@@ -1,7 +1,9 @@
+import './styles.css'
 import { getTranslation } from './utils/getTranslation';
 import { PLUGIN_ID } from './pluginId';
 import { Initializer } from './components/Initializer';
 import { PluginIcon } from './components/PluginIcon';
+import { EditIcon } from 'lucide-react';
 
 export default {
   register(app: any) {
@@ -10,6 +12,54 @@ export default {
       initializer: Initializer,
       isReady: false,
       name: PLUGIN_ID,
+    });
+
+    app.customFields.register({
+      name: "full-tiptap-editor",
+      pluginId: PLUGIN_ID, // the custom field is created by a PLUGIN_ID plugin
+      type: "json", // the color will be stored as a string
+      intlLabel: {
+        id: `${PLUGIN_ID}.full-tiptap-editor.label`,
+        defaultMessage: "Content",
+      },
+      intlDescription: {
+        id: `${PLUGIN_ID}.full-tiptap-editor.description`,
+        defaultMessage: "Input content",
+      },
+      icon: PluginIcon,
+      components: {
+        Input: async () =>
+          import('./components/editor/full-editor').then((module) => ({
+            default: module.FullEditor,
+          })),
+      },
+      options: {
+        // declare options here
+      },
+    });
+
+    app.customFields.register({
+      name: "simple-tiptap-editor",
+      pluginId: PLUGIN_ID, // the custom field is created by a PLUGIN_ID plugin
+      type: "json", // the color will be stored as a string
+      intlLabel: {
+        id: `${PLUGIN_ID}.simple-tiptap-editor.label`,
+        defaultMessage: "Content",
+      },
+      intlDescription: {
+        id: `${PLUGIN_ID}.simple-tiptap-editor.description`,
+        defaultMessage: "Input content",
+      },
+      icon: PluginIcon,
+      components: {
+        Input: async () =>
+          import('./components/editor/simple-editor').then((module) => ({
+            default: module.SimpleEditor,
+          })),
+      },
+      options: {
+        // declare options here
+      },
     });
   },
 

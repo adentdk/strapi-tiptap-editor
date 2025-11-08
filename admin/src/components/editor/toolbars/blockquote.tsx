@@ -2,7 +2,7 @@ import { forwardRef } from "react";
 
 import { TextQuote } from "lucide-react";
 
-import { useEditorContext } from "@/src/components/editor/partials/editor-provider";
+import { useEditorContext } from "../partials/editor-provider";
 
 import ToolbarButton, {
   type ToolbarButtonProps,

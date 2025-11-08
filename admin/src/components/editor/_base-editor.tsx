@@ -1,8 +1,5 @@
 import { type Content, Editor, EditorContent } from "@tiptap/react";
 
-import { EditorProvider } from "@/src/components/editor/partials/editor-provider";
-import { cn } from "@/src/utils/utils";
-
 import "./styles.css";
 
 import { LinkBubbleMenu } from "./partials/link-bubble-menu";
@@ -17,6 +14,8 @@ export interface BaseEditorProps
 }
 
 import { forwardRef, useImperativeHandle } from "react";
+import { EditorProvider } from "./partials/editor-provider";
+import { cn } from "../../utils/utils";
 
 export const BaseEditor = forwardRef<Editor | null, BaseEditorProps>(
   (
@@ -28,6 +27,7 @@ export const BaseEditor = forwardRef<Editor | null, BaseEditorProps>(
       onUpdate: onChange,
       value,
       editable: !disabled,
+      output: "json"
     });
 
     useImperativeHandle(ref, () => editor as Editor, [editor]);

@@ -12,7 +12,6 @@ import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
 import { textblockTypeInputRule } from "@tiptap/react";
-import '@/src/styles.css'
 import { FileHandler } from "./extensions/file-handler";
 import { Iframe } from "./extensions/iframe";
 import { ImageExtension } from "./extensions/image";

@@ -2,21 +2,21 @@ import { useEffect, useState } from "react";
 
 import { ArrowLeft, ArrowRight, Repeat, X } from "lucide-react";
 
-import type { SearchAndReplaceStorage } from "@/src/components/editor/extensions/search-and-replace";
-import { useEditorContext } from "@/src/components/editor/partials/editor-provider";
-import { Button } from "@/src/components/ui/button";
-import { Checkbox } from "@/src/components/ui/checkbox";
-import { Input } from "@/src/components/ui/input";
-import { Label } from "@/src/components/ui/label";
+import { useEditorContext } from "../partials/editor-provider";
+import { Button } from "../../ui/button";
+import { Checkbox } from "../../ui/checkbox";
+import { Input } from "../../ui/input";
+import { Label } from "../../ui/label";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/src/components/ui/popover";
-import { Separator } from "@/src/components/ui/separator";
-import { cn } from "@/src/utils/utils";
+} from "../../ui/popover";
+import { Separator } from "../../ui/separator";
+import { cn } from "../../../utils/utils";
 
 import ToolbarButton from "../partials/toolbar-button";
+import { SearchAndReplaceStorage } from "../extensions/search-and-replace";
 
 export function SearchAndReplaceToolbar() {
   const { editor } = useEditorContext();

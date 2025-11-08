@@ -21,8 +21,6 @@ import {
 } from "./partials/toolbar-buttons";
 import { BaseEditor, type BaseEditorProps } from "./_base-editor";
 
-import '@/src/styles.css'
-
 export type FullEditorProps = BaseEditorProps & {
   toolbars?: ToolbarButtonsType[];
 };

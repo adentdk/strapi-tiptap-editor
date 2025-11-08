@@ -2,13 +2,13 @@ import { forwardRef } from "react";
 
 import type { TooltipContentProps } from "@radix-ui/react-tooltip";
 
-import { Toggle } from "@/src/components/ui/toggle";
+import { Toggle } from "../../ui/toggle";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/src/components/ui/tooltip";
-import { cn } from "@/src/utils/utils";
+} from "../../ui/tooltip";
+import { cn } from "../../../utils/utils";
 
 export interface ToolbarButtonProps
   extends React.ComponentPropsWithoutRef<typeof Toggle> {

@@ -6,7 +6,7 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/src/components/ui/popover";
+} from "../../ui/popover";
 
 import { useEditorContext } from "../partials/editor-provider";
 import { LinkEditBlock } from "../partials/link-edit-block";

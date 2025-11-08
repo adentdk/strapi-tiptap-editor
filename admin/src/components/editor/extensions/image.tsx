@@ -13,7 +13,7 @@ import {
   MoreVertical,
   Trash,
 } from "lucide-react";
-import { Button } from "@/src/components/ui/button";
+import { Button } from "../../ui/button";
 
 import {
   DropdownMenu,
@@ -21,9 +21,9 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/src/components/ui/dropdown-menu";
-import { Separator } from "@/src/components/ui/separator";
-import { cn } from "@/src/utils/utils"
+} from "../../ui/dropdown-menu";
+import { Separator } from "../../ui/separator";
+import { cn } from "../../../utils/utils"
 import { duplicateContent } from "../utils";
 
 export const ImageExtension = Image.extend({

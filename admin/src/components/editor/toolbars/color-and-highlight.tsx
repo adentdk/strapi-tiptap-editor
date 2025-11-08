@@ -3,14 +3,14 @@ import type { ColorOptions } from "@tiptap/extension-color";
 import type { HighlightOptions } from "@tiptap/extension-highlight";
 import { Check, ChevronDown } from "lucide-react";
 
-import { useEditorContext } from "@/src/components/editor/partials/editor-provider";
+import { useEditorContext } from "../partials/editor-provider";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/src/components/ui/popover";
-import { ScrollArea } from "@/src/components/ui/scroll-area";
-import { Separator } from "@/src/components/ui/separator";
+} from "../../ui/popover";
+import { ScrollArea } from "../../ui/scroll-area";
+import { Separator } from "../../ui/separator";
 
 import ToolbarButton from "../partials/toolbar-button";
 

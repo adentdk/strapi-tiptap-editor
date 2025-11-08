@@ -11,15 +11,15 @@ import {
 } from "@tiptap/react";
 import { LucideImage, LucideLink, Upload } from "lucide-react";
 
-import { Button } from "@/src/components/ui/button";
-import { Input } from "@/src/components/ui/input";
+import { Button } from "../../ui/button";
+import { Input } from "../../ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/src/components/ui/popover";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/tabs";
-import { cn } from "@/src/utils/utils";
+} from "../../ui/popover";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../ui/tabs";
+import { cn } from "../../../utils/utils";
 import { isValidUrl, NODE_HANDLES_SELECTED_STYLE_CLASSNAME } from "../utils";
 
 export interface ImagePlaceholderOptions {

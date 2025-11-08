@@ -1,7 +1,6 @@
 import { useRef } from "react";
 
 import { type Editor } from "@tiptap/core";
-import '@/src/styles.css'
 
 import {
   ToolbarButtons,
