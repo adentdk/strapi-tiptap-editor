@@ -265,7 +265,7 @@ export function ImagePlaceholderComponent(props: NodeViewProps) {
             <Tabs.Content value="media" style={{ marginTop: 16, textAlign: 'center' }}>
               <Button
                 variant="secondary"
-                onClick={() => { setMediaLibOpen(true); setOpen(false) }}
+                onClick={() => { setMediaLibOpen(true); }}
                 fullWidth
               >
                 <Library size={18} />
