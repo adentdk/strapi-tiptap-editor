@@ -1,10 +1,14 @@
 import { forwardRef } from "react";
-
 import { List } from "lucide-react";
-
 import { useEditorContext } from "../partials/editor-provider";
-
 import ToolbarButton, { ToolbarButtonProps } from "../partials/toolbar-button";
+import styled from "styled-components";
+
+// Styled Components
+const ListIcon = styled(List)`
+  width: 16px;
+  height: 16px;
+`;
 
 const BulletListToolbar = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
   ({ className, onClick, children, ...props }, ref) => {
@@ -23,7 +27,7 @@ const BulletListToolbar = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
         ref={ref}
         {...props}
       >
-        {children || <List className="size-4" />}
+        {children || <ListIcon />}
       </ToolbarButton>
     );
   },

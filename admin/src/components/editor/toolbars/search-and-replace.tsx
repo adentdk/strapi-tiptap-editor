@@ -1,22 +1,151 @@
 import { useEffect, useState } from "react";
-
 import { ArrowLeft, ArrowRight, Repeat, X } from "lucide-react";
-
 import { useEditorContext } from "../partials/editor-provider";
 import { Button } from "../../ui/button";
-import { Checkbox } from "../../ui/checkbox";
 import { Input } from "../../ui/input";
 import { Label } from "../../ui/label";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "../../ui/popover";
 import { Separator } from "../../ui/separator";
-import { cn } from "../../../utils/utils";
-
 import ToolbarButton from "../partials/toolbar-button";
 import { SearchAndReplaceStorage } from "../extensions/search-and-replace";
+import { Checkbox, Popover } from "@strapi/design-system";
+import styled from "styled-components";
+
+const RepeatIcon = styled(Repeat)`
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+`;
+
+const ArrowIcon = styled.div`
+  width: 16px;
+  height: 16px;
+`;
+
+const CloseIcon = styled(X)`
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+`;
+
+const PopoverContent = styled(Popover.Content)`
+  position: relative;
+  display: flex;
+  width: 400px;
+  padding: 10px 12px;
+`;
+
+const SearchContainer = styled.div`
+  position: relative;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+`;
+
+const SearchInput = styled(Input)`
+  width: 192px;
+`;
+
+const ResultCount = styled.span`
+  font-size: 14px;
+`;
+
+const IconButton = styled(Button)`
+  width: 28px;
+  height: 28px;
+`;
+
+const VerticalSeparator = styled(Separator)`
+  height: 28px;
+  margin: 0 2px;
+`;
+
+const ReplaceContainer = styled.div`
+  position: relative;
+  width: 100%;
+`;
+
+const CloseButton = styled(CloseIcon)`
+  position: absolute;
+  right: 12px;
+  top: 12px;
+`;
+
+const Header = styled.div`
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 12px;
+`;
+
+const BackButton = styled(IconButton)`
+  border-radius: 50%;
+`;
+
+const Title = styled.h2`
+  font-size: 14px;
+  font-weight: 500;
+`;
+
+const FormSection = styled.div`
+  margin: 8px 0;
+  width: 100%;
+`;
+
+const InputGroup = styled.div`
+  margin-bottom: 12px;
+`;
+
+const InputLabel = styled(Label)`
+  margin-bottom: 4px;
+  font-size: 12px;
+  color: ${props => props.theme.colors.neutral600};
+`;
+
+const CheckboxContainer = styled.div`
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const CheckboxLabel = styled(Label)`
+  font-size: 14px;
+  font-weight: 500;
+`;
+
+const ActionsContainer = styled.div`
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const NavigationButtons = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const MainActions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const ActionButton = styled(Button)`
+  height: 28px;
+  padding: 0 12px;
+  font-size: 12px;
+`;
+
+const TriggerButton = styled(ToolbarButton)`
+  height: 32px;
+  width: auto;
+  padding: 0 12px;
+  font-weight: 400;
+  display: flex;
+  align-items: center;
+`;
 
 export function SearchAndReplaceToolbar() {
   const { editor } = useEditorContext();
@@ -58,19 +187,18 @@ export function SearchAndReplaceToolbar() {
   }, [open]);
 
   return (
-    <Popover open={open}>
-      <PopoverTrigger disabled={!editor} asChild>
-        <ToolbarButton
+    <Popover.Root open={open}>
+      <Popover.Trigger disabled={!editor}>
+        <TriggerButton
           tooltip="Search & Replace"
           onClick={() => {
             setOpen(!open);
           }}
-          className={cn("h-8 w-max px-3 font-normal")}
         >
-          <Repeat className="mr-2 size-4" />
+          <RepeatIcon />
           <p>Search & Replace</p>
-        </ToolbarButton>
-      </PopoverTrigger>
+        </TriggerButton>
+      </Popover.Trigger>
 
       <PopoverContent
         align="end"
@@ -80,85 +208,77 @@ export function SearchAndReplaceToolbar() {
         onEscapeKeyDown={() => {
           setOpen(false);
         }}
-        className="relative flex w-[400px] px-3 py-2.5"
       >
         {!replacing ? (
-          <div className={cn("relative flex gap-1.5 items-center")}>
-            <Input
+          <SearchContainer>
+            <SearchInput
               value={searchText}
-              className=" w-48"
               onChange={(e) => {
                 setSearchText(e.target.value);
               }}
               placeholder="Search..."
             />
-            <span>
+            <ResultCount>
               {results?.length === 0 ? selectedResult : selectedResult + 1}/
               {results?.length}
-            </span>
-            <Button
+            </ResultCount>
+            <IconButton
               onClick={selectPrevious}
               size="icon"
               variant="ghost"
-              className="size-7"
             >
-              <ArrowLeft className="size-4" />
-            </Button>
-            <Button
+              <ArrowIcon as={ArrowLeft} />
+            </IconButton>
+            <IconButton
               onClick={selectNext}
               size="icon"
-              className="size-7"
               variant="ghost"
             >
-              <ArrowRight className="size-4" />
-            </Button>
-            <Separator orientation="vertical" className="h-7 mx-0.5" />
-            <Button
+              <ArrowIcon as={ArrowRight} />
+            </IconButton>
+            <VerticalSeparator orientation="vertical" />
+            <IconButton
               onClick={() => {
                 setReplacing(true);
               }}
               size="icon"
-              className="size-7"
               variant="ghost"
             >
-              <Repeat className="size-4" />
-            </Button>
-            <Button
+              <ArrowIcon as={Repeat} />
+            </IconButton>
+            <IconButton
               onClick={() => {
                 setOpen(false);
               }}
               size="icon"
-              className="size-7"
               variant="ghost"
             >
-              <X className="size-4" />
-            </Button>
-          </div>
+              <ArrowIcon as={X} />
+            </IconButton>
+          </SearchContainer>
         ) : (
-          <div className={cn("relative w-full")}>
-            <X
+          <ReplaceContainer>
+            <CloseButton
               onClick={() => {
                 setOpen(false);
               }}
-              className="absolute right-3 top-3 size-4 cursor-pointer"
             />
-            <div className="flex w-full items-center gap-3">
-              <Button
+            <Header>
+              <BackButton
                 size="icon"
-                className="size-7 rounded-full"
                 variant="ghost"
                 onClick={() => {
                   setReplacing(false);
                 }}
               >
-                <ArrowLeft className="size-4" />
-              </Button>
-              <h2 className="text-sm font-medium">Search and replace</h2>
-            </div>
+                <ArrowIcon as={ArrowLeft} />
+              </BackButton>
+              <Title>Search and replace</Title>
+            </Header>
 
-            <div className="my-2 w-full">
-              <div className="mb-3">
-                <Label className="mb-1 text-xs text-gray-11">Search</Label>
+            <FormSection>
+              <InputGroup>
+                <InputLabel>Search</InputLabel>
                 <Input
                   value={searchText}
                   onChange={(e) => {
@@ -166,23 +286,22 @@ export function SearchAndReplaceToolbar() {
                   }}
                   placeholder="Search..."
                 />
-                {results?.length === 0 ? selectedResult : selectedResult + 1}/
-                {results?.length}
-              </div>
-              <div className="mb-2">
-                <Label className="mb-1 text-xs text-gray-11">
-                  Replace with
-                </Label>
+                <ResultCount>
+                  {results?.length === 0 ? selectedResult : selectedResult + 1}/
+                  {results?.length}
+                </ResultCount>
+              </InputGroup>
+              <InputGroup>
+                <InputLabel>Replace with</InputLabel>
                 <Input
-                  className="w-full"
                   value={replaceText}
                   onChange={(e) => {
                     setReplaceText(e.target.value);
                   }}
                   placeholder="Replace..."
                 />
-              </div>
-              <div className="mt-3 flex items-center space-x-2">
+              </InputGroup>
+              <CheckboxContainer>
                 <Checkbox
                   checked={checked}
                   onCheckedChange={(checked: boolean) => {
@@ -190,56 +309,47 @@ export function SearchAndReplaceToolbar() {
                   }}
                   id="match_case"
                 />
-                <Label
-                  htmlFor="match_case"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
+                <CheckboxLabel htmlFor="match_case">
                   Match case
-                </Label>
-              </div>
-            </div>
+                </CheckboxLabel>
+              </CheckboxContainer>
+            </FormSection>
 
-            <div className="actions mt-6 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Button
+            <ActionsContainer>
+              <NavigationButtons>
+                <IconButton
                   onClick={selectPrevious}
                   size="icon"
-                  className="h-7 w-7"
                   variant="secondary"
                 >
-                  <ArrowLeft className="size-4" />
-                </Button>
-                <Button
+                  <ArrowIcon as={ArrowLeft} />
+                </IconButton>
+                <IconButton
                   onClick={selectNext}
                   size="icon"
-                  className="h-7 w-7"
                   variant="secondary"
                 >
-                  <ArrowRight className="size-4" />
-                </Button>
-              </div>
+                  <ArrowIcon as={ArrowRight} />
+                </IconButton>
+              </NavigationButtons>
 
-              <div className="main-actions flex items-center gap-2">
-                <Button
-                  size="sm"
-                  className="h-7 px-3 text-xs"
+              <MainActions>
+                <ActionButton
                   variant="secondary"
                   onClick={replaceAll}
                 >
                   Replace All
-                </Button>
-                <Button
+                </ActionButton>
+                <ActionButton
                   onClick={replace}
-                  size="sm"
-                  className="h-7 px-3 text-xs"
                 >
                   Replace
-                </Button>
-              </div>
-            </div>
-          </div>
+                </ActionButton>
+              </MainActions>
+            </ActionsContainer>
+          </ReplaceContainer>
         )}
       </PopoverContent>
-    </Popover>
+    </Popover.Root>
   );
 }

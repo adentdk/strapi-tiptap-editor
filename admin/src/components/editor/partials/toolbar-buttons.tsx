@@ -1,5 +1,16 @@
 import { Fragment, memo, useMemo, lazy, Suspense } from "react";
 import { Separator } from "../../ui/separator";
+import styled from "styled-components";
+
+// Styled Components
+const FlexGap = styled.div`
+  flex: 1;
+  width: 100%;
+`;
+
+const StyledSeparator = styled(Separator)`
+  height: 32px;
+`;
 
 // Lazy imports for toolbars (tanpa next/dynamic)
 const toolbarsMap = {
@@ -119,14 +130,14 @@ const ToolbarButtons: React.FC<{ toolbars?: ToolbarButtonsType[] }> = memo(
         toolbars.map((toolbar) => {
           if (toolbar === "Separator") {
             return {
-              Component: Separator,
-              props: { orientation: "vertical", className: "h-8" },
+              Component: StyledSeparator,
+              props: { orientation: "vertical" },
             };
           }
 
           if (toolbar === "FlexGap") {
             return {
-              Component: () => <div className="flex-1 w-full" />,
+              Component: FlexGap,
               props: {},
             };
           }

@@ -1,10 +1,13 @@
 import { forwardRef } from "react";
-
 import { ItalicIcon } from "lucide-react";
-
 import { useEditorContext } from "../partials/editor-provider";
-
 import ToolbarButton, { ToolbarButtonProps } from "../partials/toolbar-button";
+import styled from "styled-components";
+
+const ItalicIconStyled = styled(ItalicIcon)`
+  width: 16px;
+  height: 16px;
+`;
 
 const ItalicToolbar = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
   ({ className, onClick, children, ...props }, ref) => {
@@ -22,7 +25,7 @@ const ItalicToolbar = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
         ref={ref}
         {...props}
       >
-        {children || <ItalicIcon className="size-4" />}
+        {children || <ItalicIconStyled />}
       </ToolbarButton>
     );
   },

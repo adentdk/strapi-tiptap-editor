@@ -1,10 +1,13 @@
 import { forwardRef } from "react";
-
 import { ListOrdered } from "lucide-react";
-
 import { useEditorContext } from "../partials/editor-provider";
-
 import ToolbarButton, { ToolbarButtonProps } from "../partials/toolbar-button";
+import styled from "styled-components";
+
+const ListOrderedIcon = styled(ListOrdered)`
+  width: 16px;
+  height: 16px;
+`;
 
 const OrderedListToolbar = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
   ({ className, onClick, children, ...props }, ref) => {
@@ -22,7 +25,7 @@ const OrderedListToolbar = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
         ref={ref}
         {...props}
       >
-        {children || <ListOrdered className="size-4" />}
+        {children || <ListOrderedIcon />}
       </ToolbarButton>
     );
   },

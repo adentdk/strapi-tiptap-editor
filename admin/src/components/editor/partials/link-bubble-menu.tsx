@@ -1,13 +1,12 @@
 import { useCallback, useState } from "react";
-
 import type { EditorState } from "@tiptap/pm/state";
 import type { EditorView } from "@tiptap/pm/view";
 import type { Editor } from "@tiptap/react";
 import { BubbleMenu } from "@tiptap/react";
-
 import { useEditorContext } from "./editor-provider";
 import LinkEditBlock from "./link-edit-block";
 import { LinkPopoverBlock } from "./link-popover-block";
+import styled from "styled-components";
 
 interface ShouldShowProps {
   editor: Editor;
@@ -24,6 +23,19 @@ interface LinkAttributes {
   href: string;
   target: string;
 }
+
+// Styled Components
+const LinkEditContainer = styled.div`
+  width: 100%;
+  min-width: 320px;
+  border-radius: 6px;
+  border: 1px solid ${props => props.theme.colors.neutral300};
+  background-color: ${props => props.theme.colors.neutral0};
+  color: ${props => props.theme.colors.neutral800};
+  padding: 16px;
+  box-shadow: ${props => props.theme.shadows.popupShadow};
+  outline: none;
+`;
 
 export const LinkBubbleMenu: React.FC<LinkBubbleMenuProps> = () => {
   const { editor } = useEditorContext();
@@ -106,13 +118,14 @@ export const LinkBubbleMenu: React.FC<LinkBubbleMenuProps> = () => {
       }}
     >
       {showEdit ? (
-        <LinkEditBlock
-          defaultUrl={linkAttrs.href}
-          defaultText={selectedText}
-          defaultIsNewTab={linkAttrs.target === "_blank"}
-          onSave={onSetLink}
-          className="w-full min-w-80 rounded-md border bg-popover p-4 text-popover-foreground shadow-md outline-none"
-        />
+        <LinkEditContainer>
+          <LinkEditBlock
+            defaultUrl={linkAttrs.href}
+            defaultText={selectedText}
+            defaultIsNewTab={linkAttrs.target === "_blank"}
+            onSave={onSetLink}
+          />
+        </LinkEditContainer>
       ) : (
         <LinkPopoverBlock
           onClear={onUnsetLink}

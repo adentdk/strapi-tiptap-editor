@@ -1,22 +1,58 @@
 import { useCallback, useState } from "react";
-
 import { Copy, ExternalLink, Unlink2 } from "lucide-react";
-
-import { Button } from "../../ui/button";
 import { Separator } from "../../ui/separator";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "../../ui/tooltip";
-
 import ToolbarButton from "./toolbar-button";
+import { Button } from "../../ui/button";
+import styled from "styled-components";
 
 interface LinkPopoverBlockProps {
   url: string;
   onClear: () => void;
   onEdit: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }
+
+// Styled Components
+const Container = styled.div`
+  display: flex;
+  height: 40px;
+  overflow: hidden;
+  border-radius: 6px;
+  background-color: ${props => props.theme.colors.neutral0};
+  padding: 8px;
+  box-shadow: ${props => props.theme.shadows.popupShadow};
+`;
+
+const ButtonGroup = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+`;
+
+const IconButton = styled(Button)`
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  &:hover {
+    background-color: ${props => props.theme.colors.neutral100};
+  }
+`;
+
+const StyledTooltipContent = styled(TooltipContent)`
+  background-color: ${props => props.theme.colors.neutral800};
+  color: ${props => props.theme.colors.neutral0};
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+`;
 
 export const LinkPopoverBlock: React.FC<LinkPopoverBlockProps> = ({
   url,
@@ -44,9 +80,9 @@ export const LinkPopoverBlock: React.FC<LinkPopoverBlockProps> = ({
   }, [url]);
 
   return (
-    <div className="flex h-10 overflow-hidden rounded bg-background p-2 shadow-lg">
-      <div className="inline-flex items-center gap-1">
-        <ToolbarButton tooltip="Edit link" className="w-auto" onClick={onEdit}>
+    <Container>
+      <ButtonGroup>
+        <ToolbarButton tooltip="Edit link" onClick={onEdit}>
           Edit link
         </ToolbarButton>
         <Separator orientation="vertical" />
@@ -55,35 +91,39 @@ export const LinkPopoverBlock: React.FC<LinkPopoverBlockProps> = ({
           tooltip="Open link in a new tab"
           onClick={handleOpenLink}
         >
-          <ExternalLink className="size-4" />
+          <ExternalLink width={16} height={16} />
         </ToolbarButton>
+        
         <Separator orientation="vertical" />
+        
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button onClick={onClear}>
-              <Unlink2 className="size-4" />
-            </Button>
+            <IconButton onClick={onClear}>
+              <Unlink2 width={16} height={16} />
+            </IconButton>
           </TooltipTrigger>
-          <TooltipContent>
+          <StyledTooltipContent>
             <span>Clear link</span>
-          </TooltipContent>
+          </StyledTooltipContent>
         </Tooltip>
+        
         <Separator orientation="vertical" />
+        
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button onClick={handleCopy}>
-              <Copy className="size-4" />
-            </Button>
+            <IconButton onClick={handleCopy}>
+              <Copy width={16} height={16} />
+            </IconButton>
           </TooltipTrigger>
-          <TooltipContent
+          <StyledTooltipContent
             onPointerDownOutside={(e) =>
               e.target === e.currentTarget && e.preventDefault()
             }
           >
             <span>{copyTitle}</span>
-          </TooltipContent>
+          </StyledTooltipContent>
         </Tooltip>
-      </div>
-    </div>
+      </ButtonGroup>
+    </Container>
   );
 };

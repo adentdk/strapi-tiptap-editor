@@ -1,34 +1,42 @@
 import { forwardRef } from "react";
-
 import { Root as LabelPrimitiveRoot } from "@radix-ui/react-label";
-import { cva, type VariantProps } from "class-variance-authority";
+import styled from "styled-components";
 
-import { cn } from "../../utils/utils";
+const StyledLabel = styled(LabelPrimitiveRoot)`
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  
+  &.peer-disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+`;
 
-const labelVariants = cva(
-  "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
-);
+const MandatorySpan = styled.span`
+  color: ${props => props.theme.colors.danger500};
+`;
+
+const OptionalSpan = styled.span`
+  color: ${props => props.theme.colors.neutral500};
+`;
+
+interface LabelProps extends React.ComponentPropsWithoutRef<typeof LabelPrimitiveRoot> {
+  mandatory?: boolean;
+  optional?: boolean;
+}
 
 const Label = forwardRef<
   React.ElementRef<typeof LabelPrimitiveRoot>,
-  React.ComponentPropsWithoutRef<typeof LabelPrimitiveRoot> &
-    VariantProps<typeof labelVariants> & {
-      mandatory?: boolean;
-      optional?: boolean;
-    }
->(({ className, children, mandatory, ...props }, ref) => (
-  <LabelPrimitiveRoot
-    ref={ref}
-    className={cn(labelVariants(), className)}
-    {...props}
-  >
+  LabelProps
+>(({ children, mandatory, optional, ...props }, ref) => (
+  <StyledLabel ref={ref} {...props}>
     {children}
-    {mandatory ? <span className="text-destructive">&nbsp;*</span> : null}
-    {props.optional ? (
-      <span className="text-muted-foreground">&nbsp;(opsional)</span>
-    ) : null}
-  </LabelPrimitiveRoot>
+    {mandatory ? <MandatorySpan>&nbsp;*</MandatorySpan> : null}
+    {optional ? <OptionalSpan>&nbsp;(opsional)</OptionalSpan> : null}
+  </StyledLabel>
 ));
+
 Label.displayName = LabelPrimitiveRoot.displayName;
 
 export { Label };

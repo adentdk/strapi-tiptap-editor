@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-
 import { NodeViewProps } from "@tiptap/core";
 import Image from "@tiptap/extension-image";
 import { NodeViewContent, NodeViewWrapper } from "@tiptap/react";
@@ -13,8 +12,6 @@ import {
   MoreVertical,
   Trash,
 } from "lucide-react";
-import { Button } from "../../ui/button";
-
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,8 +20,9 @@ import {
   DropdownMenuTrigger,
 } from "../../ui/dropdown-menu";
 import { Separator } from "../../ui/separator";
-import { cn } from "../../../utils/utils"
 import { duplicateContent } from "../utils";
+import { Button } from "../../ui/button";
+import styled from "styled-components";
 
 export const ImageExtension = Image.extend({
   addAttributes() {
@@ -55,17 +53,187 @@ export const ImageExtension = Image.extend({
   },
 });
 
+// Styled Components
+const ImageWrapper = styled(NodeViewWrapper)<{ 
+  $selected?: boolean; 
+  $align?: string;
+  $width?: string;
+}>`
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-radius: 6px;
+  border: 2px solid transparent;
+  width: ${props => props.$width || "90%"};
+  
+  ${props => props.$selected && `
+    border-color: ${props.theme.colors.primary500};
+  `}
+  
+  ${props => props.$align === "left" && `
+    left: 0;
+    transform: translateX(0);
+  `}
+  
+  ${props => props.$align === "center" && `
+    left: 50%;
+    transform: translateX(-50%);
+  `}
+  
+  ${props => props.$align === "right" && `
+    left: 100%;
+    transform: translateX(-100%);
+  `}
+`;
+
+const ImageContainer = styled.div<{ $resizing?: boolean }>`
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-radius: 6px;
+  group: hover;
+`;
+
+const StyledImage = styled.img`
+  display: block;
+  max-width: 100%;
+  height: auto;
+`;
+
+const AltTextBadge = styled.span`
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  max-width: calc(100% - 20px);
+  padding: 4px 8px;
+  border: 1px solid ${props => props.theme.colors.neutral300};
+  background-color: ${props => props.theme.colors.neutral0}CC;
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  overflow: hidden;
+`;
+
+const AltTextStatus = styled.span`
+  flex: none;
+  font-size: 16px;
+  font-weight: bold;
+`;
+
+const AltTextContent = styled.span`
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+const AltTextButton = styled.button`
+  flex: none;
+  border: 0;
+  padding: 0;
+  background-color: transparent;
+  appearance: none;
+  text-decoration: underline;
+  color: ${props => props.theme.colors.primary500};
+  cursor: pointer;
+  
+  &:hover {
+    color: ${props => props.theme.colors.primary600};
+  }
+`;
+
+const ResizeHandle = styled.div<{ $position: "left" | "right" }>`
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 20;
+  width: 25px;
+  display: flex;
+  cursor: col-resize;
+  align-items: center;
+  justify-content: ${props => props.$position === "left" ? "flex-start" : "flex-end"};
+  padding: 8px;
+  
+  ${props => props.$position === "left" ? "left: 0;" : "right: 0;"}
+`;
+
+const ResizeHandleBar = styled.div`
+  z-index: 20;
+  height: 70px;
+  width: 4px;
+  border-radius: 8px;
+  border: 1px solid ${props => props.theme.colors.neutral800};
+  background-color: ${props => props.theme.colors.neutral800}99;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+  
+  ${ResizeHandle}:hover & {
+    opacity: 1;
+  }
+`;
+
+const Toolbar = styled.div<{ $resizing?: boolean; $openedMore?: boolean }>`
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 6px;
+  border: 1px solid ${props => props.theme.colors.neutral300};
+  background-color: ${props => props.theme.colors.neutral0};
+  padding: 4px;
+  opacity: ${props => props.$openedMore ? 1 : 0};
+  transition: opacity 0.2s ease-in-out;
+  
+  &:hover {
+    opacity: 1;
+  }
+`;
+
+const ToolbarButton = styled(Button)<{ $active?: boolean }>`
+  width: 28px;
+  height: 28px;
+  
+  ${props => props.$active && `
+    background-color: ${props.theme.colors.neutral100};
+  `}
+`;
+
+const StyledDropdownMenuContent = styled(DropdownMenuContent)`
+  margin-top: 4px;
+  font-size: 14px;
+`;
+
+const DropdownMenuItemStyled = styled(DropdownMenuItem)`
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  
+  &.destructive {
+    color: ${props => props.theme.colors.danger500};
+    
+    &:focus {
+      color: ${props => props.theme.colors.danger500};
+    }
+  }
+`;
+
+const Icon = styled.div`
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+`;
+
 export function TiptapImageComponent(props: NodeViewProps) {
   const { node, editor, selected, deleteNode, updateAttributes } = props;
   const imageRef = useRef<HTMLImageElement | null>(null);
   const nodeRef = useRef<HTMLDivElement | null>(null);
   const [resizing, setResizing] = useState(false);
-  const [resizingPosition, setResizingPosition] = useState<"left" | "right">(
-    "left",
-  );
+  const [resizingPosition, setResizingPosition] = useState<"left" | "right">("left");
   const [resizeInitialWidth, setResizeInitialWidth] = useState(0);
   const [resizeInitialMouseX, setResizeInitialMouseX] = useState(0);
-
   const [openedMore, setOpenedMore] = useState(false);
 
   function handleResizingPosition({
@@ -81,9 +249,7 @@ export function TiptapImageComponent(props: NodeViewProps) {
 
   function startResize(event: React.MouseEvent<HTMLDivElement>) {
     event.preventDefault();
-
     setResizing(true);
-
     setResizeInitialMouseX(event.clientX);
     if (imageRef.current) {
       setResizeInitialWidth(imageRef.current.offsetWidth);
@@ -100,8 +266,8 @@ export function TiptapImageComponent(props: NodeViewProps) {
       dx = resizeInitialMouseX - event.clientX;
     }
 
-    const newWidth = Math.max(resizeInitialWidth + dx, 150); // Minimum width: 150
-    const parentWidth = nodeRef.current?.parentElement?.offsetWidth || 0; // Get the parent element's width
+    const newWidth = Math.max(resizeInitialWidth + dx, 150);
+    const parentWidth = nodeRef.current?.parentElement?.offsetWidth || 0;
 
     if (newWidth < parentWidth) {
       updateAttributes({
@@ -121,10 +287,8 @@ export function TiptapImageComponent(props: NodeViewProps) {
     position: "left" | "right",
   ) {
     event.preventDefault();
-
     setResizing(true);
     setResizingPosition(position);
-
     setResizeInitialMouseX(event.touches[0].clientX);
     if (imageRef.current) {
       setResizeInitialWidth(imageRef.current.offsetWidth);
@@ -157,21 +321,18 @@ export function TiptapImageComponent(props: NodeViewProps) {
     setResizeInitialWidth(0);
   }
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
-    // Mouse events
     window.addEventListener("mousemove", resize);
     window.addEventListener("mouseup", endResize);
-    // Touch events
     window.addEventListener("touchmove", handleTouchMove);
     window.addEventListener("touchend", handleTouchEnd);
+    
     return () => {
       window.removeEventListener("mousemove", resize);
       window.removeEventListener("mouseup", endResize);
       window.removeEventListener("touchmove", handleTouchMove);
       window.removeEventListener("touchend", handleTouchEnd);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resizing, resizeInitialMouseX, resizeInitialWidth]);
 
   const { alt } = node.attrs;
@@ -182,88 +343,59 @@ export function TiptapImageComponent(props: NodeViewProps) {
   };
 
   return (
-    <NodeViewWrapper
+    <ImageWrapper
       ref={nodeRef}
-      className={cn(
-        "relative flex flex-col rounded-md border-2 border-transparent",
-        selected ? "border-blue-300" : "",
-        node.attrs.align === "left" && "left-0 -translate-x-0",
-        node.attrs.align === "center" && "left-1/2 -translate-x-1/2",
-        node.attrs.align === "right" && "left-full -translate-x-full",
-      )}
-      style={{ width: node.attrs.width }}
+      $selected={selected}
+      $align={node.attrs.align}
+      $width={node.attrs.width}
     >
-      <div
-        className={cn(
-          "group relative flex flex-col rounded-md",
-          resizing && "",
-        )}
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+      <ImageContainer $resizing={resizing}>
+        <StyledImage
           ref={imageRef}
           src={node.attrs.src}
           alt={alt}
           title={node.attrs.title}
         />
-        <span className="text-xs absolute bottom-3 left-3 max-w-[calc(100%-20px)] px-2 border border-border bg-background/80 inline-flex items-center overflow-hidden gap-1">
-          <span className="flex-none text-xl font-bold">
-            {alt ? (
-              <span className="text-safe">✔</span>
-            ) : (
-              <span className="text-destructive">!</span>
-            )}
-          </span>
-          <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
+        <AltTextBadge>
+          <AltTextStatus style={{ 
+            color: alt ? "green" : "red" 
+          }}>
+            {alt ? "✔" : "!"}
+          </AltTextStatus>
+          <AltTextContent>
             {alt ? `Alt text: "${alt}"` : `Alt text missing.`}
-          </span>
-          <button
-            className="flex-none border-0 p-0 bg-transparent appearance-none underline"
-            type="button"
-            onClick={onEditAlt}
-          >
+          </AltTextContent>
+          <AltTextButton type="button" onClick={onEditAlt}>
             Edit
-          </button>
-        </span>
-        <NodeViewContent as="div" className="text-center">
+          </AltTextButton>
+        </AltTextBadge>
+        <NodeViewContent as="div" style={{ textAlign: "center" }}>
           {node.attrs.title}
         </NodeViewContent>
 
         {editor?.isEditable && (
           <>
-            <div
-              className="absolute inset-y-0 z-20 flex w-[25px] cursor-col-resize items-center justify-start p-2"
-              style={{ left: 0 }}
+            <ResizeHandle 
+              $position="left"
               onMouseDown={(event) => {
                 handleResizingPosition({ e: event, position: "left" });
               }}
               onTouchStart={(event) => handleTouchStart(event, "left")}
             >
-              <div className="z-20 h-[70px] w-1 rounded-xl border bg-[rgba(0,0,0,0.65)] opacity-0 transition-all group-hover:opacity-100" />
-            </div>
-            <div
-              className="absolute inset-y-0 z-20 flex w-[25px] cursor-col-resize items-center justify-end p-2"
-              style={{ right: 0 }}
+              <ResizeHandleBar />
+            </ResizeHandle>
+            <ResizeHandle 
+              $position="right"
               onMouseDown={(event) => {
                 handleResizingPosition({ e: event, position: "right" });
               }}
               onTouchStart={(event) => handleTouchStart(event, "right")}
             >
-              <div className="z-20 h-[70px] w-1 rounded-xl border bg-[rgba(0,0,0,0.65)] opacity-0 transition-all group-hover:opacity-100" />
-            </div>
-            <div
-              className={cn(
-                "absolute right-4 top-4 flex items-center gap-1 rounded-md border bg-background p-1 opacity-0 transition-opacity",
-                !resizing && "group-hover:opacity-100",
-                openedMore && "opacity-100",
-              )}
-            >
-              <Button
-                size="icon"
-                className={cn(
-                  "size-7",
-                  node.attrs.align === "left" && "bg-accent",
-                )}
+              <ResizeHandleBar />
+            </ResizeHandle>
+            <Toolbar $resizing={resizing} $openedMore={openedMore}>
+              <ToolbarButton
+                $active={node.attrs.align === "left"}
                 variant="ghost"
                 onClick={() => {
                   updateAttributes({
@@ -271,14 +403,10 @@ export function TiptapImageComponent(props: NodeViewProps) {
                   });
                 }}
               >
-                <AlignLeft className="size-4" />
-              </Button>
-              <Button
-                size="icon"
-                className={cn(
-                  "size-7",
-                  node.attrs.align === "center" && "bg-accent",
-                )}
+                <AlignLeft width={16} height={16} />
+              </ToolbarButton>
+              <ToolbarButton
+                $active={node.attrs.align === "center"}
                 variant="ghost"
                 onClick={() => {
                   updateAttributes({
@@ -286,14 +414,10 @@ export function TiptapImageComponent(props: NodeViewProps) {
                   });
                 }}
               >
-                <AlignCenter className="size-4" />
-              </Button>
-              <Button
-                size="icon"
-                className={cn(
-                  "size-7",
-                  node.attrs.align === "right" && "bg-accent",
-                )}
+                <AlignCenter width={16} height={16} />
+              </ToolbarButton>
+              <ToolbarButton
+                $active={node.attrs.align === "right"}
                 variant="ghost"
                 onClick={() => {
                   updateAttributes({
@@ -301,9 +425,9 @@ export function TiptapImageComponent(props: NodeViewProps) {
                   });
                 }}
               >
-                <AlignRight className="size-4" />
-              </Button>
-              <Separator orientation="vertical" className="h-[20px]" />
+                <AlignRight width={16} height={16} />
+              </ToolbarButton>
+              <Separator orientation="vertical" style={{ height: "20px" }} />
               <DropdownMenu
                 open={openedMore}
                 onOpenChange={(val) => {
@@ -311,46 +435,45 @@ export function TiptapImageComponent(props: NodeViewProps) {
                 }}
               >
                 <DropdownMenuTrigger asChild>
-                  <Button size="icon" className="size-7" variant="ghost">
-                    <MoreVertical className="size-4" />
-                  </Button>
+                  <ToolbarButton variant="ghost">
+                    <MoreVertical width={16} height={16} />
+                  </ToolbarButton>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  align="start"
-                  alignOffset={-90}
-                  className="mt-1 text-sm"
-                >
-                  <DropdownMenuItem
+                <StyledDropdownMenuContent align="start" alignOffset={-90}>
+                  <DropdownMenuItemStyled
                     onClick={() => {
                       duplicateContent(editor);
                     }}
                   >
-                    <Copy className="mr-2 size-4" /> Duplicate
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
+                    <Icon><Copy width={16} height={16} /></Icon>
+                    Duplicate
+                  </DropdownMenuItemStyled>
+                  <DropdownMenuItemStyled
                     onClick={() => {
                       updateAttributes({
                         width: "fit-content",
                       });
                     }}
                   >
-                    <Maximize className="mr-2 size-4" /> Full Screen
-                  </DropdownMenuItem>
+                    <Icon><Maximize width={16} height={16} /></Icon>
+                    Full Screen
+                  </DropdownMenuItemStyled>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    className="text-destructive focus:text-destructive"
+                  <DropdownMenuItemStyled
+                    className="destructive"
                     onClick={() => {
                       deleteNode();
                     }}
                   >
-                    <Trash className="mr-2 size-4" /> Delete Image
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
+                    <Icon><Trash width={16} height={16} /></Icon>
+                    Delete Image
+                  </DropdownMenuItemStyled>
+                </StyledDropdownMenuContent>
               </DropdownMenu>
-            </div>
+            </Toolbar>
           </>
         )}
-      </div>
-    </NodeViewWrapper>
+      </ImageContainer>
+    </ImageWrapper>
   );
 }

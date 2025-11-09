@@ -1,16 +1,20 @@
 import { forwardRef, useCallback, useState } from "react";
-
 import { Link2 } from "lucide-react";
-
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "../../ui/popover";
-
 import { useEditorContext } from "../partials/editor-provider";
 import { LinkEditBlock } from "../partials/link-edit-block";
 import ToolbarButton, { ToolbarButtonProps } from "../partials/toolbar-button";
+import { Popover } from "@strapi/design-system";
+import styled from "styled-components";
+
+const LinkIcon = styled(Link2)`
+  width: 20px;
+  height: 20px;
+`;
+
+const PopoverContent = styled(Popover.Content)`
+  width: 100%;
+  min-width: 320px;
+`;
 
 const LinkToolbar = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
   ({ className, onClick, children, ...props }, ref) => {
@@ -48,8 +52,8 @@ const LinkToolbar = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
     );
 
     return (
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
+      <Popover.Root open={open} onOpenChange={setOpen}>
+        <Popover.Trigger>
           <ToolbarButton
             isActive={editor.isActive("link")}
             tooltip="Link"
@@ -57,13 +61,13 @@ const LinkToolbar = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
             disabled={editor.isActive("codeBlock")}
             {...props}
           >
-            <Link2 className="size-5" />
+            <LinkIcon />
           </ToolbarButton>
-        </PopoverTrigger>
-        <PopoverContent className="w-full min-w-80" align="end" side="bottom">
+        </Popover.Trigger>
+        <PopoverContent align="end" side="bottom">
           <LinkEditBlock onSave={onSetLink} defaultText={text} />
         </PopoverContent>
-      </Popover>
+      </Popover.Root>
     );
   },
 );

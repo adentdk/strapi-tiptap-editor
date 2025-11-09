@@ -1,57 +1,178 @@
 import { forwardRef } from "react";
-
 import { Slot } from "@radix-ui/react-slot";
-import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "../../utils/utils";
-
-const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
-  {
-    variants: {
-      variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
-        destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline:
-          "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
-        secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
-      },
-      size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-md px-3",
-        lg: "h-11 rounded-md px-8",
-        icon: "h-10 w-10",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-      size: "default",
-    },
-  },
-);
+import styled, { css } from "styled-components";
 
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   asChild?: boolean;
+  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
+  size?: "default" | "sm" | "lg" | "icon";
 }
 
+const StyledButton = styled.button<{
+  $variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
+  $size?: "default" | "sm" | "lg" | "icon";
+}>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  white-space: nowrap;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  
+  &:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 1px;
+    box-shadow: 0 0 0 1px var(--ring);
+  }
+  
+  &:disabled {
+    pointer-events: none;
+    opacity: 0.5;
+  }
+  
+  /* SVG styles */
+  & svg {
+    pointer-events: none;
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+
+  /* Variant styles */
+  ${props => {
+    switch (props.$variant) {
+      case "default":
+        return css`
+          background-color: var(--primary);
+          color: var(--primary-foreground);
+          &:hover:not(:disabled) {
+            background-color: var(--primary-hover);
+          }
+        `;
+      case "destructive":
+        return css`
+          background-color: var(--destructive);
+          color: var(--destructive-foreground);
+          &:hover:not(:disabled) {
+            background-color: var(--destructive-hover);
+          }
+        `;
+      case "outline":
+        return css`
+          border: 1px solid var(--border);
+          background-color: var(--background);
+          color: var(--foreground);
+          &:hover:not(:disabled) {
+            background-color: var(--accent);
+            color: var(--accent-foreground);
+          }
+        `;
+      case "secondary":
+        return css`
+          background-color: var(--secondary);
+          color: var(--secondary-foreground);
+          &:hover:not(:disabled) {
+            background-color: var(--secondary-hover);
+          }
+        `;
+      case "ghost":
+        return css`
+          background-color: transparent;
+          color: var(--foreground);
+          &:hover:not(:disabled) {
+            background-color: var(--accent);
+            color: var(--accent-foreground);
+          }
+        `;
+      case "link":
+        return css`
+          background-color: transparent;
+          color: var(--primary);
+          text-decoration: none;
+          text-underline-offset: 4px;
+          &:hover:not(:disabled) {
+            text-decoration: underline;
+          }
+        `;
+      default:
+        return css`
+          background-color: var(--primary);
+          color: var(--primary-foreground);
+          &:hover:not(:disabled) {
+            background-color: var(--primary-hover);
+          }
+        `;
+    }
+  }}
+
+  /* Size styles */
+  ${props => {
+    switch (props.$size) {
+      case "default":
+        return css`
+          height: 40px;
+          padding: 8px 16px;
+        `;
+      case "sm":
+        return css`
+          height: 36px;
+          border-radius: 6px;
+          padding: 0 12px;
+          font-size: 13px;
+        `;
+      case "lg":
+        return css`
+          height: 44px;
+          border-radius: 6px;
+          padding: 0 32px;
+          font-size: 15px;
+        `;
+      case "icon":
+        return css`
+          height: 40px;
+          width: 40px;
+          padding: 0;
+        `;
+      default:
+        return css`
+          height: 40px;
+          padding: 8px 16px;
+        `;
+    }
+  }}
+`;
+
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
-    const Comp = asChild ? Slot : "button";
+  ({ variant = "default", size = "default", asChild = false, ...props }, ref) => {
+    const Comp = asChild ? Slot : StyledButton;
+    
+    if (asChild) {
+      return (
+        <Comp
+          ref={ref}
+          {...props}
+        />
+      );
+    }
+
     return (
       <Comp
-        type="button"
-        className={cn(buttonVariants({ variant, size, className }))}
+        $variant={variant}
+        $size={size}
         ref={ref}
         {...props}
       />
     );
-  },
+  }
 );
+
 Button.displayName = "Button";
 
-export { Button, buttonVariants };
+export { Button };

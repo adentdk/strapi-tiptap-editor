@@ -2,10 +2,17 @@ import { forwardRef } from "react";
 
 import { Undo2 } from "lucide-react";
 
+
+
 import { useEditorContext } from "../partials/editor-provider";
 
 import ToolbarButton, { ToolbarButtonProps } from "../partials/toolbar-button";
+import styled from "styled-components";
 
+const UndoIcon = styled(Undo2)`
+  width: 16px;
+  height: 16px;
+`;
 const UndoToolbar = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
   ({ className, onClick, children, ...props }, ref) => {
     const { editor } = useEditorContext();
@@ -22,7 +29,7 @@ const UndoToolbar = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
         ref={ref}
         {...props}
       >
-        {children || <Undo2 className="size-4" />}
+        {children || <UndoIcon />}
       </ToolbarButton>
     );
   },

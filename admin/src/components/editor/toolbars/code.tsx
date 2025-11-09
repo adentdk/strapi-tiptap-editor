@@ -1,10 +1,14 @@
 import { forwardRef } from "react";
-
 import { Code2 } from "lucide-react";
-
 import { useEditorContext } from "../partials/editor-provider";
-
 import ToolbarButton, { ToolbarButtonProps } from "../partials/toolbar-button";
+import styled from "styled-components";
+
+// Styled Components
+const CodeIcon = styled(Code2)`
+  width: 16px;
+  height: 16px;
+`;
 
 const CodeToolbar = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
   ({ className, onClick, children, ...props }, ref) => {
@@ -22,7 +26,7 @@ const CodeToolbar = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
         ref={ref}
         {...props}
       >
-        {children || <Code2 className="size-4" />}
+        {children || <CodeIcon />}
       </ToolbarButton>
     );
   },

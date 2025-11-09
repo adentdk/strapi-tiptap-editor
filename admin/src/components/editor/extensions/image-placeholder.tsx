@@ -1,5 +1,4 @@
 import { useState } from "react";
-
 import type { NodeViewProps } from "@tiptap/core";
 import {
   type CommandProps,
@@ -10,17 +9,11 @@ import {
   ReactNodeViewRenderer,
 } from "@tiptap/react";
 import { LucideImage, LucideLink, Upload } from "lucide-react";
-
-import { Button } from "../../ui/button";
 import { Input } from "../../ui/input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "../../ui/popover";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../ui/tabs";
-import { cn } from "../../../utils/utils";
 import { isValidUrl, NODE_HANDLES_SELECTED_STYLE_CLASSNAME } from "../utils";
+import { Popover, Tabs } from "@strapi/design-system";
+import { Button } from "../../ui/button";
+import styled from "styled-components";
 
 export interface ImagePlaceholderOptions {
   HTMLAttributes: Record<string, any>;
@@ -42,6 +35,110 @@ declare module "@tiptap/core" {
     };
   }
 }
+
+// Styled Components
+const TriggerContainer = styled.div<{ $selected?: boolean }>`
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  gap: 12px;
+  border-radius: 6px;
+  background-color: ${props => props.theme.colors.neutral100};
+  padding: 8px 12px;
+  font-size: 14px;
+  color: ${props => props.theme.colors.neutral700};
+  transition: background-color 0.2s ease-in-out;
+  
+  &:hover {
+    background-color: ${props => props.theme.colors.secondary500 || props.theme.colors.neutral200};
+  }
+  
+  ${props => props.$selected && `
+    background-color: ${props.theme.colors.primary500 + '1A'};
+    &:hover {
+      background-color: ${props.theme.colors.primary500 + '33'};
+    }
+  `}
+`;
+
+const DropZone = styled.div<{ $isDragActive?: boolean; $isDragReject?: boolean }>`
+  margin: 8px 0;
+  border-radius: 6px;
+  border: 1px dashed ${props => props.theme.colors.neutral300};
+  font-size: 14px;
+  transition: all 0.2s ease-in-out;
+  
+  &:hover {
+    background-color: ${props => props.theme.colors.secondary500 || props.theme.colors.neutral100};
+  }
+  
+  ${props => props.$isDragActive && `
+    border-color: ${props.theme.colors.primary500};
+    background-color: ${props.theme.colors.secondary500 || props.theme.colors.neutral100};
+  `}
+  
+  ${props => props.$isDragReject && `
+    border-color: ${props.theme.colors.danger500};
+    background-color: ${props.theme.colors.danger500 + '1A'};
+  `}
+`;
+
+const DropZoneLabel = styled.label`
+  display: flex;
+  height: 112px;
+  width: 100%;
+  cursor: pointer;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+`;
+
+const ErrorText = styled.p`
+  padding: 6px 0;
+  font-size: 12px;
+  color: ${props => props.theme.colors.danger500};
+`;
+
+const InfoText = styled.p`
+  text-align: center;
+  font-size: 12px;
+  color: ${props => props.theme.colors.neutral600};
+`;
+
+const Icon = styled.div`
+  &.image-icon {
+    width: 24px;
+    height: 24px;
+  }
+  
+  &.upload-icon {
+    width: 16px;
+    height: 16px;
+    margin-bottom: 8px;
+  }
+  
+  &.link-icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+  }
+`;
+
+const TabTrigger = styled(Tabs.Trigger)`
+  padding: 4px 8px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+`;
+
+const StyledButton = styled(Button)`
+  margin: 8px 0;
+  height: 32px;
+  width: 100%;
+  padding: 8px;
+  font-size: 12px;
+`;
 
 export const ImagePlaceholder = Node.create<ImagePlaceholderOptions>({
   name: "image-placeholder",
@@ -183,27 +280,23 @@ export function ImagePlaceholderComponent(props: NodeViewProps) {
   };
 
   return (
-    <NodeViewWrapper className="w-full">
-      <Popover modal open={open}>
-        <PopoverTrigger
+    <NodeViewWrapper style={{ width: "100%" }}>
+      <Popover.Root modal open={open}>
+        <Popover.Trigger
           onClick={() => {
             setOpen(true);
           }}
-          asChild
-          className="w-full"
+          style={{ width: "100%" }}
         >
-          <div
-            className={cn(
-              "flex cursor-pointer items-center gap-3 rounded-md bg-accent p-2 py-3 text-sm text-accent-foreground transition-colors hover:bg-secondary",
-              selected && "bg-primary/10 hover:bg-primary/20",
-            )}
-          >
-            <LucideImage className="h-6 w-6" />
+          <TriggerContainer $selected={selected}>
+            <Icon className="image-icon">
+              <LucideImage width={24} height={24} />
+            </Icon>
             Add an image
-          </div>
-        </PopoverTrigger>
-        <PopoverContent
-          className="w-[450px] px-0 py-2"
+          </TriggerContainer>
+        </Popover.Trigger>
+        <Popover.Content
+          style={{ width: "450px", padding: "8px 0" }}
           onPointerDownOutside={() => {
             setOpen(false);
           }}
@@ -211,30 +304,30 @@ export function ImagePlaceholderComponent(props: NodeViewProps) {
             setOpen(false);
           }}
         >
-          <Tabs defaultValue="upload" className="px-3">
-            <TabsList>
-              <TabsTrigger className="px-2 py-1 text-sm" value="upload">
-                <Upload className="mr-2 size-4" />
+          <Tabs.Root defaultValue="upload" style={{ padding: "0 12px" }}>
+            <Tabs.List>
+              <TabTrigger value="upload">
+                <Icon className="upload-icon">
+                  <Upload width={16} height={16} />
+                </Icon>
                 Upload
-              </TabsTrigger>
-              <TabsTrigger className="px-2 py-1 text-sm" value="url">
-                <LucideLink className="mr-2 size-4" />
+              </TabTrigger>
+              <TabTrigger value="url">
+                <Icon className="link-icon">
+                  <LucideLink width={16} height={16} />
+                </Icon>
                 Embed link
-              </TabsTrigger>
-            </TabsList>
+              </TabTrigger>
+            </Tabs.List>
 
-            <TabsContent value="upload">
-              <div
+            <Tabs.Content value="upload">
+              <DropZone
+                $isDragActive={isDragActive}
+                $isDragReject={isDragReject}
                 onDragEnter={handleDragEnter}
                 onDragLeave={handleDragLeave}
                 onDragOver={handleDragOver}
                 onDrop={handleDrop}
-                className={cn(
-                  "my-2 rounded-md border border-dashed text-sm transition-colors",
-                  isDragActive && "border-primary bg-secondary",
-                  isDragReject && "border-destructive bg-destructive/10",
-                  "hover:bg-secondary",
-                )}
               >
                 <input
                   type="file"
@@ -243,19 +336,18 @@ export function ImagePlaceholderComponent(props: NodeViewProps) {
                   ).join(",")}
                   multiple={extension.options.maxFiles !== 1}
                   onChange={handleFileInputChange}
-                  className="hidden"
+                  style={{ display: "none" }}
                   id="file-input"
                 />
-                <label
-                  htmlFor="file-input"
-                  className="flex h-28 w-full cursor-pointer flex-col items-center justify-center text-center"
-                >
-                  <Upload className="mx-auto mb-2 h-6 w-6" />
+                <DropZoneLabel htmlFor="file-input">
+                  <Icon className="upload-icon">
+                    <Upload width={24} height={24} />
+                  </Icon>
                   Drag & drop or click to upload
-                </label>
-              </div>
-            </TabsContent>
-            <TabsContent value="url">
+                </DropZoneLabel>
+              </DropZone>
+            </Tabs.Content>
+            <Tabs.Content value="url">
               <form onSubmit={handleInsertEmbed}>
                 <Input
                   value={url}
@@ -268,26 +360,25 @@ export function ImagePlaceholderComponent(props: NodeViewProps) {
                   placeholder="Paste the image link..."
                 />
                 {urlError && (
-                  <p className="py-1.5 text-xs text-danger-11">
+                  <ErrorText>
                     Please enter a valid URL
-                  </p>
+                  </ErrorText>
                 )}
-                <Button
+                <StyledButton
                   onClick={handleInsertEmbed}
                   type="button"
                   size="sm"
-                  className="my-2 h-8 w-full p-2 text-xs"
                 >
                   Embed Image
-                </Button>
-                <p className="text-center text-xs text-gray-11">
+                </StyledButton>
+                <InfoText>
                   Works with any image from the web
-                </p>
+                </InfoText>
               </form>
-            </TabsContent>
-          </Tabs>
-        </PopoverContent>
-      </Popover>
+            </Tabs.Content>
+          </Tabs.Root>
+        </Popover.Content>
+      </Popover.Root>
     </NodeViewWrapper>
   );
 }

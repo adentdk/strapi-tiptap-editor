@@ -1,10 +1,8 @@
 import { useMemo } from "react";
-
 import type { Extension } from "@tiptap/core";
 import { HeadingOptions } from "@tiptap/extension-heading";
 import { ParagraphOptions } from "@tiptap/extension-paragraph";
 import { Check, ChevronDown } from "lucide-react";
-
 import { Button } from "../../ui/button";
 import {
   DropdownMenu,
@@ -13,11 +11,51 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../../ui/dropdown-menu";
-
 import { useEditorContext } from "../partials/editor-provider";
 import ToolbarButton from "../partials/toolbar-button";
+import styled from "styled-components";
 
 type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
+
+// Styled Components
+const TriggerButton = styled(Button)`
+  height: 32px;
+  width: auto;
+  font-weight: 400;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+`;
+
+const ChevronIcon = styled(ChevronDown)`
+  width: 16px;
+  height: 16px;
+  margin-left: 8px;
+`;
+
+const DropdownMenuItemStyled = styled(DropdownMenuItem)`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  font-size: 14px;
+  
+  &:hover {
+    background-color: ${props => props.theme.colors.neutral100};
+  }
+  
+  &:focus {
+    background-color: ${props => props.theme.colors.neutral100};
+  }
+`;
+
+const CheckIcon = styled(Check)`
+  width: 16px;
+  height: 16px;
+  margin-left: auto;
+  color: ${props => props.theme.colors.primary500};
+`;
 
 export const HeadingTooolbar = () => {
   const { editor } = useEditorContext();
@@ -62,10 +100,10 @@ export const HeadingTooolbar = () => {
   const isDisabled =
     items.filter((k: any) => k.disabled).length === items.length;
 
+  const activeItem = items.find((k: any) => k.isActive());
+
   return (
     <DropdownMenu>
-      {/* <Tooltip>
-        <TooltipTrigger asChild> */}
       <DropdownMenuTrigger disabled={isDisabled} asChild>
         <ToolbarButton
           tooltip="Text Heading"
@@ -73,15 +111,12 @@ export const HeadingTooolbar = () => {
           disabled={isDisabled}
           asChild
         >
-          <Button variant="ghost" size="sm" className="h-8 w-max font-normal">
-            {items.find((k: any) => k.isActive())?.title}
-            <ChevronDown className="ml-2 h-4 w-4" />
-          </Button>
+          <TriggerButton variant="ghost" size="sm">
+            {activeItem?.title || "Paragraph"}
+            <ChevronIcon />
+          </TriggerButton>
         </ToolbarButton>
       </DropdownMenuTrigger>
-      {/* </TooltipTrigger>
-        <TooltipContent>Text Heading</TooltipContent>
-      </Tooltip> */}
       <DropdownMenuContent
         loop
         onCloseAutoFocus={(e) => {
@@ -90,16 +125,15 @@ export const HeadingTooolbar = () => {
       >
         <DropdownMenuGroup>
           {items.map((option, index) => (
-            <DropdownMenuItem
+            <DropdownMenuItemStyled
               onSelect={() => {
                 option.action();
               }}
               key={index}
             >
               {option.title}
-
-              {option.isActive() && <Check className="ml-auto h-4 w-4" />}
-            </DropdownMenuItem>
+              {option.isActive() && <CheckIcon />}
+            </DropdownMenuItemStyled>
           ))}
         </DropdownMenuGroup>
       </DropdownMenuContent>

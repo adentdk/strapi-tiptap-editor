@@ -5,12 +5,11 @@ import {
   useRef,
   useState,
 } from "react";
-
 import { Button } from "../../ui/button";
 import { Input } from "../../ui/input";
 import { Label } from "../../ui/label";
-import { Switch } from "../../ui/switch";
-import { cn } from "../../../utils/utils";
+import { Switch } from "@strapi/design-system";
+import styled from "styled-components";
 
 export interface LinkEditorProps extends React.HTMLAttributes<HTMLDivElement> {
   defaultUrl?: string;
@@ -19,8 +18,40 @@ export interface LinkEditorProps extends React.HTMLAttributes<HTMLDivElement> {
   onSave: (url: string, text?: string, isNewTab?: boolean) => void;
 }
 
+// Styled Components
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+`;
+
+const FormGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`;
+
+const SwitchContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const ButtonContainer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+`;
+
+const StyledLabel = styled(Label)`
+  font-size: 14px;
+  font-weight: 500;
+  color: ${props => props.theme.colors.neutral800};
+  margin-bottom: 4px;
+`;
+
 export const LinkEditBlock = forwardRef<HTMLDivElement, LinkEditorProps>(
-  ({ onSave, defaultIsNewTab, defaultUrl, defaultText, className }, ref) => {
+  ({ onSave, defaultIsNewTab, defaultUrl, defaultText, ...props }, ref) => {
     const formRef = useRef<HTMLDivElement>(null);
     const [url, setUrl] = useState(defaultUrl || "");
     const [text, setText] = useState(defaultText || "");
@@ -51,10 +82,10 @@ export const LinkEditBlock = forwardRef<HTMLDivElement, LinkEditorProps>(
     useImperativeHandle(ref, () => formRef.current as HTMLDivElement);
 
     return (
-      <div ref={formRef}>
-        <div className={cn("space-y-4", className)}>
-          <div className="space-y-1">
-            <Label>URL</Label>
+      <div ref={formRef} {...props}>
+        <Container>
+          <FormGroup>
+            <StyledLabel>URL</StyledLabel>
             <Input
               type="url"
               required
@@ -62,29 +93,32 @@ export const LinkEditBlock = forwardRef<HTMLDivElement, LinkEditorProps>(
               value={url}
               onChange={(e) => setUrl(e.target.value)}
             />
-          </div>
+          </FormGroup>
 
-          <div className="space-y-1">
-            <Label>Display Text (optional)</Label>
+          <FormGroup>
+            <StyledLabel>Display Text (optional)</StyledLabel>
             <Input
               type="text"
               placeholder="Enter display text"
               value={text}
               onChange={(e) => setText(e.target.value)}
             />
-          </div>
+          </FormGroup>
 
-          <div className="flex items-center space-x-2">
-            <Label>Open in New Tab</Label>
-            <Switch checked={isNewTab} onCheckedChange={setIsNewTab} />
-          </div>
+          <SwitchContainer>
+            <StyledLabel>Open in New Tab</StyledLabel>
+            <Switch 
+              checked={isNewTab} 
+              onCheckedChange={setIsNewTab} 
+            />
+          </SwitchContainer>
 
-          <div className="flex justify-end space-x-2">
+          <ButtonContainer>
             <Button type="button" onClick={handleSave}>
               Save
             </Button>
-          </div>
-        </div>
+          </ButtonContainer>
+        </Container>
       </div>
     );
   },

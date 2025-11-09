@@ -1,10 +1,14 @@
 import { forwardRef } from "react";
-
 import { LucideImage } from "lucide-react";
-
 import { useEditorContext } from "../partials/editor-provider";
-
 import ToolbarButton, { ToolbarButtonProps } from "../partials/toolbar-button";
+import styled from "styled-components";
+
+// Styled Components
+const ImageIcon = styled(LucideImage)`
+  width: 16px;
+  height: 16px;
+`;
 
 const ImagePlaceholderToolbar = forwardRef<
   HTMLButtonElement,
@@ -23,7 +27,7 @@ const ImagePlaceholderToolbar = forwardRef<
       ref={ref}
       {...props}
     >
-      {children || <LucideImage className="size-4" />}
+      {children || <ImageIcon />}
     </ToolbarButton>
   );
 });

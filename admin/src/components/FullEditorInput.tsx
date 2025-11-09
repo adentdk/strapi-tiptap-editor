@@ -2,62 +2,93 @@ import React from "react";
 import { useIntl } from "react-intl";
 import { FullEditor } from "./editor/full-editor";
 import type { Content } from "@tiptap/react";
-import { StrapiInputProps } from "src/types";
-import { Field, Flex } from '@strapi/design-system'
+import { TiptapJSONInputProps } from "src/types";
+import { Field, Flex } from '@strapi/design-system';
+import styled from "styled-components";
+
+const Container = styled(Flex)`
+  flex-direction: column;
+  gap: 4px;
+`;
+
+const RequiredIndicator = styled.span`
+  font-size: 12px;
+  color: ${props => props.theme.colors.neutral600};
+  margin-top: 4px;
+`;
+
+const EditorContainer = styled.div`
+  min-height: 300px;
+`;
 
 /**
  * Tiptap Editor custom field input (for Strapi v5)
  */
-const FullEditorInput = React.forwardRef<HTMLInputElement, StrapiInputProps>(
-  (props, ref) => {
-    const {
-      attribute,
-      disabled = false,
-      intlLabel,
+const FullEditorInput = React.forwardRef<{ focus: () => void }, TiptapJSONInputProps>(
+  (
+    {
       name,
-      onChange,
+      hint,
+      error,
+      placeholder,
+      label,
+      attribute,
+      labelAction = null,
+      disabled = false,
       required = false,
+      onChange,
       value,
-    } = props;
-
+    }: TiptapJSONInputProps,
+    forwardedRef
+  ) => {
     const { formatMessage } = useIntl();
+    
+    const handleEditorChange = (content: Content) => {
+      if (!onChange) return;
 
-    const content = value ?? null;
-
-    const handleEditorChange = (newValue: Content) => {
-      onChange({
+      // Construct a ChangeEvent-like object and cast it to satisfy the expected type
+      const evt = {
         target: {
           name,
-          type: attribute.type,
-          value: newValue,
+          value: content,
+          type: "json",
         },
-      });
+      } as unknown as React.ChangeEvent<any>;
+
+      onChange(evt);
     };
+
+    const isFieldLocalized = attribute?.pluginOptions?.i18n?.localized ?? false;
 
     return (
       <Field.Root
         name={name}
         id={name}
-      // GenericInput calls formatMessage and returns a string for the error
-      // error={error}
-      // hint={description && formatMessage(description)}
+        error={error}
+        hint={hint}
+        required={required}
       >
-        <Flex gap={1} alignItems="normal" style={{ 'flexDirection': 'column' }}>
-          <label className="mb-2 block font-medium text-sm text-gray-700">
-            {formatMessage(intlLabel)}
-          </label>
+        <Container>
+          <Field.Label action={labelAction}>
+            {label}
+          </Field.Label>
+          
+          <EditorContainer>
+            <FullEditor
+              value={value}
+              onChange={handleEditorChange}
+              disabled={disabled}
+              placeholder={placeholder}
+            />
+          </EditorContainer>
 
-          <FullEditor
-            value={content}
-            onChange={handleEditorChange}
-            disabled={disabled}
-            className="min-h-[300px]"
-          />
-
+          <Field.Hint />
+          <Field.Error />
+          
           {required && (
-            <span className="text-xs text-gray-500">* required</span>
+            <RequiredIndicator>* required</RequiredIndicator>
           )}
-        </Flex>
+        </Container>
       </Field.Root>
     );
   },
