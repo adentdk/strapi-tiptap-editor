@@ -6,14 +6,7 @@ import { PluginIcon } from './components/PluginIcon';
 import { EditIcon } from 'lucide-react';
 
 export default {
-  register(app: any) {
-    app.registerPlugin({
-      id: PLUGIN_ID,
-      initializer: Initializer,
-      isReady: false,
-      name: PLUGIN_ID,
-    });
-
+  async register(app: any) {
     app.customFields.register({
       name: "full-tiptap-editor",
       pluginId: PLUGIN_ID, // the custom field is created by a PLUGIN_ID plugin

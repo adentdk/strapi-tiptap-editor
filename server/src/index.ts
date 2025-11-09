@@ -1,30 +1,26 @@
-/**
- * Application methods
- */
-import bootstrap from './bootstrap';
-import destroy from './destroy';
-import register from './register';
-
-/**
- * Plugin server methods
- */
-import config from './config';
-import contentTypes from './content-types';
-import controllers from './controllers';
-import middlewares from './middlewares';
-import policies from './policies';
-import routes from './routes';
-import services from './services';
+import pluginPkg from '../../package.json';
+import { Core } from '@strapi/strapi';
 
 export default {
-  register,
-  bootstrap,
-  destroy,
-  config,
-  controllers,
-  routes,
-  services,
-  contentTypes,
-  policies,
-  middlewares,
-};
+  register: ({ strapi }: { strapi: Core.Strapi }) => {
+    strapi.customFields.register({
+      name: "full-tiptap-editor",
+      plugin: pluginPkg.strapi.name,
+      type: "json",
+      inputSize: {
+        default: 8,
+        isResizable: true,
+      },
+    });
+
+    strapi.customFields.register({
+      name: "simple-tiptap-editor",
+      plugin: pluginPkg.strapi.name,
+      type: "json",
+      inputSize: {
+        default: 8,
+        isResizable: true,
+      },
+    })
+  }
+}
