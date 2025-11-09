@@ -14,6 +14,7 @@ import { isValidUrl, NODE_HANDLES_SELECTED_STYLE_CLASSNAME } from "../utils";
 import { Popover, Tabs } from "@strapi/design-system";
 import { Button } from "../../ui/button";
 import { useStrapiApp } from "@strapi/strapi/admin";
+import { createPortal } from "react-dom";
 import styled from "styled-components";
 
 export interface ImagePlaceholderOptions {
@@ -95,11 +96,11 @@ const StyledButton = styled(Button)`
   font-size: 13px;
 `;
 
-// === MEDIA LIBRARY COMPONENT ===
-const MediaLib = memo(({ isOpen, onToggle, onSelect }: {
+// === MEDIA LIBRARY MODAL (FIXED) ===
+const MediaLib = memo(({ isOpen, onClose, onSelect }: {
   isOpen: boolean;
-  onToggle: () => void;
-  onSelect: (file: any) => void
+  onClose: () => void;
+  onSelect: (file: any) => void;
 }) => {
   const components = useStrapiApp('MediaLib', state => state.components);
   const MediaLibraryDialog = components['media-library'] as any;
@@ -119,16 +120,24 @@ const MediaLib = memo(({ isOpen, onToggle, onSelect }: {
     };
 
     onSelect(formattedFile);
-    onToggle();
-  }, [onSelect, onToggle]);
+    onClose();
+  }, [onSelect, onClose]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !MediaLibraryDialog) return null;
 
-  return <MediaLibraryDialog onClose={onToggle} onSelectAssets={handleSelectAssets} />;
+  // Render di ROOT dengan createPortal
+  return createPortal(
+    <MediaLibraryDialog
+      onClose={onClose}
+      onSelectAssets={handleSelectAssets}
+    />,
+    document.body
+  );
 });
 
 MediaLib.displayName = 'MediaLib';
 
+// === IMAGE PLACEHOLDER NODE ===
 export const ImagePlaceholder = Node.create<ImagePlaceholderOptions>({
   name: "image-placeholder",
 
@@ -166,6 +175,7 @@ export const ImagePlaceholder = Node.create<ImagePlaceholderOptions>({
   },
 });
 
+// === IMAGE PLACEHOLDER COMPONENT ===
 export function ImagePlaceholderComponent(props: NodeViewProps) {
   const { editor, selected } = props;
   const [open, setOpen] = useState(false);
@@ -173,28 +183,36 @@ export function ImagePlaceholderComponent(props: NodeViewProps) {
   const [urlError, setUrlError] = useState(false);
   const [mediaLibOpen, setMediaLibOpen] = useState(false);
 
-  // === MEDIA LIBRARY HANDLER ===
+  // === HANDLE MEDIA SELECT ===
   const handleMediaSelect = useCallback((file: any) => {
     if (!file) return;
 
-    const src = file.url;
-    const alt = file.alt || file.name;
+    let srcset = undefined;
+    if (file.formats) {
+      const sets = Object.keys(file.formats)
+        .sort((a, b) => file.formats[a].width - file.formats[b].width)
+        .map(k => {
+          const f = file.formats[k];
+          const url = f.url.startsWith('http') ? f.url : `${window.strapi?.backendURL}${f.url}`;
+          return `${url} ${f.width}w`;
+        });
+      srcset = sets.join(', ');
+    }
 
-    editor
-      .chain()
-      .focus()
-      .setImage({
-        src,
-        alt,
-        title: file.name,
-      })
-      .run();
+    editor.chain().focus().setImage({
+      src: file.url,
+      alt: file.alt,
+      title: file.name,
+      width: '90%',
+      align: 'center',
+      srcset,
+    } as any).run();
 
     setMediaLibOpen(false);
     setOpen(false);
   }, [editor]);
 
-  // === EMBED URL ===
+  // === HANDLE EMBED URL ===
   const handleInsertEmbed = (e: React.FormEvent) => {
     e.preventDefault();
     if (!isValidUrl(url)) {
@@ -202,7 +220,12 @@ export function ImagePlaceholderComponent(props: NodeViewProps) {
       return;
     }
 
-    editor.chain().focus().setImage({ src: url }).run();
+    editor.chain().focus().setImage({
+      src: url,
+      width: '90%',
+      align: 'center',
+    } as any).run();
+
     props.extension.options.onEmbed(url, editor);
     setOpen(false);
     setUrl("");
@@ -210,14 +233,14 @@ export function ImagePlaceholderComponent(props: NodeViewProps) {
 
   return (
     <NodeViewWrapper style={{ width: "100%" }}>
-      {/* Media Library Modal */}
+      {/* Media Library Modal - Render di ROOT */}
       <MediaLib
         isOpen={mediaLibOpen}
-        onToggle={() => setMediaLibOpen(false)}
+        onClose={() => setMediaLibOpen(false)}
         onSelect={handleMediaSelect}
       />
 
-      {/* Main Popover */}
+      {/* Main Trigger */}
       <Popover.Root modal open={open} onOpenChange={setOpen}>
         <Popover.Trigger>
           <div style={{ width: "100%" }}>
@@ -233,25 +256,22 @@ export function ImagePlaceholderComponent(props: NodeViewProps) {
         <Popover.Content style={{ width: "460px", padding: "12px" }}>
           <Tabs.Root defaultValue="media">
             <Tabs.List>
-              <TabTrigger value="media" onClick={() => setMediaLibOpen(true)}>
-                <Icon className="tab-icon">
-                  <Library width={16} height={16} />
-                </Icon>
+              <TabTrigger value="media">
+                <Icon className="tab-icon"><Library size={16} /></Icon>
                 Media Library
               </TabTrigger>
               <TabTrigger value="url">
-                <Icon className="tab-icon">
-                  <Link2 width={16} height={16} />
-                </Icon>
+                <Icon className="tab-icon"><Link2 size={16} /></Icon>
                 Embed Link
               </TabTrigger>
             </Tabs.List>
 
-            {/* ========== MEDIA LIBRARY TAB ========== */}
+            {/* Media Library Tab */}
             <Tabs.Content value="media" style={{ marginTop: 16, textAlign: 'center' }}>
               <Button
                 variant="secondary"
                 onClick={() => setMediaLibOpen(true)}
+                fullWidth
               >
                 <Library size={18} />
                 Open Media Library
@@ -261,7 +281,7 @@ export function ImagePlaceholderComponent(props: NodeViewProps) {
               </InfoText>
             </Tabs.Content>
 
-            {/* ========== EMBED LINK TAB ========== */}
+            {/* Embed URL Tab */}
             <Tabs.Content value="url" style={{ marginTop: 16 }}>
               <form onSubmit={handleInsertEmbed}>
                 <Input

@@ -7,11 +7,13 @@ export interface ButtonProps
   asChild?: boolean;
   variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
   size?: "default" | "sm" | "lg" | "icon";
+  fullWidth?: boolean; // ✅ tambahan prop baru
 }
 
 const StyledButton = styled.button<{
   $variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
   $size?: "default" | "sm" | "lg" | "icon";
+  $fullWidth?: boolean; // ✅ prop styled
 }>`
   display: inline-flex;
   align-items: center;
@@ -25,19 +27,19 @@ const StyledButton = styled.button<{
   border: none;
   cursor: pointer;
   outline: none;
-  
+  width: ${props => (props.$fullWidth ? "100%" : "auto")}; /* ✅ fullWidth */
+
   &:focus-visible {
     outline: 2px solid var(--ring);
     outline-offset: 1px;
     box-shadow: 0 0 0 1px var(--ring);
   }
-  
+
   &:disabled {
     pointer-events: none;
     opacity: 0.5;
   }
-  
-  /* SVG styles */
+
   & svg {
     pointer-events: none;
     width: 16px;
@@ -150,15 +152,12 @@ const StyledButton = styled.button<{
 `;
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ variant = "default", size = "default", asChild = false, ...props }, ref) => {
+  ({ variant = "default", size = "default", asChild = false, fullWidth = false, ...props }, ref) => {
     const Comp = asChild ? Slot : StyledButton;
-    
+
     if (asChild) {
       return (
-        <Comp
-          ref={ref}
-          {...props}
-        />
+        <Comp ref={ref} {...props} />
       );
     }
 
@@ -166,6 +165,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       <Comp
         $variant={variant}
         $size={size}
+        $fullWidth={fullWidth} // ✅ diteruskan ke styled
         ref={ref}
         {...props}
       />
