@@ -9,6 +9,7 @@ import styled from "styled-components";
 const Container = styled(Flex)`
   flex-direction: column;
   gap: 4px;
+  align-items: stretch;
 `;
 
 const RequiredIndicator = styled.span`
