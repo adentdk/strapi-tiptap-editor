@@ -1,4 +1,5 @@
-import { useState } from "react";
+// src/editor/extensions/image-placeholder.tsx
+import { useState, useCallback, memo } from "react";
 import type { NodeViewProps } from "@tiptap/core";
 import {
   type CommandProps,
@@ -12,6 +13,7 @@ import { Input } from "../../ui/input";
 import { isValidUrl, NODE_HANDLES_SELECTED_STYLE_CLASSNAME } from "../utils";
 import { Popover, Tabs } from "@strapi/design-system";
 import { Button } from "../../ui/button";
+import { useStrapiApp } from "@strapi/strapi/admin";
 import styled from "styled-components";
 
 export interface ImagePlaceholderOptions {
@@ -50,13 +52,6 @@ const TriggerContainer = styled.div<{ $selected?: boolean }>`
       background-color: ${props.theme.colors.primary500 + '33'};
     }
   `}
-`;
-
-const MediaButton = styled(Button)`
-  width: 100%;
-  height: 48px;
-  font-size: 14px;
-  margin: 8px 0;
 `;
 
 const ErrorText = styled.p`
@@ -100,13 +95,47 @@ const StyledButton = styled(Button)`
   font-size: 13px;
 `;
 
+// === MEDIA LIBRARY COMPONENT ===
+const MediaLib = memo(({ isOpen, onToggle, onSelect }: {
+  isOpen: boolean;
+  onToggle: () => void;
+  onSelect: (file: any) => void
+}) => {
+  const components = useStrapiApp('MediaLib', state => state.components);
+  const MediaLibraryDialog = components['media-library'] as any;
+
+  const handleSelectAssets = useCallback((files: any[]) => {
+    const file = files[0];
+    if (!file) return;
+
+    const formattedFile = {
+      url: file.url.startsWith('http') ? file.url : `${window.strapi?.backendURL}${file.url}`,
+      alt: file.alternativeText || file.name,
+      name: file.name,
+      mime: file.mime,
+      width: file.width,
+      height: file.height,
+      formats: file.formats,
+    };
+
+    onSelect(formattedFile);
+    onToggle();
+  }, [onSelect, onToggle]);
+
+  if (!isOpen) return null;
+
+  return <MediaLibraryDialog onToggle={onToggle} onSelectAssets={handleSelectAssets} />;
+});
+
+MediaLib.displayName = 'MediaLib';
+
 export const ImagePlaceholder = Node.create<ImagePlaceholderOptions>({
   name: "image-placeholder",
 
   addOptions() {
     return {
       HTMLAttributes: {},
-      onEmbed: () => {},
+      onEmbed: () => { },
     };
   },
 
@@ -142,44 +171,33 @@ export function ImagePlaceholderComponent(props: NodeViewProps) {
   const [open, setOpen] = useState(false);
   const [url, setUrl] = useState("");
   const [urlError, setUrlError] = useState(false);
+  const [mediaLibOpen, setMediaLibOpen] = useState(false);
 
-  // === MEDIA LIBRARY ===
-  const openMediaLibrary = () => {
-    if (!window.strapi?.mediaLibrary) {
-      alert("Strapi Media Library tidak tersedia. Pastikan Anda berada di admin panel.");
-      return;
-    }
+  // === MEDIA LIBRARY HANDLER ===
+  const handleMediaSelect = useCallback((file: any) => {
+    if (!file) return;
 
-    window.strapi.mediaLibrary.open({
-      multiple: false,
-      onSelect: (files: any[]) => {
-        const file = files[0];
-        if (file) {
-          const imageUrl = file.url.startsWith("http")
-            ? file.url
-            : `${window.strapi.backendURL}${file.url}`;
+    const src = file.url;
+    const alt = file.alt || file.name;
 
-          editor
-            .chain()
-            .focus()
-            .setImage({
-              src: imageUrl,
-              alt: file.alternativeText || file.name || "Image",
-              title: file.name,
-            })
-            .run();
+    editor
+      .chain()
+      .focus()
+      .setImage({
+        src,
+        alt,
+        title: file.name,
+      })
+      .run();
 
-          setOpen(false); // tutup popover
-        }
-      },
-    });
-  };
+    setMediaLibOpen(false);
+    setOpen(false);
+  }, [editor]);
 
   // === EMBED URL ===
   const handleInsertEmbed = (e: React.FormEvent) => {
     e.preventDefault();
-    const valid = isValidUrl(url);
-    if (!valid) {
+    if (!isValidUrl(url)) {
       setUrlError(true);
       return;
     }
@@ -192,6 +210,14 @@ export function ImagePlaceholderComponent(props: NodeViewProps) {
 
   return (
     <NodeViewWrapper style={{ width: "100%" }}>
+      {/* Media Library Modal */}
+      <MediaLib
+        isOpen={mediaLibOpen}
+        onToggle={() => setMediaLibOpen(false)}
+        onSelect={handleMediaSelect}
+      />
+
+      {/* Main Popover */}
       <Popover.Root modal open={open} onOpenChange={setOpen}>
         <Popover.Trigger>
           <div style={{ width: "100%" }}>
@@ -204,15 +230,10 @@ export function ImagePlaceholderComponent(props: NodeViewProps) {
           </div>
         </Popover.Trigger>
 
-        <Popover.Content
-          sideOffset={5}
-          style={{ width: "460px", padding: "12px" }}
-          onPointerDownOutside={() => setOpen(false)}
-          onEscapeKeyDown={() => setOpen(false)}
-        >
+        <Popover.Content style={{ width: "460px", padding: "12px" }}>
           <Tabs.Root defaultValue="media">
             <Tabs.List>
-              <TabTrigger value="media">
+              <TabTrigger value="media" onClick={() => setMediaLibOpen(true)}>
                 <Icon className="tab-icon">
                   <Library width={16} height={16} />
                 </Icon>
@@ -227,16 +248,16 @@ export function ImagePlaceholderComponent(props: NodeViewProps) {
             </Tabs.List>
 
             {/* ========== MEDIA LIBRARY TAB ========== */}
-            <Tabs.Content value="media" style={{ marginTop: 16 }}>
-              <MediaButton
+            <Tabs.Content value="media" style={{ marginTop: 16, textAlign: 'center' }}>
+              <Button
                 variant="secondary"
-                onClick={openMediaLibrary}
+                onClick={() => setMediaLibOpen(true)}
               >
                 <Library size={18} />
                 Open Media Library
-              </MediaButton>
+              </Button>
               <InfoText>
-                Pilih gambar dari koleksi Strapi. Drag & drop tersedia di dalam modal.
+                Pilih gambar dari koleksi Strapi. Drag & drop tersedia di modal.
               </InfoText>
             </Tabs.Content>
 
@@ -252,12 +273,12 @@ export function ImagePlaceholderComponent(props: NodeViewProps) {
                   }}
                   autoFocus
                 />
-                {urlError && <ErrorText>URL tidak valid. Harap masukkan URL lengkap.</ErrorText>}
+                {urlError && <ErrorText>URL tidak valid</ErrorText>}
                 <StyledButton type="submit" variant="default">
                   Insert Image
                 </StyledButton>
                 <InfoText>
-                  Bekerja dengan gambar dari internet (IMG, PNG, WebP, dll)
+                  Bekerja dengan gambar dari internet
                 </InfoText>
               </form>
             </Tabs.Content>
