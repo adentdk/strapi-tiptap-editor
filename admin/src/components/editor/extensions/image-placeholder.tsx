@@ -270,7 +270,7 @@ export function ImagePlaceholderComponent(props: NodeViewProps) {
             <Tabs.Content value="media" style={{ marginTop: 16, textAlign: 'center' }}>
               <Button
                 variant="secondary"
-                onClick={() => setMediaLibOpen(true)}
+                onClick={() => { setMediaLibOpen(true); setOpen(false) }}
                 fullWidth
               >
                 <Library size={18} />
@@ -305,6 +305,6 @@ export function ImagePlaceholderComponent(props: NodeViewProps) {
           </Tabs.Root>
         </Popover.Content>
       </Popover.Root>
-    </NodeViewWrapper>
+    </NodeViewWrapper >
   );
 }
