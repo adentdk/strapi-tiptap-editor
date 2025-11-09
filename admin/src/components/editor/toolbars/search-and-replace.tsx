@@ -192,6 +192,7 @@ export function SearchAndReplaceToolbar() {
       <Popover.Trigger disabled={!editor}>
         <TriggerButton
           tooltip="Search & Replace"
+          style={{ minWidth: 'fit-content' }}
           onClick={() => {
             setOpen(!open);
           }}
