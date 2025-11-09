@@ -45,6 +45,7 @@ export const ImageExtension = Image.extend({
       align: {
         default: "center",
       },
+      srcset: { default: null },
     };
   },
 
@@ -54,8 +55,8 @@ export const ImageExtension = Image.extend({
 });
 
 // Styled Components
-const ImageWrapper = styled(NodeViewWrapper)<{ 
-  $selected?: boolean; 
+const ImageWrapper = styled(NodeViewWrapper) <{
+  $selected?: boolean;
   $align?: string;
   $width?: string;
 }>`
@@ -192,7 +193,7 @@ const Toolbar = styled.div<{ $resizing?: boolean; $openedMore?: boolean }>`
   }
 `;
 
-const ToolbarButton = styled(Button)<{ $active?: boolean }>`
+const ToolbarButton = styled(Button) <{ $active?: boolean }>`
   width: 28px;
   height: 28px;
   
@@ -326,7 +327,7 @@ export function TiptapImageComponent(props: NodeViewProps) {
     window.addEventListener("mouseup", endResize);
     window.addEventListener("touchmove", handleTouchMove);
     window.addEventListener("touchend", handleTouchEnd);
-    
+
     return () => {
       window.removeEventListener("mousemove", resize);
       window.removeEventListener("mouseup", endResize);
@@ -357,8 +358,8 @@ export function TiptapImageComponent(props: NodeViewProps) {
           title={node.attrs.title}
         />
         <AltTextBadge>
-          <AltTextStatus style={{ 
-            color: alt ? "green" : "red" 
+          <AltTextStatus style={{
+            color: alt ? "green" : "red"
           }}>
             {alt ? "✔" : "!"}
           </AltTextStatus>
@@ -375,7 +376,7 @@ export function TiptapImageComponent(props: NodeViewProps) {
 
         {editor?.isEditable && (
           <>
-            <ResizeHandle 
+            <ResizeHandle
               $position="left"
               onMouseDown={(event) => {
                 handleResizingPosition({ e: event, position: "left" });
@@ -384,7 +385,7 @@ export function TiptapImageComponent(props: NodeViewProps) {
             >
               <ResizeHandleBar />
             </ResizeHandle>
-            <ResizeHandle 
+            <ResizeHandle
               $position="right"
               onMouseDown={(event) => {
                 handleResizingPosition({ e: event, position: "right" });

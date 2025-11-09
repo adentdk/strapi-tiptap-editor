@@ -124,7 +124,7 @@ const MediaLib = memo(({ isOpen, onToggle, onSelect }: {
 
   if (!isOpen) return null;
 
-  return <MediaLibraryDialog onToggle={onToggle} onSelectAssets={handleSelectAssets} />;
+  return <MediaLibraryDialog onClose={onToggle} onSelectAssets={handleSelectAssets} />;
 });
 
 MediaLib.displayName = 'MediaLib';
