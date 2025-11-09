@@ -2,13 +2,12 @@ import { useState } from "react";
 import type { NodeViewProps } from "@tiptap/core";
 import {
   type CommandProps,
-  type Editor,
   mergeAttributes,
   Node,
   NodeViewWrapper,
   ReactNodeViewRenderer,
 } from "@tiptap/react";
-import { LucideImage, LucideLink, Upload } from "lucide-react";
+import { Image as LucideImage, Link2, Library } from "lucide-react";
 import { Input } from "../../ui/input";
 import { isValidUrl, NODE_HANDLES_SELECTED_STYLE_CLASSNAME } from "../utils";
 import { Popover, Tabs } from "@strapi/design-system";
@@ -17,20 +16,12 @@ import styled from "styled-components";
 
 export interface ImagePlaceholderOptions {
   HTMLAttributes: Record<string, any>;
-  onDrop: (files: File[], editor: Editor) => void;
-  onDropRejected?: (files: File[], editor: Editor) => void;
-  onEmbed: (url: string, editor: Editor) => void;
-  allowedMimeTypes?: Record<string, string[]>;
-  maxFiles?: number;
-  maxSize?: number;
+  onEmbed: (url: string, editor: any) => void;
 }
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
     imagePlaceholder: {
-      /**
-       * Inserts an image placeholder
-       */
       insertImagePlaceholder: () => ReturnType;
     };
   }
@@ -48,11 +39,11 @@ const TriggerContainer = styled.div<{ $selected?: boolean }>`
   font-size: 14px;
   color: ${props => props.theme.colors.neutral700};
   transition: background-color 0.2s ease-in-out;
-  
+
   &:hover {
-    background-color: ${props => props.theme.colors.secondary500 || props.theme.colors.neutral200};
+    background-color: ${props => props.theme.colors.neutral200};
   }
-  
+
   ${props => props.$selected && `
     background-color: ${props.theme.colors.primary500 + '1A'};
     &:hover {
@@ -61,37 +52,11 @@ const TriggerContainer = styled.div<{ $selected?: boolean }>`
   `}
 `;
 
-const DropZone = styled.div<{ $isDragActive?: boolean; $isDragReject?: boolean }>`
-  margin: 8px 0;
-  border-radius: 6px;
-  border: 1px dashed ${props => props.theme.colors.neutral300};
-  font-size: 14px;
-  transition: all 0.2s ease-in-out;
-  
-  &:hover {
-    background-color: ${props => props.theme.colors.secondary500 || props.theme.colors.neutral100};
-  }
-  
-  ${props => props.$isDragActive && `
-    border-color: ${props.theme.colors.primary500};
-    background-color: ${props.theme.colors.secondary500 || props.theme.colors.neutral100};
-  `}
-  
-  ${props => props.$isDragReject && `
-    border-color: ${props.theme.colors.danger500};
-    background-color: ${props.theme.colors.danger500 + '1A'};
-  `}
-`;
-
-const DropZoneLabel = styled.label`
-  display: flex;
-  height: 112px;
+const MediaButton = styled(Button)`
   width: 100%;
-  cursor: pointer;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
+  height: 48px;
+  font-size: 14px;
+  margin: 8px 0;
 `;
 
 const ErrorText = styled.p`
@@ -104,6 +69,7 @@ const InfoText = styled.p`
   text-align: center;
   font-size: 12px;
   color: ${props => props.theme.colors.neutral600};
+  margin-top: 8px;
 `;
 
 const Icon = styled.div`
@@ -111,17 +77,11 @@ const Icon = styled.div`
     width: 24px;
     height: 24px;
   }
-  
-  &.upload-icon {
+
+  &.tab-icon {
     width: 16px;
     height: 16px;
-    margin-bottom: 8px;
-  }
-  
-  &.link-icon {
-    width: 16px;
-    height: 16px;
-    margin-right: 8px;
+    margin-right: 6px;
   }
 `;
 
@@ -130,14 +90,14 @@ const TabTrigger = styled(Tabs.Trigger)`
   font-size: 14px;
   display: flex;
   align-items: center;
+  gap: 4px;
 `;
 
 const StyledButton = styled(Button)`
   margin: 8px 0;
-  height: 32px;
+  height: 36px;
   width: 100%;
-  padding: 8px;
-  font-size: 12px;
+  font-size: 13px;
 `;
 
 export const ImagePlaceholder = Node.create<ImagePlaceholderOptions>({
@@ -146,9 +106,7 @@ export const ImagePlaceholder = Node.create<ImagePlaceholderOptions>({
   addOptions() {
     return {
       HTMLAttributes: {},
-      onDrop: () => { },
-      onDropRejected: () => { },
-      onEmbed: () => { },
+      onEmbed: () => {},
     };
   },
 
@@ -159,7 +117,7 @@ export const ImagePlaceholder = Node.create<ImagePlaceholderOptions>({
   },
 
   renderHTML({ HTMLAttributes }) {
-    return ["div", mergeAttributes(HTMLAttributes)];
+    return ["div", mergeAttributes(HTMLAttributes, { "data-type": this.name })];
   },
 
   addNodeView() {
@@ -180,92 +138,44 @@ export const ImagePlaceholder = Node.create<ImagePlaceholderOptions>({
 });
 
 export function ImagePlaceholderComponent(props: NodeViewProps) {
-  const { editor, extension, selected } = props;
-
+  const { editor, selected } = props;
   const [open, setOpen] = useState(false);
   const [url, setUrl] = useState("");
   const [urlError, setUrlError] = useState(false);
-  const [isDragActive, setIsDragActive] = useState(false);
-  const [isDragReject, setIsDragReject] = useState(false);
 
-  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragActive(true);
-  };
+  // === MEDIA LIBRARY ===
+  const openMediaLibrary = () => {
+    if (!window.strapi?.mediaLibrary) {
+      alert("Strapi Media Library tidak tersedia. Pastikan Anda berada di admin panel.");
+      return;
+    }
 
-  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragActive(false);
-    setIsDragReject(false);
-  };
+    window.strapi.mediaLibrary.open({
+      multiple: false,
+      onSelect: (files: any[]) => {
+        const file = files[0];
+        if (file) {
+          const imageUrl = file.url.startsWith("http")
+            ? file.url
+            : `${window.strapi.backendURL}${file.url}`;
 
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-  };
+          editor
+            .chain()
+            .focus()
+            .setImage({
+              src: imageUrl,
+              alt: file.alternativeText || file.name || "Image",
+              title: file.name,
+            })
+            .run();
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragActive(false);
-    setIsDragReject(false);
-
-    const { files } = e.dataTransfer;
-    const acceptedFiles: File[] = [];
-    const rejectedFiles: File[] = [];
-
-    Array.from(files).map((file) => {
-      if (
-        extension.options.allowedMimeTypes &&
-        !Object.keys(extension.options.allowedMimeTypes).some((type) =>
-          file.type.match(type),
-        )
-      ) {
-        rejectedFiles.push(file);
-      } else if (
-        extension.options.maxSize &&
-        file.size > extension.options.maxSize
-      ) {
-        rejectedFiles.push(file);
-      } else {
-        acceptedFiles.push(file);
-      }
+          setOpen(false); // tutup popover
+        }
+      },
     });
-
-    if (rejectedFiles.length > 0) {
-      setIsDragReject(true);
-      extension.options.onDropRejected?.(rejectedFiles, editor);
-    }
-
-    if (acceptedFiles.length > 0) {
-      handleAcceptedFiles(acceptedFiles);
-    }
   };
 
-  const handleAcceptedFiles = (acceptedFiles: File[]) => {
-    acceptedFiles.map((file) => {
-      const reader = new FileReader();
-
-      reader.onload = () => {
-        const src = reader.result as string;
-        editor.chain().focus().setImage({ src }).run();
-      };
-
-      reader.readAsDataURL(file);
-    });
-
-    if (extension.options.onDrop) {
-      extension.options.onDrop(acceptedFiles, editor);
-    }
-  };
-
-  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    handleAcceptedFiles(files);
-  };
-
+  // === EMBED URL ===
   const handleInsertEmbed = (e: React.FormEvent) => {
     e.preventDefault();
     const valid = isValidUrl(url);
@@ -273,106 +183,81 @@ export function ImagePlaceholderComponent(props: NodeViewProps) {
       setUrlError(true);
       return;
     }
-    if (url !== "") {
-      editor.chain().focus().setImage({ src: url }).run();
-      extension.options.onEmbed(url, editor);
-    }
+
+    editor.chain().focus().setImage({ src: url }).run();
+    props.extension.options.onEmbed(url, editor);
+    setOpen(false);
+    setUrl("");
   };
 
   return (
     <NodeViewWrapper style={{ width: "100%" }}>
-      <Popover.Root modal open={open}>
-        <Popover.Trigger
-          onClick={() => {
-            setOpen(true);
-          }}
-          style={{ width: "100%" }}
-        >
-          <TriggerContainer $selected={selected}>
-            <Icon className="image-icon">
-              <LucideImage width={24} height={24} />
-            </Icon>
-            Add an image
-          </TriggerContainer>
+      <Popover.Root modal open={open} onOpenChange={setOpen}>
+        <Popover.Trigger>
+          <div style={{ width: "100%" }}>
+            <TriggerContainer $selected={selected}>
+              <Icon className="image-icon">
+                <LucideImage width={24} height={24} />
+              </Icon>
+              Add an image
+            </TriggerContainer>
+          </div>
         </Popover.Trigger>
+
         <Popover.Content
-          style={{ width: "450px", padding: "8px 0" }}
-          onPointerDownOutside={() => {
-            setOpen(false);
-          }}
-          onEscapeKeyDown={() => {
-            setOpen(false);
-          }}
+          sideOffset={5}
+          style={{ width: "460px", padding: "12px" }}
+          onPointerDownOutside={() => setOpen(false)}
+          onEscapeKeyDown={() => setOpen(false)}
         >
-          <Tabs.Root defaultValue="upload" style={{ padding: "0 12px" }}>
+          <Tabs.Root defaultValue="media">
             <Tabs.List>
-              <TabTrigger value="upload">
-                <Icon className="upload-icon">
-                  <Upload width={16} height={16} />
+              <TabTrigger value="media">
+                <Icon className="tab-icon">
+                  <Library width={16} height={16} />
                 </Icon>
-                Upload
+                Media Library
               </TabTrigger>
               <TabTrigger value="url">
-                <Icon className="link-icon">
-                  <LucideLink width={16} height={16} />
+                <Icon className="tab-icon">
+                  <Link2 width={16} height={16} />
                 </Icon>
-                Embed link
+                Embed Link
               </TabTrigger>
             </Tabs.List>
 
-            <Tabs.Content value="upload">
-              <DropZone
-                $isDragActive={isDragActive}
-                $isDragReject={isDragReject}
-                onDragEnter={handleDragEnter}
-                onDragLeave={handleDragLeave}
-                onDragOver={handleDragOver}
-                onDrop={handleDrop}
+            {/* ========== MEDIA LIBRARY TAB ========== */}
+            <Tabs.Content value="media" style={{ marginTop: 16 }}>
+              <MediaButton
+                variant="secondary"
+                onClick={openMediaLibrary}
               >
-                <input
-                  type="file"
-                  accept={Object.keys(
-                    extension.options.allowedMimeTypes || {},
-                  ).join(",")}
-                  multiple={extension.options.maxFiles !== 1}
-                  onChange={handleFileInputChange}
-                  style={{ display: "none" }}
-                  id="file-input"
-                />
-                <DropZoneLabel htmlFor="file-input">
-                  <Icon className="upload-icon">
-                    <Upload width={24} height={24} />
-                  </Icon>
-                  Drag & drop or click to upload
-                </DropZoneLabel>
-              </DropZone>
+                <Library size={18} />
+                Open Media Library
+              </MediaButton>
+              <InfoText>
+                Pilih gambar dari koleksi Strapi. Drag & drop tersedia di dalam modal.
+              </InfoText>
             </Tabs.Content>
-            <Tabs.Content value="url">
+
+            {/* ========== EMBED LINK TAB ========== */}
+            <Tabs.Content value="url" style={{ marginTop: 16 }}>
               <form onSubmit={handleInsertEmbed}>
                 <Input
+                  placeholder="https://example.com/image.jpg"
                   value={url}
                   onChange={(e) => {
                     setUrl(e.target.value);
-                    if (urlError) {
-                      setUrlError(false);
-                    }
+                    urlError && setUrlError(false);
                   }}
-                  placeholder="Paste the image link..."
+                  autoFocus
                 />
-                {urlError && (
-                  <ErrorText>
-                    Please enter a valid URL
-                  </ErrorText>
-                )}
-                <StyledButton
-                  onClick={handleInsertEmbed}
-                  type="button"
-                  size="sm"
-                >
-                  Embed Image
+                {urlError && <ErrorText>URL tidak valid. Harap masukkan URL lengkap.</ErrorText>}
+                <StyledButton type="submit" variant="default">
+                  Insert Image
                 </StyledButton>
                 <InfoText>
-                  Works with any image from the web
+                  Bekerja dengan gambar dari internet (IMG, PNG, WebP, dll)
                 </InfoText>
               </form>
             </Tabs.Content>

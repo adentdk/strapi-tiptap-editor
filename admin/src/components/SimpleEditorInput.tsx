@@ -5,6 +5,7 @@ import type { Content } from "@tiptap/react";
 import { TiptapJSONInputProps } from "../types";
 import { Field, Flex } from '@strapi/design-system';
 import styled from "styled-components";
+import { GlobalStyling } from "./GlobalStyling";
 
 const Container = styled(Flex)`
   flex-direction: column;
@@ -74,6 +75,7 @@ const SimpleEditorInput = React.forwardRef<{ focus: () => void }, TiptapJSONInpu
             {label}
           </Field.Label>
           
+          <GlobalStyling />
           <EditorContainer>
             <SimpleEditor
               value={value}

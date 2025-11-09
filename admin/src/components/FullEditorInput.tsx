@@ -5,6 +5,7 @@ import type { Content } from "@tiptap/react";
 import { TiptapJSONInputProps } from "../types";
 import { Field, Flex } from '@strapi/design-system';
 import styled from "styled-components";
+import { GlobalStyling } from "./GlobalStyling";
 
 const Container = styled(Flex)`
   flex-direction: column;
@@ -43,7 +44,7 @@ const FullEditorInput = React.forwardRef<{ focus: () => void }, TiptapJSONInputP
     forwardedRef
   ) => {
     const { formatMessage } = useIntl();
-    
+
     const handleEditorChange = (content: Content) => {
       if (!onChange) return;
 
@@ -73,7 +74,10 @@ const FullEditorInput = React.forwardRef<{ focus: () => void }, TiptapJSONInputP
           <Field.Label action={labelAction}>
             {label}
           </Field.Label>
-          
+
+
+          <GlobalStyling />
+
           <EditorContainer>
             <FullEditor
               value={value}
@@ -85,7 +89,7 @@ const FullEditorInput = React.forwardRef<{ focus: () => void }, TiptapJSONInputP
 
           <Field.Hint />
           <Field.Error />
-          
+
           {required && (
             <RequiredIndicator>* required</RequiredIndicator>
           )}

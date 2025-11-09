@@ -5,6 +5,8 @@ import { Initializer } from './components/Initializer';
 import { PluginIcon } from './components/PluginIcon';
 import { EditIcon } from 'lucide-react';
 
+export * from './exports';
+
 export default {
   async register(app: any) {
     app.customFields.register({

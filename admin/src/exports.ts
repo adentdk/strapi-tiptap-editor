@@ -14,4 +14,3 @@ export type {
 } from './config/types';
 
 export { setPluginConfig } from './config';
-export { StrapiMediaLib, StrapiUploadAdapter } from './plugins';
