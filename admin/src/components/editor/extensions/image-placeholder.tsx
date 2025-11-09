@@ -16,6 +16,7 @@ import { Button } from "../../ui/button";
 import { useStrapiApp } from "@strapi/strapi/admin";
 import { createPortal } from "react-dom";
 import styled from "styled-components";
+import { safelyResetPointerEvents } from "../../../utils/dom";
 
 export interface ImagePlaceholderOptions {
   HTMLAttributes: Record<string, any>;
@@ -227,7 +228,7 @@ export function ImagePlaceholderComponent(props: NodeViewProps) {
 
 
   useEffect(() => {
-    if (!mediaLibOpen && open) {
+    if (mediaLibOpen && open) {
       setOpen(false);
     }
   }, [mediaLibOpen]);
@@ -265,7 +266,7 @@ export function ImagePlaceholderComponent(props: NodeViewProps) {
             <Tabs.Content value="media" style={{ marginTop: 16, textAlign: 'center' }}>
               <Button
                 variant="secondary"
-                onClick={() => { setMediaLibOpen(true); }}
+                onClick={() => { setMediaLibOpen(true); setOpen(false); }}
                 fullWidth
               >
                 <Library size={18} />
@@ -306,11 +307,11 @@ export function ImagePlaceholderComponent(props: NodeViewProps) {
         isOpen={mediaLibOpen}
         onClose={() => {
           setMediaLibOpen(false);
-          document.body.style.pointerEvents = '';
+          safelyResetPointerEvents()
         }}
         onSelect={(file) => {
           handleMediaSelect(file)
-          document.body.style.pointerEvents = '';
+          safelyResetPointerEvents()
         }}
       />
     </NodeViewWrapper >
