@@ -14,9 +14,8 @@ import { isValidUrl, NODE_HANDLES_SELECTED_STYLE_CLASSNAME } from "../utils";
 import { Popover, Tabs } from "@strapi/design-system";
 import { Button } from "../../ui/button";
 import { useStrapiApp } from "@strapi/strapi/admin";
-import { createPortal } from "react-dom";
 import styled from "styled-components";
-import { safelyResetPointerEvents } from "../../../utils/dom";
+import { MediaLibraryModal } from "src/components/MediaLibraryModal";
 
 export interface ImagePlaceholderOptions {
   HTMLAttributes: Record<string, any>;
@@ -96,42 +95,6 @@ const StyledButton = styled(Button)`
   width: 100%;
   font-size: 13px;
 `;
-
-// === MEDIA LIBRARY MODAL (FIXED) ===
-const MediaLib = memo(({ isOpen, onClose, onSelect }: {
-  isOpen: boolean;
-  onClose: () => void;
-  onSelect: (file: any) => void;
-}) => {
-  const components = useStrapiApp('MediaLib', state => state.components);
-  const MediaLibraryDialog = components['media-library'] as any;
-
-  const handleSelectAssets = useCallback((files: any[]) => {
-    const file = files[0];
-    if (!file) return;
-
-    const formattedFile = {
-      url: file.url.startsWith('http') ? file.url : `${window.strapi?.backendURL}${file.url}`,
-      alt: file.alternativeText || file.name,
-      name: file.name,
-      mime: file.mime,
-      width: file.width,
-      height: file.height,
-      formats: file.formats,
-    };
-
-    onSelect(formattedFile);
-  }, [onSelect]);
-
-  if (!isOpen || !MediaLibraryDialog) return null;
-
-  return <MediaLibraryDialog
-    onClose={onClose}
-    onSelectAssets={handleSelectAssets}
-  />;
-});
-
-MediaLib.displayName = 'MediaLib';
 
 // === IMAGE PLACEHOLDER NODE ===
 export const ImagePlaceholder = Node.create<ImagePlaceholderOptions>({
@@ -303,15 +266,13 @@ export function ImagePlaceholderComponent(props: NodeViewProps) {
       </Popover.Root>
 
       {/* Media Library Modal - Render di ROOT */}
-      <MediaLib
+      <MediaLibraryModal
         isOpen={mediaLibOpen}
         onClose={() => {
           setMediaLibOpen(false);
-          safelyResetPointerEvents()
         }}
         onSelect={(file) => {
           handleMediaSelect(file)
-          safelyResetPointerEvents()
         }}
       />
     </NodeViewWrapper >
