@@ -4,8 +4,8 @@ import styled from "styled-components";
 
 // Styled Components
 const FlexGap = styled.div`
-  flex: 1;
-  width: 100%;
+  flex-grow: 1;
+  min-width: 16px; /* optional */
 `;
 
 const StyledSeparator = styled(Separator)`

@@ -43,13 +43,13 @@ const ToolbarContainer = styled.div`
 
 const ToolbarContent = styled.div`
   display: flex;
-  flex: 1;
+  flex-wrap: wrap;
   align-items: center;
   gap: 8px;
-  row-gap: 4px;
-  flex-wrap: wrap;
   justify-content: flex-start;
+  width: 100%;
 `;
+
 const ContentContainer = styled.div`
   display: flex;
   flex: 1;
