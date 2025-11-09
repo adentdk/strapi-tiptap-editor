@@ -1,0 +1,33 @@
+import React from 'react';
+import { createGlobalStyle, css } from 'styled-components';
+
+import { type Theme, type EditorStyles, getPluginConfig } from '../config';
+import { getProfileTheme } from '../utils/localStorage';
+
+const GlobalStyle = createGlobalStyle<{
+  $editortTheme?: Theme;
+  $variant: 'light' | 'dark';
+  $presetStyles?: EditorStyles;
+}>`
+  ${({ $editortTheme, $variant }) =>
+    $editortTheme &&
+    css`
+      ${$editortTheme.common}
+      ${$editortTheme[$variant]}
+      ${$editortTheme.additional}
+    `}
+`;
+
+const getSystemColorScheme = (): 'light' | 'dark' =>
+  window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+
+function GlobalStyling() {
+  const { theme } = getPluginConfig();
+  const profileTheme = getProfileTheme();
+  const variant = profileTheme && profileTheme !== 'system' ? profileTheme : getSystemColorScheme();
+
+  return <GlobalStyle $editortTheme={theme} $variant={variant} />;
+}
+
+const MemoizedGlobalStyling = React.memo(GlobalStyling);
+export { MemoizedGlobalStyling as GlobalStyling };
