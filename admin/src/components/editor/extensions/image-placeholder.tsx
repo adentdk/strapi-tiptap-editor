@@ -120,19 +120,14 @@ const MediaLib = memo(({ isOpen, onClose, onSelect }: {
     };
 
     onSelect(formattedFile);
-    onClose();
-  }, [onSelect, onClose]);
+  }, [onSelect]);
 
   if (!isOpen || !MediaLibraryDialog) return null;
 
-  // Render di ROOT dengan createPortal
-  return createPortal(
-    <MediaLibraryDialog
+  return <MediaLibraryDialog
       onClose={onClose}
       onSelectAssets={handleSelectAssets}
-    />,
-    document.body
-  );
+    />;
 });
 
 MediaLib.displayName = 'MediaLib';
