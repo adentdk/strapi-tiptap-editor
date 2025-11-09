@@ -45,7 +45,19 @@ export const ImageExtension = Image.extend({
       align: {
         default: "center",
       },
-      srcset: { default: null },
+      srcset: { 
+        default: null 
+      },
+      // New attributes for better control
+      maxWidth: {
+        default: "100%",
+      },
+      aspectRatio: {
+        default: null,
+      },
+      objectFit: {
+        default: "contain",
+      },
     };
   },
 
@@ -55,10 +67,11 @@ export const ImageExtension = Image.extend({
 });
 
 // Styled Components
-const ImageWrapper = styled(NodeViewWrapper) <{
+const ImageWrapper = styled(NodeViewWrapper)<{
   $selected?: boolean;
   $align?: string;
   $width?: string;
+  $maxWidth?: string;
 }>`
   position: relative;
   display: flex;
@@ -66,59 +79,84 @@ const ImageWrapper = styled(NodeViewWrapper) <{
   border-radius: 6px;
   border: 2px solid transparent;
   width: ${props => props.$width || "90%"};
+  max-width: ${props => props.$maxWidth || "100%"};
+  margin: 0 auto;
   
   ${props => props.$selected && `
     border-color: ${props.theme.colors.primary500};
   `}
   
-  ${props => props.$align === "left" && `
-    left: 0;
-    transform: translateX(0);
-  `}
-  
-  ${props => props.$align === "center" && `
-    left: 50%;
-    transform: translateX(-50%);
-  `}
-  
-  ${props => props.$align === "right" && `
-    left: 100%;
-    transform: translateX(-100%);
-  `}
+  ${props => {
+    switch (props.$align) {
+      case "left":
+        return `
+          margin-left: 0;
+          margin-right: auto;
+        `;
+      case "right":
+        return `
+          margin-left: auto;
+          margin-right: 0;
+        `;
+      case "center":
+      default:
+        return `
+          margin-left: auto;
+          margin-right: auto;
+        `;
+    }
+  }}
 `;
 
-const ImageContainer = styled.div<{ $resizing?: boolean }>`
+const ImageContainer = styled.div<{ 
+  $resizing?: boolean;
+  $objectFit?: string;
+}>`
   position: relative;
   display: flex;
   flex-direction: column;
   border-radius: 6px;
-  group: hover;
+  overflow: hidden;
+  cursor: ${props => props.$resizing ? 'col-resize' : 'default'};
+  
+  img {
+    object-fit: ${props => props.$objectFit || 'contain'};
+    transition: all 0.2s ease;
+  }
 `;
 
-const StyledImage = styled.img`
+const StyledImage = styled.img<{
+  $aspectRatio?: string;
+}>`
   display: block;
-  max-width: 100%;
+  width: 100%;
   height: auto;
+  ${props => props.$aspectRatio && `
+    aspect-ratio: ${props.$aspectRatio};
+  `}
 `;
 
 const AltTextBadge = styled.span`
   position: absolute;
   bottom: 12px;
   left: 12px;
-  max-width: calc(100% - 20px);
-  padding: 4px 8px;
+  right: 12px;
+  max-width: calc(100% - 24px);
+  padding: 8px 12px;
   border: 1px solid ${props => props.theme.colors.neutral300};
   background-color: ${props => props.theme.colors.neutral0}CC;
   font-size: 12px;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 8px;
   overflow: hidden;
+  border-radius: 4px;
+  backdrop-filter: blur(4px);
 `;
 
 const AltTextStatus = styled.span`
   flex: none;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: bold;
 `;
 
@@ -132,45 +170,48 @@ const AltTextContent = styled.span`
 const AltTextButton = styled.button`
   flex: none;
   border: 0;
-  padding: 0;
+  padding: 4px 8px;
   background-color: transparent;
   appearance: none;
   text-decoration: underline;
   color: ${props => props.theme.colors.primary500};
   cursor: pointer;
+  border-radius: 3px;
+  font-size: 12px;
   
   &:hover {
     color: ${props => props.theme.colors.primary600};
+    background-color: ${props => props.theme.colors.primary100};
   }
 `;
 
 const ResizeHandle = styled.div<{ $position: "left" | "right" }>`
   position: absolute;
-  top: 0;
-  bottom: 0;
+  top: 50%;
+  transform: translateY(-50%);
   z-index: 20;
-  width: 25px;
+  width: 16px;
+  height: 60px;
   display: flex;
   cursor: col-resize;
   align-items: center;
   justify-content: ${props => props.$position === "left" ? "flex-start" : "flex-end"};
-  padding: 8px;
   
-  ${props => props.$position === "left" ? "left: 0;" : "right: 0;"}
+  ${props => props.$position === "left" ? "left: -8px;" : "right: -8px;"}
 `;
 
 const ResizeHandleBar = styled.div`
   z-index: 20;
-  height: 70px;
+  height: 40px;
   width: 4px;
   border-radius: 8px;
-  border: 1px solid ${props => props.theme.colors.neutral800};
-  background-color: ${props => props.theme.colors.neutral800}99;
+  background-color: ${props => props.theme.colors.primary500};
   opacity: 0;
-  transition: opacity 0.2s ease-in-out;
+  transition: all 0.2s ease-in-out;
   
   ${ResizeHandle}:hover & {
     opacity: 1;
+    transform: scale(1.2);
   }
 `;
 
@@ -181,50 +222,97 @@ const Toolbar = styled.div<{ $resizing?: boolean; $openedMore?: boolean }>`
   display: flex;
   align-items: center;
   gap: 4px;
-  border-radius: 6px;
+  border-radius: 8px;
   border: 1px solid ${props => props.theme.colors.neutral300};
   background-color: ${props => props.theme.colors.neutral0};
-  padding: 4px;
+  padding: 6px;
   opacity: ${props => props.$openedMore ? 1 : 0};
-  transition: opacity 0.2s ease-in-out;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  
+  ${props => props.$resizing && `
+    opacity: 0;
+    pointer-events: none;
+  `}
   
   &:hover {
     opacity: 1;
   }
 `;
 
-const ToolbarButton = styled(Button) <{ $active?: boolean }>`
-  width: 28px;
-  height: 28px;
+const ToolbarButton = styled(Button)<{ $active?: boolean }>`
+  width: 32px;
+  height: 32px;
+  padding: 0;
   
   ${props => props.$active && `
-    background-color: ${props.theme.colors.neutral100};
+    background-color: ${props.theme.colors.primary100};
+    color: ${props.theme.colors.primary600};
   `}
+`;
+
+const SizeIndicator = styled.div`
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background-color: ${props => props.theme.colors.neutral800};
+  color: ${props => props.theme.colors.neutral0};
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  
+  ${ImageWrapper}:hover & {
+    opacity: 0.8;
+  }
 `;
 
 const StyledDropdownMenuContent = styled(DropdownMenuContent)`
   margin-top: 4px;
   font-size: 14px;
+  min-width: 200px;
 `;
 
 const DropdownMenuItemStyled = styled(DropdownMenuItem)`
   font-size: 14px;
   display: flex;
   align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
   
   &.destructive {
     color: ${props => props.theme.colors.danger500};
     
     &:focus {
       color: ${props => props.theme.colors.danger500};
+      background-color: ${props => props.theme.colors.danger100};
     }
   }
 `;
 
-const Icon = styled.div`
-  width: 16px;
-  height: 16px;
-  margin-right: 8px;
+const SizePresetGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  padding: 8px;
+`;
+
+const SizePresetButton = styled.button<{ $active?: boolean }>`
+  padding: 6px 8px;
+  border: 1px solid ${props => props.theme.colors.neutral300};
+  background-color: ${props => props.$active ? props.theme.colors.primary100 : props.theme.colors.neutral0};
+  color: ${props => props.$active ? props.theme.colors.primary600 : props.theme.colors.neutral700};
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background-color: ${props => props.theme.colors.primary100};
+    border-color: ${props => props.theme.colors.primary500};
+  }
 `;
 
 export function TiptapImageComponent(props: NodeViewProps) {
@@ -236,6 +324,23 @@ export function TiptapImageComponent(props: NodeViewProps) {
   const [resizeInitialWidth, setResizeInitialWidth] = useState(0);
   const [resizeInitialMouseX, setResizeInitialMouseX] = useState(0);
   const [openedMore, setOpenedMore] = useState(false);
+
+  // Size presets
+  const sizePresets = [
+    { label: "Small", value: "30%" },
+    { label: "Medium", value: "60%" },
+    { label: "Large", value: "90%" },
+    { label: "Full", value: "100%" },
+    { label: "Fit", value: "fit-content" },
+    { label: "Auto", value: "auto" },
+  ];
+
+  // Object fit options
+  const objectFitOptions = [
+    { label: "Contain", value: "contain" },
+    { label: "Cover", value: "cover" },
+    { label: "Fill", value: "fill" },
+  ];
 
   function handleResizingPosition({
     e,
@@ -250,6 +355,7 @@ export function TiptapImageComponent(props: NodeViewProps) {
 
   function startResize(event: React.MouseEvent<HTMLDivElement>) {
     event.preventDefault();
+    event.stopPropagation();
     setResizing(true);
     setResizeInitialMouseX(event.clientX);
     if (imageRef.current) {
@@ -264,15 +370,15 @@ export function TiptapImageComponent(props: NodeViewProps) {
 
     let dx = event.clientX - resizeInitialMouseX;
     if (resizingPosition === "left") {
-      dx = resizeInitialMouseX - event.clientX;
+      dx = -dx;
     }
 
-    const newWidth = Math.max(resizeInitialWidth + dx, 150);
+    const newWidth = Math.max(resizeInitialWidth + dx, 100); // Minimum 100px
     const parentWidth = nodeRef.current?.parentElement?.offsetWidth || 0;
 
-    if (newWidth < parentWidth) {
+    if (newWidth <= parentWidth) {
       updateAttributes({
-        width: newWidth,
+        width: `${newWidth}px`,
       });
     }
   }
@@ -303,15 +409,15 @@ export function TiptapImageComponent(props: NodeViewProps) {
 
     let dx = event.touches[0].clientX - resizeInitialMouseX;
     if (resizingPosition === "left") {
-      dx = resizeInitialMouseX - event.touches[0].clientX;
+      dx = -dx;
     }
 
-    const newWidth = Math.max(resizeInitialWidth + dx, 150);
+    const newWidth = Math.max(resizeInitialWidth + dx, 100);
     const parentWidth = nodeRef.current?.parentElement?.offsetWidth || 0;
 
-    if (newWidth < parentWidth) {
+    if (newWidth <= parentWidth) {
       updateAttributes({
-        width: newWidth,
+        width: `${newWidth}px`,
       });
     }
   }
@@ -336,27 +442,45 @@ export function TiptapImageComponent(props: NodeViewProps) {
     };
   }, [resizing, resizeInitialMouseX, resizeInitialWidth]);
 
-  const { alt } = node.attrs;
+  const { alt, width, align, objectFit } = node.attrs;
 
   const onEditAlt = () => {
     const newAlt = prompt("Set alt text:", alt || "");
-    updateAttributes({ alt: newAlt });
+    if (newAlt !== null) {
+      updateAttributes({ alt: newAlt });
+    }
+  };
+
+  const getDisplayWidth = () => {
+    if (typeof width === 'string') {
+      return width;
+    }
+    if (typeof width === 'number') {
+      return `${width}px`;
+    }
+    return 'auto';
   };
 
   return (
     <ImageWrapper
       ref={nodeRef}
       $selected={selected}
-      $align={node.attrs.align}
-      $width={node.attrs.width}
+      $align={align}
+      $width={getDisplayWidth()}
+      $maxWidth={node.attrs.maxWidth}
     >
-      <ImageContainer $resizing={resizing}>
+      <ImageContainer 
+        $resizing={resizing}
+        $objectFit={objectFit}
+      >
         <StyledImage
           ref={imageRef}
           src={node.attrs.src}
           alt={alt}
           title={node.attrs.title}
+          $aspectRatio={node.attrs.aspectRatio}
         />
+        
         <AltTextBadge>
           <AltTextStatus style={{
             color: alt ? "green" : "red"
@@ -364,13 +488,18 @@ export function TiptapImageComponent(props: NodeViewProps) {
             {alt ? "✔" : "!"}
           </AltTextStatus>
           <AltTextContent>
-            {alt ? `Alt text: "${alt}"` : `Alt text missing.`}
+            {alt ? `Alt: "${alt}"` : `Alt text missing`}
           </AltTextContent>
           <AltTextButton type="button" onClick={onEditAlt}>
             Edit
           </AltTextButton>
         </AltTextBadge>
-        <NodeViewContent as="div" style={{ textAlign: "center" }}>
+
+        <SizeIndicator>
+          {getDisplayWidth()}
+        </SizeIndicator>
+
+        <NodeViewContent as="div" style={{ textAlign: "center", padding: "8px" }}>
           {node.attrs.title}
         </NodeViewContent>
 
@@ -394,79 +523,110 @@ export function TiptapImageComponent(props: NodeViewProps) {
             >
               <ResizeHandleBar />
             </ResizeHandle>
+            
             <Toolbar $resizing={resizing} $openedMore={openedMore}>
+              {/* Alignment Controls */}
               <ToolbarButton
-                $active={node.attrs.align === "left"}
+                $active={align === "left"}
                 variant="ghost"
-                onClick={() => {
-                  updateAttributes({
-                    align: "left",
-                  });
-                }}
+                onClick={() => updateAttributes({ align: "left" })}
+                title="Align Left"
               >
                 <AlignLeft width={16} height={16} />
               </ToolbarButton>
               <ToolbarButton
-                $active={node.attrs.align === "center"}
+                $active={align === "center"}
                 variant="ghost"
-                onClick={() => {
-                  updateAttributes({
-                    align: "center",
-                  });
-                }}
+                onClick={() => updateAttributes({ align: "center" })}
+                title="Align Center"
               >
                 <AlignCenter width={16} height={16} />
               </ToolbarButton>
               <ToolbarButton
-                $active={node.attrs.align === "right"}
+                $active={align === "right"}
                 variant="ghost"
-                onClick={() => {
-                  updateAttributes({
-                    align: "right",
-                  });
-                }}
+                onClick={() => updateAttributes({ align: "right" })}
+                title="Align Right"
               >
                 <AlignRight width={16} height={16} />
               </ToolbarButton>
+              
               <Separator orientation="vertical" style={{ height: "20px" }} />
+              
+              {/* More Options */}
               <DropdownMenu
                 open={openedMore}
-                onOpenChange={(val) => {
-                  setOpenedMore(val);
-                }}
+                onOpenChange={setOpenedMore}
               >
                 <DropdownMenuTrigger asChild>
-                  <ToolbarButton variant="ghost">
+                  <ToolbarButton variant="ghost" title="More options">
                     <MoreVertical width={16} height={16} />
                   </ToolbarButton>
                 </DropdownMenuTrigger>
                 <StyledDropdownMenuContent align="start" alignOffset={-90}>
+                  {/* Size Presets */}
+                  <div style={{ padding: "8px 12px 4px 12px", fontSize: "12px", fontWeight: "600", color: "var(--neutral-600)" }}>
+                    Size Presets
+                  </div>
+                  <SizePresetGrid>
+                    {sizePresets.map((preset) => (
+                      <SizePresetButton
+                        key={preset.value}
+                        $active={width === preset.value}
+                        onClick={() => updateAttributes({ width: preset.value })}
+                      >
+                        {preset.label}
+                      </SizePresetButton>
+                    ))}
+                  </SizePresetGrid>
+                  
+                  <DropdownMenuSeparator />
+                  
+                  {/* Object Fit Options */}
+                  <div style={{ padding: "8px 12px 4px 12px", fontSize: "12px", fontWeight: "600", color: "var(--neutral-600)" }}>
+                    Image Fit
+                  </div>
+                  <div style={{ padding: "0 8px 8px 8px" }}>
+                    {objectFitOptions.map((option) => (
+                      <SizePresetButton
+                        key={option.value}
+                        $active={objectFit === option.value}
+                        onClick={() => updateAttributes({ objectFit: option.value })}
+                        style={{ width: "100%", marginBottom: "4px" }}
+                      >
+                        {option.label}
+                      </SizePresetButton>
+                    ))}
+                  </div>
+                  
+                  <DropdownMenuSeparator />
+                  
                   <DropdownMenuItemStyled
-                    onClick={() => {
-                      duplicateContent(editor);
-                    }}
+                    onClick={() => duplicateContent(editor)}
                   >
-                    <Icon><Copy width={16} height={16} /></Icon>
+                    <Copy width={16} height={16} />
                     Duplicate
                   </DropdownMenuItemStyled>
                   <DropdownMenuItemStyled
-                    onClick={() => {
-                      updateAttributes({
-                        width: "fit-content",
-                      });
-                    }}
+                    onClick={() => updateAttributes({ width: "100%" })}
                   >
-                    <Icon><Maximize width={16} height={16} /></Icon>
-                    Full Screen
+                    <Maximize width={16} height={16} />
+                    Full Width
                   </DropdownMenuItemStyled>
+                  <DropdownMenuItemStyled
+                    onClick={() => updateAttributes({ width: "auto", height: "auto" })}
+                  >
+                    <Maximize width={16} height={16} />
+                    Original Size
+                  </DropdownMenuItemStyled>
+                  
                   <DropdownMenuSeparator />
+                  
                   <DropdownMenuItemStyled
                     className="destructive"
-                    onClick={() => {
-                      deleteNode();
-                    }}
+                    onClick={deleteNode}
                   >
-                    <Icon><Trash width={16} height={16} /></Icon>
+                    <Trash width={16} height={16} />
                     Delete Image
                   </DropdownMenuItemStyled>
                 </StyledDropdownMenuContent>
