@@ -2,7 +2,7 @@
 import { memo, useCallback } from "react";
 import { useStrapiApp } from "@strapi/strapi/admin";
 import { createPortal } from "react-dom";
-import { safelyResetPointerEvents } from "src/utils/dom";
+import { safelyResetPointerEvents } from "../utils/dom";
 
 export interface MediaFile {
   url: string;
