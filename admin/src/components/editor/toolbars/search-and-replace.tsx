@@ -140,11 +140,11 @@ const ActionButton = styled(Button)`
 
 const TriggerButton = styled(ToolbarButton)`
   height: 32px;
-  width: fit-content;
-  min-width: 128px;
+  width: auto !important;
   padding: 0 12px;
   font-weight: 400;
   display: flex;
+  min-width: fit-content;
   align-items: center;
 `;
 
