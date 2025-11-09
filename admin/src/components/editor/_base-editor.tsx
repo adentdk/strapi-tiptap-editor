@@ -5,6 +5,7 @@ import { useEditor, type UseEditorOptions } from "./use-editor";
 import { forwardRef, useImperativeHandle } from "react";
 import { EditorProvider } from "./partials/editor-provider";
 import styled from "styled-components";
+import { TooltipProvider } from "../ui/tooltip";
 
 export interface BaseEditorProps
   extends Omit<UseEditorOptions, "onUpdate" | "editable"> {
@@ -104,28 +105,30 @@ export const BaseEditor = forwardRef<Editor | null, BaseEditorProps>(
     }
 
     return (
-      <EditorProvider editor={editor}>
-        <EditorContainer 
-          $hasToolbar={!!toolbar}
-          className={className}
-        >
-          {typeof toolbar !== "undefined" ? (
-            <ToolbarContainer>
-              <ToolbarContent>
-                {toolbar}
-              </ToolbarContent>
-            </ToolbarContainer>
-          ) : null}
-          <ContentContainer
-            onClick={() => {
-              editor?.chain().focus().run();
-            }}
+      <TooltipProvider>
+        <EditorProvider editor={editor}>
+          <EditorContainer 
+            $hasToolbar={!!toolbar}
+            className={className}
           >
-            <EditorContentStyled editor={editor} />
-            <LinkBubbleMenu />
-          </ContentContainer>
-        </EditorContainer>
-      </EditorProvider>
+            {typeof toolbar !== "undefined" ? (
+              <ToolbarContainer>
+                <ToolbarContent>
+                  {toolbar}
+                </ToolbarContent>
+              </ToolbarContainer>
+            ) : null}
+            <ContentContainer
+              onClick={() => {
+                editor?.chain().focus().run();
+              }}
+            >
+              <EditorContentStyled editor={editor} />
+              <LinkBubbleMenu />
+            </ContentContainer>
+          </EditorContainer>
+        </EditorProvider>
+      </TooltipProvider>
     );
   },
 );
