@@ -2,7 +2,7 @@ import React from "react";
 import { useIntl } from "react-intl";
 import { SimpleEditor } from "./editor/simple-editor";
 import type { Content } from "@tiptap/react";
-import { TiptapJSONInputProps } from "src/types";
+import { TiptapJSONInputProps } from "../types";
 import { Field, Flex } from '@strapi/design-system';
 import styled from "styled-components";
 

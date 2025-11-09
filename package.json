@@ -102,7 +102,11 @@
     "kind": "plugin",
     "name": "adentdk-tiptap-editor",
     "displayName": "Tiptap editor",
-    "description": "Tiptap editor for Strapi 5"
+    "description": "Tiptap editor for Strapi 5",
+    "customFields": [
+      "full-tiptap-editor",
+      "simple-tiptap-editor"
+    ]
   },
   "name": "@adentdk/tiptap-editor",
   "description": "Tiptap editor for Strapi 5",
