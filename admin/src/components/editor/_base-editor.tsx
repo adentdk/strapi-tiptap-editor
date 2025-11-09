@@ -1,5 +1,4 @@
 import { type Content, Editor, EditorContent } from "@tiptap/react";
-import "./styles.css";
 import { LinkBubbleMenu } from "./partials/link-bubble-menu";
 import { useEditor, type UseEditorOptions } from "./use-editor";
 import { forwardRef, useImperativeHandle } from "react";

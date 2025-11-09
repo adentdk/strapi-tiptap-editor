@@ -8,7 +8,7 @@ export default {
       plugin: pluginPkg.strapi.name,
       type: "json",
       inputSize: {
-        default: 8,
+        default: 12,
         isResizable: true,
       },
     });
@@ -18,7 +18,7 @@ export default {
       plugin: pluginPkg.strapi.name,
       type: "json",
       inputSize: {
-        default: 8,
+        default: 12,
         isResizable: true,
       },
     })
