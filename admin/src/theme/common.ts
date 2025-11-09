@@ -1,4 +1,4 @@
-import { css } from 'styled-components';
+import { css } from "styled-components";
 
 export const common = css`
   ${({ theme }) => css`
@@ -29,7 +29,7 @@ export const common = css`
       pointer-events: none;
     }
 
-    /* Typography rules */
+    /* Headings */
     .ProseMirror h1,
     .ProseMirror h2,
     .ProseMirror h3,
@@ -58,6 +58,7 @@ export const common = css`
       color: var(--tiptap-color-body);
     }
 
+    /* Blockquote */
     .ProseMirror blockquote {
       border-left: 3px solid var(--tiptap-color-border);
       color: var(--tiptap-color-muted);
@@ -66,6 +67,7 @@ export const common = css`
       font-style: italic;
     }
 
+    /* Inline code & pre */
     .ProseMirror code {
       background-color: var(--tiptap-color-code-bg);
       border-radius: ${theme.borderRadius};
@@ -82,27 +84,49 @@ export const common = css`
       font-family: monospace;
     }
 
+    /* Lists */
     .ProseMirror ul,
     .ProseMirror ol {
-      margin: 1rem 0 1rem 2rem;
-      padding: 0;
+      margin: 1rem 0 1rem 1.5rem;
+      padding-left: 1.25rem;
+    }
+
+    .ProseMirror ul {
+      list-style-type: disc;
+    }
+
+    .ProseMirror ol {
+      list-style-type: decimal;
+    }
+
+    .ProseMirror ul ul {
+      list-style-type: circle;
+      margin-left: 1.25rem;
+    }
+
+    .ProseMirror ol ol {
+      list-style-type: lower-alpha;
+      margin-left: 1.25rem;
     }
 
     .ProseMirror li {
       margin: 0.25rem 0;
     }
 
+    /* Horizontal rule */
     .ProseMirror hr {
       border: none;
       border-top: 1px solid var(--tiptap-color-border);
       margin: 2rem 0;
     }
 
+    /* Links */
     .ProseMirror a {
       color: var(--tiptap-color-primary);
       text-decoration: underline;
     }
 
+    /* Images & figures */
     .ProseMirror img {
       max-width: 100%;
       border-radius: ${theme.borderRadius};
@@ -118,6 +142,34 @@ export const common = css`
       color: var(--tiptap-color-muted);
       margin-top: 0.25rem;
       text-align: center;
+    }
+
+    /* Tables */
+    .ProseMirror table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      font-size: 0.95rem;
+    }
+
+    .ProseMirror table th,
+    .ProseMirror table td {
+      border: 1px solid var(--tiptap-color-border);
+      padding: 0.5rem 0.75rem;
+      text-align: left;
+    }
+
+    .ProseMirror table th {
+      background-color: var(--tiptap-color-muted-bg);
+      font-weight: 600;
+    }
+
+    .ProseMirror table tr:nth-child(even) {
+      background-color: var(--tiptap-color-bg-alt);
+    }
+
+    .ProseMirror table tr:hover {
+      background-color: var(--tiptap-color-hover-bg);
     }
   `}
 `;

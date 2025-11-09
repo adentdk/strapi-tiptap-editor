@@ -14,6 +14,7 @@ import {
   Replace,
   Smartphone,
   Monitor,
+  Star,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -28,7 +29,7 @@ import { Button } from "../../ui/button";
 import styled from "styled-components";
 import { MediaFile, MediaLibraryModal } from "../../../components/MediaLibraryModal";
 
-// Extended attributes untuk responsive
+// Extended attributes untuk responsive dan featured image
 export const ImageExtension = Image.extend({
   addAttributes() {
     return {
@@ -73,6 +74,10 @@ export const ImageExtension = Image.extend({
       useResponsive: {
         default: true, // Default aktifkan responsive
       },
+      // Featured image attribute
+      isFeatured: {
+        default: false,
+      },
     };
   },
 
@@ -101,6 +106,7 @@ export const ImageExtension = Image.extend({
             mobileWidth: "100%",
             mobileMaxWidth: "100%",
             useResponsive: true,
+            isFeatured: false,
           }
         },
       },
@@ -193,7 +199,7 @@ const StyledImage = styled.img<{
   `}
 `;
 
-const AltTextBadge = styled.span`
+const AltTextBadge = styled.span<{ $isHovered?: boolean }>`
   position: absolute;
   bottom: 12px;
   left: 12px;
@@ -209,6 +215,12 @@ const AltTextBadge = styled.span`
   overflow: hidden;
   border-radius: 4px;
   backdrop-filter: blur(4px);
+  opacity: ${props => props.$isHovered ? 1 : 0.2};
+  transition: opacity 0.2s ease-in-out;
+  
+  &:hover {
+    opacity: 1;
+  }
 `;
 
 const AltTextStatus = styled.span`
@@ -306,6 +318,23 @@ const ResponsiveBadge = styled.div<{ $active?: boolean }>`
   gap: 4px;
 `;
 
+const FeaturedBadge = styled.div<{ $active?: boolean }>`
+  position: absolute;
+  top: 8px;
+  left: ${props => props.$active ? '70px' : '8px'};
+  background-color: ${props => props.$active ? props.theme.colors.warning500 : props.theme.colors.neutral500};
+  color: ${props => props.theme.colors.neutral0};
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+  z-index: 10;
+`;
+
 const StyledDropdownMenuContent = styled(DropdownMenuContent)`
   margin-top: 4px;
   font-size: 14px;
@@ -386,6 +415,7 @@ const normalizeImageAttributes = (attrs: any) => {
     normalized.mobileWidth = "100%";
     normalized.mobileMaxWidth = "100%";
     normalized.useResponsive = true;
+    normalized.isFeatured = false;
   }
   
   if (typeof normalized.width === 'number') {
@@ -405,6 +435,7 @@ export function TiptapImageComponent(props: NodeViewProps) {
   const [resizeInitialMouseX, setResizeInitialMouseX] = useState(0);
   const [openedMore, setOpenedMore] = useState(false);
   const [mediaLibOpen, setMediaLibOpen] = useState(false);
+  const [isAltHovered, setIsAltHovered] = useState(false);
 
   // Normalize attributes ketika komponen mount
   useEffect(() => {
@@ -478,7 +509,30 @@ export function TiptapImageComponent(props: NodeViewProps) {
     });
   };
 
-  const { alt, width, align, objectFit, mobileWidth, useResponsive } = node.attrs;
+  // Toggle featured image
+  const toggleFeaturedImage = () => {
+    const newIsFeatured = !node.attrs.isFeatured;
+    
+    // Jika mengaktifkan featured image, nonaktifkan featured image di gambar lain
+    if (newIsFeatured) {
+      const transaction = editor.state.tr;
+      editor.state.doc.descendants((node, pos) => {
+        if (node.type.name === 'image' && node.attrs.isFeatured) {
+          transaction.setNodeMarkup(pos, undefined, {
+            ...node.attrs,
+            isFeatured: false
+          });
+        }
+      });
+      editor.view.dispatch(transaction);
+    }
+    
+    updateAttributes({
+      isFeatured: newIsFeatured
+    });
+  };
+
+  const { alt, width, align, objectFit, mobileWidth, useResponsive, isFeatured } = node.attrs;
 
   const onEditAlt = () => {
     const newAlt = prompt("Set alt text:", alt || "");
@@ -529,8 +583,20 @@ export function TiptapImageComponent(props: NodeViewProps) {
             </ResponsiveBadge>
           )}
           
+          {/* Featured Image Badge */}
           {editor?.isEditable && (
-            <AltTextBadge>
+            <FeaturedBadge $active={isFeatured}>
+              <Star size={10} fill={isFeatured ? "currentColor" : "none"} />
+              {isFeatured ? "Featured" : "Set Featured"}
+            </FeaturedBadge>
+          )}
+          
+          {editor?.isEditable && (
+            <AltTextBadge 
+              $isHovered={isAltHovered}
+              onMouseEnter={() => setIsAltHovered(true)}
+              onMouseLeave={() => setIsAltHovered(false)}
+            >
               <AltTextStatus style={{
                 color: alt ? "green" : "red"
               }}>
@@ -584,6 +650,22 @@ export function TiptapImageComponent(props: NodeViewProps) {
                 
                 <Separator orientation="vertical" style={{ height: "20px" }} />
                 
+                {/* Featured Image Toggle */}
+                <ToolbarButton
+                  $active={isFeatured}
+                  variant="ghost"
+                  onClick={toggleFeaturedImage}
+                  title={isFeatured ? "Unset as Featured Image" : "Set as Featured Image"}
+                >
+                  <Star 
+                    width={16} 
+                    height={16} 
+                    fill={isFeatured ? "currentColor" : "none"} 
+                  />
+                </ToolbarButton>
+                
+                <Separator orientation="vertical" style={{ height: "20px" }} />
+                
                 {/* More Options */}
                 <DropdownMenu
                   open={openedMore}
@@ -595,6 +677,18 @@ export function TiptapImageComponent(props: NodeViewProps) {
                     </ToolbarButton>
                   </DropdownMenuTrigger>
                   <StyledDropdownMenuContent align="start" alignOffset={-90}>
+                    
+                    {/* Featured Image Option */}
+                    <DropdownMenuItemStyled onClick={toggleFeaturedImage}>
+                      <Star 
+                        width={16} 
+                        height={16} 
+                        fill={isFeatured ? "currentColor" : "none"} 
+                      />
+                      {isFeatured ? "Unset as Featured Image" : "Set as Featured Image"}
+                    </DropdownMenuItemStyled>
+                    
+                    <DropdownMenuSeparator />
                     
                     {/* Replace Image */}
                     <DropdownMenuItemStyled onClick={handleReplaceImage}>
