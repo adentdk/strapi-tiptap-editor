@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { Copy, ExternalLink, Unlink2 } from "lucide-react";
+import { Copy, ExternalLink, Pencil, Unlink2 } from "lucide-react";
 import { Separator } from "../../ui/separator";
 import {
   Tooltip,
@@ -83,7 +83,7 @@ export const LinkPopoverBlock: React.FC<LinkPopoverBlockProps> = ({
     <Container>
       <ButtonGroup>
         <ToolbarButton tooltip="Edit link" onClick={onEdit}>
-          Edit link
+          <Pencil width={16} height={16} />
         </ToolbarButton>
         <Separator orientation="vertical" />
 

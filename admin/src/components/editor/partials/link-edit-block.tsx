@@ -57,6 +57,15 @@ export const LinkEditBlock = forwardRef<HTMLDivElement, LinkEditorProps>(
     const [text, setText] = useState(defaultText || "");
     const [isNewTab, setIsNewTab] = useState(defaultIsNewTab || false);
 
+    // Handler untuk mencegah event bubbling
+    const handleInputMouseDown = useCallback((e: React.MouseEvent) => {
+      e.stopPropagation();
+    }, []);
+
+    const handleInputClick = useCallback((e: React.MouseEvent) => {
+      e.stopPropagation();
+    }, []);
+
     const handleSave = useCallback(
       (e: React.FormEvent) => {
         e.preventDefault();
@@ -92,6 +101,8 @@ export const LinkEditBlock = forwardRef<HTMLDivElement, LinkEditorProps>(
               placeholder="Enter URL"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
+              onMouseDown={handleInputMouseDown}
+              onClick={handleInputClick}
             />
           </FormGroup>
 
@@ -102,6 +113,8 @@ export const LinkEditBlock = forwardRef<HTMLDivElement, LinkEditorProps>(
               placeholder="Enter display text"
               value={text}
               onChange={(e) => setText(e.target.value)}
+              onMouseDown={handleInputMouseDown}
+              onClick={handleInputClick}
             />
           </FormGroup>
 
@@ -109,12 +122,18 @@ export const LinkEditBlock = forwardRef<HTMLDivElement, LinkEditorProps>(
             <StyledLabel>Open in New Tab</StyledLabel>
             <Switch 
               checked={isNewTab} 
-              onCheckedChange={setIsNewTab} 
+              onCheckedChange={setIsNewTab}
+              onMouseDown={handleInputMouseDown}
+              onClick={handleInputClick}
             />
           </SwitchContainer>
 
           <ButtonContainer>
-            <Button type="button" onClick={handleSave}>
+            <Button 
+              type="button" 
+              onClick={handleSave}
+              onMouseDown={handleInputMouseDown}
+            >
               Save
             </Button>
           </ButtonContainer>
