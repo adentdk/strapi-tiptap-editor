@@ -144,7 +144,7 @@ const AltTextBadge = styled.span`
   max-width: calc(100% - 24px);
   padding: 8px 12px;
   border: 1px solid ${props => props.theme.colors.neutral300};
-  background-color: ${props => props.theme.colors.neutral0}CC;
+  background-color: ${props => props.theme.colors.neutral0};
   font-size: 12px;
   display: inline-flex;
   align-items: center;
@@ -185,36 +185,6 @@ const AltTextButton = styled.button`
   }
 `;
 
-const ResizeHandle = styled.div<{ $position: "left" | "right" }>`
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 20;
-  width: 16px;
-  height: 60px;
-  display: flex;
-  cursor: col-resize;
-  align-items: center;
-  justify-content: ${props => props.$position === "left" ? "flex-start" : "flex-end"};
-  
-  ${props => props.$position === "left" ? "left: -8px;" : "right: -8px;"}
-`;
-
-const ResizeHandleBar = styled.div`
-  z-index: 20;
-  height: 40px;
-  width: 4px;
-  border-radius: 8px;
-  background-color: ${props => props.theme.colors.primary500};
-  opacity: 0;
-  transition: all 0.2s ease-in-out;
-  
-  ${ResizeHandle}:hover & {
-    opacity: 1;
-    transform: scale(1.2);
-  }
-`;
-
 const Toolbar = styled.div<{ $resizing?: boolean; $openedMore?: boolean }>`
   position: absolute;
   right: 16px;
@@ -226,14 +196,9 @@ const Toolbar = styled.div<{ $resizing?: boolean; $openedMore?: boolean }>`
   border: 1px solid ${props => props.theme.colors.neutral300};
   background-color: ${props => props.theme.colors.neutral0};
   padding: 6px;
-  opacity: ${props => props.$openedMore ? 1 : 0};
+  opacity: ${props => props.$openedMore ? 1 : 0.5};
   transition: all 0.2s ease-in-out;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  
-  ${props => props.$resizing && `
-    opacity: 0;
-    pointer-events: none;
-  `}
   
   &:hover {
     opacity: 1;
@@ -505,25 +470,6 @@ export function TiptapImageComponent(props: NodeViewProps) {
 
         {editor?.isEditable && (
           <>
-            <ResizeHandle
-              $position="left"
-              onMouseDown={(event) => {
-                handleResizingPosition({ e: event, position: "left" });
-              }}
-              onTouchStart={(event) => handleTouchStart(event, "left")}
-            >
-              <ResizeHandleBar />
-            </ResizeHandle>
-            <ResizeHandle
-              $position="right"
-              onMouseDown={(event) => {
-                handleResizingPosition({ e: event, position: "right" });
-              }}
-              onTouchStart={(event) => handleTouchStart(event, "right")}
-            >
-              <ResizeHandleBar />
-            </ResizeHandle>
-            
             <Toolbar $resizing={resizing} $openedMore={openedMore}>
               {/* Alignment Controls */}
               <ToolbarButton

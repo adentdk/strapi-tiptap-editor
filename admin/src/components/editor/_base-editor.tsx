@@ -46,10 +46,10 @@ const ToolbarContent = styled.div`
   flex: 1;
   align-items: center;
   gap: 8px;
+  row-gap: 4px;
   flex-wrap: wrap;
-  justify-content: space-between;
+  justify-content: flex-start;
 `;
-
 const ContentContainer = styled.div`
   display: flex;
   flex: 1;
