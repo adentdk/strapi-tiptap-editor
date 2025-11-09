@@ -64,9 +64,38 @@ export const ImageExtension = Image.extend({
   addNodeView: () => {
     return ReactNodeViewRenderer(TiptapImageComponent);
   },
+
+  // Tambahkan parseHTML dan renderHTML untuk handle paste
+  parseHTML() {
+    return [
+      {
+        tag: 'img[src]',
+        getAttrs: (dom) => {
+          if (typeof dom === 'string') return {}
+          const element = dom as HTMLImageElement
+          
+          return {
+            src: element.getAttribute('src'),
+            alt: element.getAttribute('alt'),
+            title: element.getAttribute('title'),
+            width: element.getAttribute('width') || "90%",
+            height: element.getAttribute('height'),
+            align: "center", // Default untuk gambar yang di-paste
+            srcset: element.getAttribute('srcset'),
+            maxWidth: "100%",
+            objectFit: "contain",
+          }
+        },
+      },
+    ]
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return ['img', HTMLAttributes]
+  },
 });
 
-// Styled Components
+// Styled Components (tetap sama seperti sebelumnya)
 const ImageWrapper = styled(NodeViewWrapper)<{
   $selected?: boolean;
   $align?: string;
@@ -280,6 +309,26 @@ const SizePresetButton = styled.button<{ $active?: boolean }>`
   }
 `;
 
+// Helper function untuk mendeteksi dan menormalisasi atribut gambar
+const normalizeImageAttributes = (attrs: any) => {
+  const normalized = { ...attrs };
+  
+  // Jika hanya ada src tanpa atribut lain, set default values
+  if (attrs.src && !attrs.width && !attrs.align) {
+    normalized.width = "90%";
+    normalized.align = "center";
+    normalized.maxWidth = "100%";
+    normalized.objectFit = "contain";
+  }
+  
+  // Normalize width value
+  if (typeof normalized.width === 'number') {
+    normalized.width = `${normalized.width}px`;
+  }
+  
+  return normalized;
+};
+
 export function TiptapImageComponent(props: NodeViewProps) {
   const { node, editor, selected, deleteNode, updateAttributes } = props;
   const imageRef = useRef<HTMLImageElement | null>(null);
@@ -289,6 +338,18 @@ export function TiptapImageComponent(props: NodeViewProps) {
   const [resizeInitialWidth, setResizeInitialWidth] = useState(0);
   const [resizeInitialMouseX, setResizeInitialMouseX] = useState(0);
   const [openedMore, setOpenedMore] = useState(false);
+
+  // Normalize attributes ketika komponen mount
+  useEffect(() => {
+    const normalizedAttrs = normalizeImageAttributes(node.attrs);
+    const needsUpdate = Object.keys(normalizedAttrs).some(
+      key => normalizedAttrs[key] !== node.attrs[key]
+    );
+    
+    if (needsUpdate) {
+      updateAttributes(normalizedAttrs);
+    }
+  }, [node.attrs, updateAttributes]);
 
   // Size presets
   const sizePresets = [
@@ -446,19 +507,21 @@ export function TiptapImageComponent(props: NodeViewProps) {
           $aspectRatio={node.attrs.aspectRatio}
         />
         
-        <AltTextBadge>
-          <AltTextStatus style={{
-            color: alt ? "green" : "red"
-          }}>
-            {alt ? "✔" : "!"}
-          </AltTextStatus>
-          <AltTextContent>
-            {alt ? `Alt: "${alt}"` : `Alt text missing`}
-          </AltTextContent>
-          <AltTextButton type="button" onClick={onEditAlt}>
-            Edit
-          </AltTextButton>
-        </AltTextBadge>
+        {editor?.isEditable && (
+          <AltTextBadge>
+            <AltTextStatus style={{
+              color: alt ? "green" : "red"
+            }}>
+              {alt ? "✔" : "!"}
+            </AltTextStatus>
+            <AltTextContent>
+              {alt ? `Alt: "${alt}"` : `Alt text missing`}
+            </AltTextContent>
+            <AltTextButton type="button" onClick={onEditAlt}>
+              Edit
+            </AltTextButton>
+          </AltTextBadge>
+        )}
 
         <SizeIndicator>
           {getDisplayWidth()}
