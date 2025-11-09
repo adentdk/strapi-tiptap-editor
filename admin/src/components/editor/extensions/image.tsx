@@ -8,7 +8,6 @@ import {
   AlignLeft,
   AlignRight,
   Copy,
-  Maximize,
   MoreVertical,
   Trash,
   Replace,
@@ -33,57 +32,24 @@ import { MediaFile, MediaLibraryModal } from "../../../components/MediaLibraryMo
 export const ImageExtension = Image.extend({
   addAttributes() {
     return {
-      src: {
-        default: null,
-      },
-      alt: {
-        default: null,
-      },
-      title: {
-        default: null,
-      },
-      width: {
-        default: "90%",
-      },
-      height: {
-        default: null,
-      },
-      align: {
-        default: "center",
-      },
-      srcset: { 
-        default: null 
-      },
-      // New attributes for better control
-      maxWidth: {
-        default: "100%",
-      },
-      aspectRatio: {
-        default: null,
-      },
-      objectFit: {
-        default: "contain",
-      },
-      // Responsive attributes
-      mobileWidth: {
-        default: "100%", // Default full width di mobile
-      },
-      mobileMaxWidth: {
-        default: "100%",
-      },
-      useResponsive: {
-        default: true, // Default aktifkan responsive
-      },
-      // Featured image attribute
-      isFeatured: {
-        default: false,
-      },
+      src: { default: null },
+      alt: { default: null },
+      title: { default: null },
+      width: { default: "90%" },
+      height: { default: null },
+      align: { default: "center" },
+      srcset: { default: null },
+      maxWidth: { default: "100%" },
+      aspectRatio: { default: null },
+      objectFit: { default: "contain" },
+      mobileWidth: { default: "100%" },
+      mobileMaxWidth: { default: "100%" },
+      useResponsive: { default: true },
+      isFeatured: { default: false },
     };
   },
 
-  addNodeView: () => {
-    return ReactNodeViewRenderer(TiptapImageComponent);
-  },
+  addNodeView: () => ReactNodeViewRenderer(TiptapImageComponent),
 
   parseHTML() {
     return [
@@ -118,7 +84,7 @@ export const ImageExtension = Image.extend({
   },
 });
 
-// Styled Components dengan responsive
+// Styled Components yang disederhanakan
 const ImageWrapper = styled(NodeViewWrapper)<{
   $selected?: boolean;
   $align?: string;
@@ -143,26 +109,12 @@ const ImageWrapper = styled(NodeViewWrapper)<{
   
   ${props => {
     switch (props.$align) {
-      case "left":
-        return `
-          margin-left: 0;
-          margin-right: auto;
-        `;
-      case "right":
-        return `
-          margin-left: auto;
-          margin-right: 0;
-        `;
-      case "center":
-      default:
-        return `
-          margin-left: auto;
-          margin-right: auto;
-        `;
+      case "left": return `margin-left: 0; margin-right: auto;`;
+      case "right": return `margin-left: auto; margin-right: 0;`;
+      default: return `margin-left: auto; margin-right: auto;`;
     }
   }}
 
-  /* Responsive styles untuk mobile */
   @media (max-width: 768px) {
     ${props => props.$useResponsive && `
       width: ${props.$mobileWidth || "100%"} !important;
@@ -172,7 +124,6 @@ const ImageWrapper = styled(NodeViewWrapper)<{
 `;
 
 const ImageContainer = styled.div<{ 
-  $resizing?: boolean;
   $objectFit?: string;
 }>`
   position: relative;
@@ -180,12 +131,6 @@ const ImageContainer = styled.div<{
   flex-direction: column;
   border-radius: 6px;
   overflow: hidden;
-  cursor: ${props => props.$resizing ? 'col-resize' : 'default'};
-  
-  img {
-    object-fit: ${props => props.$objectFit || 'contain'};
-    transition: all 0.2s ease;
-  }
 `;
 
 const StyledImage = styled.img<{
@@ -194,12 +139,41 @@ const StyledImage = styled.img<{
   display: block;
   width: 100%;
   height: auto;
-  ${props => props.$aspectRatio && `
-    aspect-ratio: ${props.$aspectRatio};
-  `}
+  object-fit: cover;
+  ${props => props.$aspectRatio && `aspect-ratio: ${props.$aspectRatio};`}
 `;
 
-const AltTextBadge = styled.span<{ $isHovered?: boolean }>`
+// Container untuk badge yang menggunakan flex
+const BadgesContainer = styled.div`
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  z-index: 10;
+`;
+
+const Badge = styled.div<{ $active?: boolean; $type?: 'responsive' | 'featured' }>`
+  background-color: ${props => {
+    if (props.$type === 'featured') {
+      return props.$active ? props.theme.colors.warning500 : props.theme.colors.neutral500;
+    }
+    return props.$active ? props.theme.colors.success500 : props.theme.colors.neutral500;
+  }};
+  color: ${props => props.theme.colors.neutral0};
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+`;
+
+const AltTextBadge = styled.div<{ $isHovered?: boolean }>`
   position: absolute;
   bottom: 12px;
   left: 12px;
@@ -223,38 +197,7 @@ const AltTextBadge = styled.span<{ $isHovered?: boolean }>`
   }
 `;
 
-const AltTextStatus = styled.span`
-  flex: none;
-  font-size: 14px;
-  font-weight: bold;
-`;
-
-const AltTextContent = styled.span`
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-`;
-
-const AltTextButton = styled.button`
-  flex: none;
-  border: 0;
-  padding: 4px 8px;
-  background-color: transparent;
-  appearance: none;
-  text-decoration: underline;
-  color: ${props => props.theme.colors.primary500};
-  cursor: pointer;
-  border-radius: 3px;
-  font-size: 12px;
-  
-  &:hover {
-    color: ${props => props.theme.colors.primary600};
-    background-color: ${props => props.theme.colors.primary100};
-  }
-`;
-
-const Toolbar = styled.div<{ $resizing?: boolean; $openedMore?: boolean }>`
+const Toolbar = styled.div<{ $openedMore?: boolean }>`
   position: absolute;
   right: 16px;
   top: 16px;
@@ -303,72 +246,11 @@ const SizeIndicator = styled.div`
   }
 `;
 
-const ResponsiveBadge = styled.div<{ $active?: boolean }>`
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  background-color: ${props => props.$active ? props.theme.colors.success500 : props.theme.colors.neutral500};
-  color: ${props => props.theme.colors.neutral0};
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 10px;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-`;
-
-const FeaturedBadge = styled.div<{ $active?: boolean }>`
-  position: absolute;
-  top: 8px;
-  left: ${props => props.$active ? '70px' : '8px'};
-  background-color: ${props => props.$active ? props.theme.colors.warning500 : props.theme.colors.neutral500};
-  color: ${props => props.theme.colors.neutral0};
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 10px;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  transition: all 0.2s ease;
-  z-index: 10;
-`;
-
-const StyledDropdownMenuContent = styled(DropdownMenuContent)`
-  margin-top: 4px;
-  font-size: 14px;
-  min-width: 200px;
-`;
-
-const DropdownMenuItemStyled = styled(DropdownMenuItem)`
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  
-  &.destructive {
-    color: ${props => props.theme.colors.danger500};
-    
-    &:focus {
-      color: ${props => props.theme.colors.danger500};
-      background-color: ${props => props.theme.colors.danger100};
-    }
-  }
-`;
-
+// Komponen untuk dropdown yang lebih ringkas
 const SizePresetGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 4px;
-  padding: 8px;
-`;
-
-const ResponsiveGrid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
   padding: 8px;
 `;
 
@@ -386,21 +268,6 @@ const SizePresetButton = styled.button<{ $active?: boolean }>`
     background-color: ${props => props.theme.colors.primary100};
     border-color: ${props => props.theme.colors.primary500};
   }
-`;
-
-const ResponsiveInputContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-`;
-
-const ResponsiveLabel = styled.label`
-  font-size: 11px;
-  font-weight: 600;
-  color: ${props => props.theme.colors.neutral600};
-  display: flex;
-  align-items: center;
-  gap: 4px;
 `;
 
 // Helper function untuk mendeteksi dan menormalisasi atribut gambar
@@ -428,11 +295,6 @@ const normalizeImageAttributes = (attrs: any) => {
 export function TiptapImageComponent(props: NodeViewProps) {
   const { node, editor, selected, deleteNode, updateAttributes } = props;
   const imageRef = useRef<HTMLImageElement | null>(null);
-  const nodeRef = useRef<HTMLDivElement | null>(null);
-  const [resizing, setResizing] = useState(false);
-  const [resizingPosition, setResizingPosition] = useState<"left" | "right">("left");
-  const [resizeInitialWidth, setResizeInitialWidth] = useState(0);
-  const [resizeInitialMouseX, setResizeInitialMouseX] = useState(0);
   const [openedMore, setOpenedMore] = useState(false);
   const [mediaLibOpen, setMediaLibOpen] = useState(false);
   const [isAltHovered, setIsAltHovered] = useState(false);
@@ -449,30 +311,19 @@ export function TiptapImageComponent(props: NodeViewProps) {
     }
   }, [node.attrs, updateAttributes]);
 
-  // Size presets
+  // Preset yang disederhanakan
   const sizePresets = [
     { label: "Small", value: "30%" },
     { label: "Medium", value: "60%" },
     { label: "Large", value: "90%" },
     { label: "Full", value: "100%" },
-    { label: "Fit", value: "fit-content" },
-    { label: "Auto", value: "auto" },
   ];
 
-  // Mobile size presets
   const mobileSizePresets = [
     { label: "Full", value: "100%" },
     { label: "90%", value: "90%" },
     { label: "80%", value: "80%" },
-    { label: "70%", value: "70%" },
     { label: "Auto", value: "auto" },
-  ];
-
-  // Object fit options
-  const objectFitOptions = [
-    { label: "Contain", value: "contain" },
-    { label: "Cover", value: "cover" },
-    { label: "Fill", value: "fill" },
   ];
 
   // Handle replace image dengan media library
@@ -502,18 +353,14 @@ export function TiptapImageComponent(props: NodeViewProps) {
     });
   };
 
-  // Toggle responsive
+  // Toggle functions
   const toggleResponsive = () => {
-    updateAttributes({
-      useResponsive: !node.attrs.useResponsive
-    });
+    updateAttributes({ useResponsive: !node.attrs.useResponsive });
   };
 
-  // Toggle featured image
   const toggleFeaturedImage = () => {
     const newIsFeatured = !node.attrs.isFeatured;
     
-    // Jika mengaktifkan featured image, nonaktifkan featured image di gambar lain
     if (newIsFeatured) {
       const transaction = editor.state.tr;
       editor.state.doc.descendants((node, pos) => {
@@ -527,12 +374,10 @@ export function TiptapImageComponent(props: NodeViewProps) {
       editor.view.dispatch(transaction);
     }
     
-    updateAttributes({
-      isFeatured: newIsFeatured
-    });
+    updateAttributes({ isFeatured: newIsFeatured });
   };
 
-  const { alt, width, align, objectFit, mobileWidth, useResponsive, isFeatured } = node.attrs;
+  const { alt, width, align, mobileWidth, useResponsive, isFeatured } = node.attrs;
 
   const onEditAlt = () => {
     const newAlt = prompt("Set alt text:", alt || "");
@@ -542,19 +387,14 @@ export function TiptapImageComponent(props: NodeViewProps) {
   };
 
   const getDisplayWidth = () => {
-    if (typeof width === 'string') {
-      return width;
-    }
-    if (typeof width === 'number') {
-      return `${width}px`;
-    }
+    if (typeof width === 'string') return width;
+    if (typeof width === 'number') return `${width}px`;
     return 'auto';
   };
 
   return (
     <>
       <ImageWrapper
-        ref={nodeRef}
         $selected={selected}
         $align={align}
         $width={getDisplayWidth()}
@@ -563,10 +403,7 @@ export function TiptapImageComponent(props: NodeViewProps) {
         $mobileMaxWidth={node.attrs.mobileMaxWidth}
         $useResponsive={useResponsive}
       >
-        <ImageContainer 
-          $resizing={resizing}
-          $objectFit={objectFit}
-        >
+        <ImageContainer $objectFit={node.attrs.objectFit}>
           <StyledImage
             ref={imageRef}
             src={node.attrs.src}
@@ -575,20 +412,29 @@ export function TiptapImageComponent(props: NodeViewProps) {
             $aspectRatio={node.attrs.aspectRatio}
           />
           
-          {/* Responsive Badge */}
+          {/* Badges Container */}
           {editor?.isEditable && (
-            <ResponsiveBadge $active={useResponsive}>
-              {useResponsive ? <Smartphone size={10} /> : <Monitor size={10} />}
-              {useResponsive ? "Responsive" : "Fixed"}
-            </ResponsiveBadge>
-          )}
-          
-          {/* Featured Image Badge */}
-          {editor?.isEditable && (
-            <FeaturedBadge $active={isFeatured}>
-              <Star size={10} fill={isFeatured ? "currentColor" : "none"} />
-              {isFeatured ? "Featured" : "Set Featured"}
-            </FeaturedBadge>
+            <BadgesContainer>
+              <Badge 
+                $active={useResponsive} 
+                $type="responsive"
+                onClick={toggleResponsive}
+                title={useResponsive ? "Disable responsive" : "Enable responsive"}
+              >
+                {useResponsive ? <Smartphone size={10} /> : <Monitor size={10} />}
+                {useResponsive ? "Responsive" : "Fixed"}
+              </Badge>
+              
+              <Badge 
+                $active={isFeatured} 
+                $type="featured"
+                onClick={toggleFeaturedImage}
+                title={isFeatured ? "Unset as featured" : "Set as featured"}
+              >
+                <Star size={10} fill={isFeatured ? "currentColor" : "none"} />
+                {isFeatured ? "Featured" : "Feature"}
+              </Badge>
+            </BadgesContainer>
           )}
           
           {editor?.isEditable && (
@@ -597,17 +443,28 @@ export function TiptapImageComponent(props: NodeViewProps) {
               onMouseEnter={() => setIsAltHovered(true)}
               onMouseLeave={() => setIsAltHovered(false)}
             >
-              <AltTextStatus style={{
-                color: alt ? "green" : "red"
-              }}>
+              <span style={{ color: alt ? "green" : "red" }}>
                 {alt ? "✔" : "!"}
-              </AltTextStatus>
-              <AltTextContent>
+              </span>
+              <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {alt ? `Alt: "${alt}"` : `Alt text missing`}
-              </AltTextContent>
-              <AltTextButton type="button" onClick={onEditAlt}>
+              </span>
+              <button 
+                type="button" 
+                onClick={onEditAlt}
+                style={{
+                  border: 0,
+                  padding: "4px 8px",
+                  backgroundColor: "transparent",
+                  textDecoration: "underline",
+                  color: "var(--primary-500)",
+                  cursor: "pointer",
+                  borderRadius: "3px",
+                  fontSize: "12px"
+                }}
+              >
                 Edit
-              </AltTextButton>
+              </button>
             </AltTextBadge>
           )}
 
@@ -620,215 +477,148 @@ export function TiptapImageComponent(props: NodeViewProps) {
           </NodeViewContent>
 
           {editor?.isEditable && (
-            <>
-              <Toolbar $resizing={resizing} $openedMore={openedMore}>
-                {/* Alignment Controls */}
-                <ToolbarButton
-                  $active={align === "left"}
-                  variant="ghost"
-                  onClick={() => updateAttributes({ align: "left" })}
-                  title="Align Left"
-                >
-                  <AlignLeft width={16} height={16} />
-                </ToolbarButton>
-                <ToolbarButton
-                  $active={align === "center"}
-                  variant="ghost"
-                  onClick={() => updateAttributes({ align: "center" })}
-                  title="Align Center"
-                >
-                  <AlignCenter width={16} height={16} />
-                </ToolbarButton>
-                <ToolbarButton
-                  $active={align === "right"}
-                  variant="ghost"
-                  onClick={() => updateAttributes({ align: "right" })}
-                  title="Align Right"
-                >
-                  <AlignRight width={16} height={16} />
-                </ToolbarButton>
-                
-                <Separator orientation="vertical" style={{ height: "20px" }} />
-                
-                {/* Featured Image Toggle */}
-                <ToolbarButton
-                  $active={isFeatured}
-                  variant="ghost"
-                  onClick={toggleFeaturedImage}
-                  title={isFeatured ? "Unset as Featured Image" : "Set as Featured Image"}
-                >
-                  <Star 
-                    width={16} 
-                    height={16} 
-                    fill={isFeatured ? "currentColor" : "none"} 
-                  />
-                </ToolbarButton>
-                
-                <Separator orientation="vertical" style={{ height: "20px" }} />
-                
-                {/* More Options */}
-                <DropdownMenu
-                  open={openedMore}
-                  onOpenChange={setOpenedMore}
-                >
-                  <DropdownMenuTrigger asChild>
-                    <ToolbarButton variant="ghost" title="More options">
-                      <MoreVertical width={16} height={16} />
-                    </ToolbarButton>
-                  </DropdownMenuTrigger>
-                  <StyledDropdownMenuContent align="start" alignOffset={-90}>
-                    
-                    {/* Featured Image Option */}
-                    <DropdownMenuItemStyled onClick={toggleFeaturedImage}>
-                      <Star 
-                        width={16} 
-                        height={16} 
-                        fill={isFeatured ? "currentColor" : "none"} 
-                      />
-                      {isFeatured ? "Unset as Featured Image" : "Set as Featured Image"}
-                    </DropdownMenuItemStyled>
-                    
-                    <DropdownMenuSeparator />
-                    
-                    {/* Replace Image */}
-                    <DropdownMenuItemStyled onClick={handleReplaceImage}>
-                      <Replace width={16} height={16} />
-                      Replace Image
-                    </DropdownMenuItemStyled>
-                    
-                    <DropdownMenuSeparator />
-                    
-                    {/* Responsive Settings */}
-                    <div style={{ padding: "8px 12px 4px 12px", fontSize: "12px", fontWeight: "600", color: "var(--neutral-600)" }}>
-                      Responsive Settings
-                    </div>
-                    <div style={{ padding: "0 8px 8px 8px" }}>
+            <Toolbar $openedMore={openedMore}>
+              {/* Alignment Controls */}
+              <ToolbarButton
+                $active={align === "left"}
+                variant="ghost"
+                onClick={() => updateAttributes({ align: "left" })}
+                title="Align Left"
+              >
+                <AlignLeft width={16} height={16} />
+              </ToolbarButton>
+              <ToolbarButton
+                $active={align === "center"}
+                variant="ghost"
+                onClick={() => updateAttributes({ align: "center" })}
+                title="Align Center"
+              >
+                <AlignCenter width={16} height={16} />
+              </ToolbarButton>
+              <ToolbarButton
+                $active={align === "right"}
+                variant="ghost"
+                onClick={() => updateAttributes({ align: "right" })}
+                title="Align Right"
+              >
+                <AlignRight width={16} height={16} />
+              </ToolbarButton>
+              
+              <Separator orientation="vertical" style={{ height: "20px" }} />
+              
+              {/* Featured Image Toggle */}
+              <ToolbarButton
+                $active={isFeatured}
+                variant="ghost"
+                onClick={toggleFeaturedImage}
+                title={isFeatured ? "Unset as Featured Image" : "Set as Featured Image"}
+              >
+                <Star 
+                  width={16} 
+                  height={16} 
+                  fill={isFeatured ? "currentColor" : "none"} 
+                />
+              </ToolbarButton>
+              
+              <Separator orientation="vertical" style={{ height: "20px" }} />
+              
+              {/* More Options */}
+              <DropdownMenu open={openedMore} onOpenChange={setOpenedMore}>
+                <DropdownMenuTrigger asChild>
+                  <ToolbarButton variant="ghost" title="More options">
+                    <MoreVertical width={16} height={16} />
+                  </ToolbarButton>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" alignOffset={-90} style={{ minWidth: "200px", fontSize: "14px" }}>
+                  
+                  <DropdownMenuItem onClick={toggleFeaturedImage} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "8px 12px" }}>
+                    <Star width={16} height={16} fill={isFeatured ? "currentColor" : "none"} />
+                    {isFeatured ? "Unset as Featured Image" : "Set as Featured Image"}
+                  </DropdownMenuItem>
+                  
+                  <DropdownMenuSeparator />
+                  
+                  <DropdownMenuItem onClick={handleReplaceImage} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "8px 12px" }}>
+                    <Replace width={16} height={16} />
+                    Replace Image
+                  </DropdownMenuItem>
+                  
+                  <DropdownMenuSeparator />
+                  
+                  {/* Size Settings */}
+                  <div style={{ padding: "8px 12px 4px", fontSize: "12px", fontWeight: "600", color: "var(--neutral-600)" }}>
+                    {useResponsive ? "Desktop Size" : "Size Presets"}
+                  </div>
+                  
+                  <SizePresetGrid>
+                    {sizePresets.map((preset) => (
                       <SizePresetButton
-                        $active={useResponsive}
-                        onClick={toggleResponsive}
-                        style={{ width: "100%", marginBottom: "8px" }}
+                        key={preset.value}
+                        $active={width === preset.value}
+                        onClick={() => updateAttributes({ width: preset.value })}
                       >
-                        {useResponsive ? "✓ Responsive On" : "Responsive Off"}
+                        {preset.label}
                       </SizePresetButton>
-                      
-                      {useResponsive && (
-                        <ResponsiveGrid>
-                          <ResponsiveInputContainer>
-                            <ResponsiveLabel>
-                              <Monitor size={12} />
-                              Desktop
-                            </ResponsiveLabel>
-                            <SizePresetGrid style={{ gridTemplateColumns: "1fr" }}>
-                              {sizePresets.map((preset) => (
-                                <SizePresetButton
-                                  key={preset.value}
-                                  $active={width === preset.value}
-                                  onClick={() => updateAttributes({ width: preset.value })}
-                                >
-                                  {preset.label}
-                                </SizePresetButton>
-                              ))}
-                            </SizePresetGrid>
-                          </ResponsiveInputContainer>
-                          
-                          <ResponsiveInputContainer>
-                            <ResponsiveLabel>
-                              <Smartphone size={12} />
-                              Mobile
-                            </ResponsiveLabel>
-                            <SizePresetGrid style={{ gridTemplateColumns: "1fr" }}>
-                              {mobileSizePresets.map((preset) => (
-                                <SizePresetButton
-                                  key={preset.value}
-                                  $active={mobileWidth === preset.value}
-                                  onClick={() => updateAttributes({ mobileWidth: preset.value })}
-                                >
-                                  {preset.label}
-                                </SizePresetButton>
-                              ))}
-                            </SizePresetGrid>
-                          </ResponsiveInputContainer>
-                        </ResponsiveGrid>
-                      )}
-                    </div>
-                    
-                    {!useResponsive && (
-                      <>
-                        <div style={{ padding: "8px 12px 4px 12px", fontSize: "12px", fontWeight: "600", color: "var(--neutral-600)" }}>
-                          Size Presets
-                        </div>
-                        <SizePresetGrid>
-                          {sizePresets.map((preset) => (
-                            <SizePresetButton
-                              key={preset.value}
-                              $active={width === preset.value}
-                              onClick={() => updateAttributes({ width: preset.value })}
-                            >
-                              {preset.label}
-                            </SizePresetButton>
-                          ))}
-                        </SizePresetGrid>
-                      </>
-                    )}
-                    
-                    <DropdownMenuSeparator />
-                    
-                    {/* Object Fit Options */}
-                    <div style={{ padding: "8px 12px 4px 12px", fontSize: "12px", fontWeight: "600", color: "var(--neutral-600)" }}>
-                      Image Fit
-                    </div>
-                    <div style={{ padding: "0 8px 8px 8px" }}>
-                      {objectFitOptions.map((option) => (
-                        <SizePresetButton
-                          key={option.value}
-                          $active={objectFit === option.value}
-                          onClick={() => updateAttributes({ objectFit: option.value })}
-                          style={{ width: "100%", marginBottom: "4px" }}
-                        >
-                          {option.label}
-                        </SizePresetButton>
-                      ))}
-                    </div>
-                    
-                    <DropdownMenuSeparator />
-                    
-                    <DropdownMenuItemStyled
-                      onClick={() => duplicateContent(editor)}
-                    >
-                      <Copy width={16} height={16} />
-                      Duplicate
-                    </DropdownMenuItemStyled>
-                    <DropdownMenuItemStyled
-                      onClick={() => updateAttributes({ width: "100%" })}
-                    >
-                      <Maximize width={16} height={16} />
-                      Full Width
-                    </DropdownMenuItemStyled>
-                    <DropdownMenuItemStyled
-                      onClick={() => updateAttributes({ width: "auto", height: "auto" })}
-                    >
-                      <Maximize width={16} height={16} />
-                      Original Size
-                    </DropdownMenuItemStyled>
-                    
-                    <DropdownMenuSeparator />
-                    
-                    <DropdownMenuItemStyled
-                      className="destructive"
-                      onClick={deleteNode}
-                    >
-                      <Trash width={16} height={16} />
-                      Delete Image
-                    </DropdownMenuItemStyled>
-                  </StyledDropdownMenuContent>
-                </DropdownMenu>
-              </Toolbar>
-            </>
+                    ))}
+                  </SizePresetGrid>
+
+                  {useResponsive && (
+                    <>
+                      <div style={{ padding: "8px 12px 4px", fontSize: "12px", fontWeight: "600", color: "var(--neutral-600)" }}>
+                        Mobile Size
+                      </div>
+                      <SizePresetGrid>
+                        {mobileSizePresets.map((preset) => (
+                          <SizePresetButton
+                            key={preset.value}
+                            $active={mobileWidth === preset.value}
+                            onClick={() => updateAttributes({ mobileWidth: preset.value })}
+                          >
+                            {preset.label}
+                          </SizePresetButton>
+                        ))}
+                      </SizePresetGrid>
+                    </>
+                  )}
+
+                  <div style={{ padding: "8px 12px 4px", fontSize: "12px", fontWeight: "600", color: "var(--neutral-600" }}>
+                    Responsive
+                  </div>
+                  <SizePresetButton
+                    $active={useResponsive}
+                    onClick={toggleResponsive}
+                    style={{ width: "calc(100% - 16px)", margin: "0 8px 8px" }}
+                  >
+                    {useResponsive ? "✓ Responsive On" : "Responsive Off"}
+                  </SizePresetButton>
+                  
+                  <DropdownMenuSeparator />
+                  
+                  <DropdownMenuItem onClick={() => duplicateContent(editor)} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "8px 12px" }}>
+                    <Copy width={16} height={16} />
+                    Duplicate
+                  </DropdownMenuItem>
+                  
+                  <DropdownMenuItem 
+                    onClick={deleteNode}
+                    style={{ 
+                      display: "flex", 
+                      alignItems: "center", 
+                      gap: "8px", 
+                      padding: "8px 12px",
+                      color: "var(--danger-500)"
+                    }}
+                  >
+                    <Trash width={16} height={16} />
+                    Delete Image
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </Toolbar>
           )}
         </ImageContainer>
       </ImageWrapper>
 
-      {/* Media Library Modal */}
       <MediaLibraryModal
         isOpen={mediaLibOpen}
         onClose={() => setMediaLibOpen(false)}
