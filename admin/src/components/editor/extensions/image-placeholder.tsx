@@ -1,5 +1,5 @@
 // src/editor/extensions/image-placeholder.tsx
-import { useState, useCallback, memo } from "react";
+import { useState, useCallback, memo, useEffect } from "react";
 import type { NodeViewProps } from "@tiptap/core";
 import {
   type CommandProps,
@@ -125,9 +125,9 @@ const MediaLib = memo(({ isOpen, onClose, onSelect }: {
   if (!isOpen || !MediaLibraryDialog) return null;
 
   return <MediaLibraryDialog
-      onClose={onClose}
-      onSelectAssets={handleSelectAssets}
-    />;
+    onClose={onClose}
+    onSelectAssets={handleSelectAssets}
+  />;
 });
 
 MediaLib.displayName = 'MediaLib';
@@ -204,7 +204,6 @@ export function ImagePlaceholderComponent(props: NodeViewProps) {
     } as any).run();
 
     setMediaLibOpen(false);
-    setOpen(false);
   }, [editor]);
 
   // === HANDLE EMBED URL ===
@@ -226,14 +225,15 @@ export function ImagePlaceholderComponent(props: NodeViewProps) {
     setUrl("");
   };
 
+
+  useEffect(() => {
+    if (!mediaLibOpen && open) {
+      setOpen(false);
+    }
+  }, [mediaLibOpen]);
+
   return (
     <NodeViewWrapper style={{ width: "100%" }}>
-      {/* Media Library Modal - Render di ROOT */}
-      <MediaLib
-        isOpen={mediaLibOpen}
-        onClose={() => setMediaLibOpen(false)}
-        onSelect={handleMediaSelect}
-      />
 
       {/* Main Trigger */}
       <Popover.Root modal open={open} onOpenChange={setOpen}>
@@ -300,6 +300,19 @@ export function ImagePlaceholderComponent(props: NodeViewProps) {
           </Tabs.Root>
         </Popover.Content>
       </Popover.Root>
+
+      {/* Media Library Modal - Render di ROOT */}
+      <MediaLib
+        isOpen={mediaLibOpen}
+        onClose={() => {
+          setMediaLibOpen(false);
+          document.body.style.pointerEvents = '';
+        }}
+        onSelect={(file) => {
+          handleMediaSelect(file)
+          document.body.style.pointerEvents = '';
+        }}
+      />
     </NodeViewWrapper >
   );
 }
