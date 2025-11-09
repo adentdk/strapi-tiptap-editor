@@ -15,7 +15,7 @@ import { Popover, Tabs } from "@strapi/design-system";
 import { Button } from "../../ui/button";
 import { useStrapiApp } from "@strapi/strapi/admin";
 import styled from "styled-components";
-import { MediaLibraryModal } from "src/components/MediaLibraryModal";
+import { MediaLibraryModal } from "../../../components/MediaLibraryModal";
 
 export interface ImagePlaceholderOptions {
   HTMLAttributes: Record<string, any>;
