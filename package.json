@@ -1,5 +1,5 @@
 {
-  "version": "0.0.0",
+  "version": "0.0.1",
   "keywords": [],
   "type": "commonjs",
   "exports": {
@@ -28,8 +28,7 @@
     "watch:link": "strapi-plugin watch:link",
     "verify": "strapi-plugin verify",
     "test:ts:front": "run -T tsc -p admin/tsconfig.json",
-    "test:ts:back": "run -T tsc -p server/tsconfig.json",
-    "prepare": "pnpm run build || yarn run build || npm run build"
+    "test:ts:back": "run -T tsc -p server/tsconfig.json"
   },
   "dependencies": {
     "@radix-ui/react-dropdown-menu": "^2.1.16",
