@@ -36,6 +36,7 @@ export const MediaLibraryModal = memo(({
     const selectedFiles = multiple ? files : [files[0]];
 
     selectedFiles.forEach(file => {
+      console.log(file)
       const formattedFile: MediaFile = {
         url: file.url.startsWith('http') ? file.url : `${window.strapi?.backendURL}${file.url}`,
         alt: file.alternativeText || file.name,
