@@ -1,6 +1,6 @@
 // src/components/media-library/MediaLibraryModal.tsx
 import { memo, useCallback } from "react";
-import { useStrapiApp } from "@strapi/strapi/admin";
+import { useStrapiApp, } from "@strapi/strapi/admin";
 import { createPortal } from "react-dom";
 import { safelyResetPointerEvents } from "../utils/dom";
 
