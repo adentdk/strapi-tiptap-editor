@@ -365,6 +365,7 @@ export function TiptapImageComponent(props: NodeViewProps) {
 
   // Handle media select
   const handleMediaSelect = (file: MediaFile) => {
+    console.log(file);
     let srcset = undefined;
     if (file.formats) {
       const sets = Object.keys(file.formats)
@@ -378,7 +379,6 @@ export function TiptapImageComponent(props: NodeViewProps) {
     }
 
     const fullUrl = file.url.startsWith('http') ? file.url : `${window.strapi?.backendURL}${file.url}`;
-    console.log(file, "files images")
     updateAttributes({
       src: fullUrl,
       alt: file.alt,
