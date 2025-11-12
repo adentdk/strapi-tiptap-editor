@@ -8,12 +8,10 @@ import {
   NodeViewWrapper,
   ReactNodeViewRenderer,
 } from "@tiptap/react";
-import { Image as LucideImage, Link2, Library } from "lucide-react";
-import { Input } from "../../ui/input";
-import { isValidUrl, NODE_HANDLES_SELECTED_STYLE_CLASSNAME } from "../utils";
-import { Popover, Tabs } from "@strapi/design-system";
+import { Image as LucideImage } from "lucide-react";
+import { NODE_HANDLES_SELECTED_STYLE_CLASSNAME } from "../utils";
+import { Tabs } from "@strapi/design-system";
 import { Button } from "../../ui/button";
-import { useStrapiApp } from "@strapi/strapi/admin";
 import styled from "styled-components";
 import { MediaFile, MediaLibraryModal } from "../../../components/MediaLibraryModal";
 
@@ -55,19 +53,6 @@ const TriggerContainer = styled.div<{ $selected?: boolean }>`
   `}
 `;
 
-const ErrorText = styled.p`
-  padding: 6px 0;
-  font-size: 12px;
-  color: ${props => props.theme.colors.danger500};
-`;
-
-const InfoText = styled.p`
-  text-align: center;
-  font-size: 12px;
-  color: ${props => props.theme.colors.neutral600};
-  margin-top: 8px;
-`;
-
 const Icon = styled.div`
   &.image-icon {
     width: 24px;
@@ -79,21 +64,6 @@ const Icon = styled.div`
     height: 16px;
     margin-right: 6px;
   }
-`;
-
-const TabTrigger = styled(Tabs.Trigger)`
-  padding: 4px 8px;
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-`;
-
-const StyledButton = styled(Button)`
-  margin: 8px 0;
-  height: 36px;
-  width: 100%;
-  font-size: 13px;
 `;
 
 // === IMAGE PLACEHOLDER NODE ===
@@ -138,11 +108,8 @@ export const ImagePlaceholder = Node.create<ImagePlaceholderOptions>({
 export function ImagePlaceholderComponent(props: NodeViewProps) {
   const { editor, selected } = props;
   const [open, setOpen] = useState(false);
-  const [url, setUrl] = useState("");
-  const [urlError, setUrlError] = useState(false);
   const [mediaLibOpen, setMediaLibOpen] = useState(false);
 
-  // === HANDLE MEDIA SELECT ===
   const handleMediaSelect = useCallback((file: MediaFile) => {
     if (!file) return;
 
@@ -172,26 +139,6 @@ export function ImagePlaceholderComponent(props: NodeViewProps) {
 
     setMediaLibOpen(false);
   }, [editor]);
-
-  // === HANDLE EMBED URL ===
-  const handleInsertEmbed = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!isValidUrl(url)) {
-      setUrlError(true);
-      return;
-    }
-
-    editor.chain().focus().setImage({
-      src: url,
-      width: '90%',
-      align: 'center',
-    } as any).run();
-
-    props.extension.options.onEmbed(url, editor);
-    setOpen(false);
-    setUrl("");
-  };
-
 
   useEffect(() => {
     if (mediaLibOpen && open) {
