@@ -7,6 +7,7 @@ import { safelyResetPointerEvents } from "../utils/dom";
 export interface MediaFile {
   url: string;
   alt: string;
+  caption: string;
   name: string;
   mime: string;
   width?: number;
@@ -36,10 +37,10 @@ export const MediaLibraryModal = memo(({
     const selectedFiles = multiple ? files : [files[0]];
 
     selectedFiles.forEach(file => {
-      console.log(file)
       const formattedFile: MediaFile = {
         url: file.url.startsWith('http') ? file.url : `${window.strapi?.backendURL}${file.url}`,
         alt: file.alternativeText || file.name,
+        caption: file.caption || file.name,
         name: file.name,
         mime: file.mime,
         width: file.width,

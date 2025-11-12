@@ -40,7 +40,7 @@ export const ImageExtension = Image.extend({
       width: { default: "90%" },
       pixelWidth: { default: null }, // BARU
       pixelHeight: { default: null }, // BARU
-      height: { default: null },
+      height: { default: 'auto' },
       align: { default: "center" },
       srcset: { default: null },
       maxWidth: { default: "100%" },
@@ -364,7 +364,7 @@ export function TiptapImageComponent(props: NodeViewProps) {
   ];
 
   // Handle media select
-  const handleMediaSelect = (file: any) => {
+  const handleMediaSelect = (file: MediaFile) => {
     let srcset = undefined;
     if (file.formats) {
       const sets = Object.keys(file.formats)
@@ -378,11 +378,11 @@ export function TiptapImageComponent(props: NodeViewProps) {
     }
 
     const fullUrl = file.url.startsWith('http') ? file.url : `${window.strapi?.backendURL}${file.url}`;
-
+    console.log(file, "files images")
     updateAttributes({
       src: fullUrl,
-      alt: file.alternativeText || file.name,
-      caption: file.caption || null,
+      alt: file.alt,
+      caption: file.caption,
       title: file.name,
       pixelWidth: file.width,
       pixelHeight: file.height,
