@@ -262,7 +262,7 @@ const SizeIndicator = styled.div`
 
 const SizePresetGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 4px;
   padding: 8px;
 `;
@@ -346,6 +346,7 @@ export function TiptapImageComponent(props: NodeViewProps) {
     { label: "Medium", value: "60%" },
     { label: "Large", value: "90%" },
     { label: "Full", value: "100%" },
+    { label: "Auto", value: "auto" },
   ];
 
   const mobileSizePresets = [
@@ -365,7 +366,6 @@ export function TiptapImageComponent(props: NodeViewProps) {
 
   // Handle media select
   const handleMediaSelect = (file: MediaFile) => {
-    console.log(file);
     let srcset = undefined;
     if (file.formats) {
       const sets = Object.keys(file.formats)
