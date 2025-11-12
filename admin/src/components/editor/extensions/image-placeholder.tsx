@@ -15,7 +15,7 @@ import { Popover, Tabs } from "@strapi/design-system";
 import { Button } from "../../ui/button";
 import { useStrapiApp } from "@strapi/strapi/admin";
 import styled from "styled-components";
-import { MediaLibraryModal } from "../../../components/MediaLibraryModal";
+import { MediaFile, MediaLibraryModal } from "../../../components/MediaLibraryModal";
 
 export interface ImagePlaceholderOptions {
   HTMLAttributes: Record<string, any>;
@@ -143,7 +143,7 @@ export function ImagePlaceholderComponent(props: NodeViewProps) {
   const [mediaLibOpen, setMediaLibOpen] = useState(false);
 
   // === HANDLE MEDIA SELECT ===
-  const handleMediaSelect = useCallback((file: any) => {
+  const handleMediaSelect = useCallback((file: MediaFile) => {
     if (!file) return;
 
     let srcset = undefined;
@@ -161,9 +161,12 @@ export function ImagePlaceholderComponent(props: NodeViewProps) {
     editor.chain().focus().setImage({
       src: file.url,
       alt: file.alt,
+      caption: file.caption,
       title: file.name,
-      width: '90%',
-      align: 'center',
+      pixelWidth: file.width,
+      pixelHeight: file.height,
+      width: "auto",
+      aspectRatio: file.width && file.height ? `${file.width}/${file.height}` : null,
       srcset,
     } as any).run();
 
@@ -199,71 +202,14 @@ export function ImagePlaceholderComponent(props: NodeViewProps) {
   return (
     <NodeViewWrapper style={{ width: "100%" }}>
 
-      {/* Main Trigger */}
-      <Popover.Root modal open={open} onOpenChange={setOpen}>
-        <Popover.Trigger>
-          <div style={{ width: "100%" }}>
-            <TriggerContainer $selected={selected}>
-              <Icon className="image-icon">
-                <LucideImage width={24} height={24} />
-              </Icon>
-              Add an image
-            </TriggerContainer>
-          </div>
-        </Popover.Trigger>
-
-        <Popover.Content style={{ width: "460px", padding: "12px" }}>
-          <Tabs.Root defaultValue="media">
-            <Tabs.List>
-              <TabTrigger value="media">
-                <Icon className="tab-icon"><Library size={16} /></Icon>
-                Media Library
-              </TabTrigger>
-              <TabTrigger value="url">
-                <Icon className="tab-icon"><Link2 size={16} /></Icon>
-                Embed Link
-              </TabTrigger>
-            </Tabs.List>
-
-            {/* Media Library Tab */}
-            <Tabs.Content value="media" style={{ marginTop: 16, textAlign: 'center' }}>
-              <Button
-                variant="secondary"
-                onClick={() => { setMediaLibOpen(true); setOpen(false); }}
-                fullWidth
-              >
-                <Library size={18} />
-                Open Media Library
-              </Button>
-              <InfoText>
-                Pilih gambar dari koleksi Strapi. Drag & drop tersedia di modal.
-              </InfoText>
-            </Tabs.Content>
-
-            {/* Embed URL Tab */}
-            <Tabs.Content value="url" style={{ marginTop: 16 }}>
-              <form onSubmit={handleInsertEmbed}>
-                <Input
-                  placeholder="https://example.com/image.jpg"
-                  value={url}
-                  onChange={(e) => {
-                    setUrl(e.target.value);
-                    urlError && setUrlError(false);
-                  }}
-                  autoFocus
-                />
-                {urlError && <ErrorText>URL tidak valid</ErrorText>}
-                <StyledButton type="submit" variant="default">
-                  Insert Image
-                </StyledButton>
-                <InfoText>
-                  Bekerja dengan gambar dari internet
-                </InfoText>
-              </form>
-            </Tabs.Content>
-          </Tabs.Root>
-        </Popover.Content>
-      </Popover.Root>
+      <div style={{ width: "100%" }}>
+        <TriggerContainer $selected={selected} onClick={() => setMediaLibOpen(true)}>
+          <Icon className="image-icon">
+            <LucideImage width={24} height={24} />
+          </Icon>
+          Add an image
+        </TriggerContainer>
+      </div>
 
       {/* Media Library Modal - Render di ROOT */}
       <MediaLibraryModal
