@@ -35,11 +35,11 @@ export const ImageExtension = Image.extend({
     return {
       src: { default: null },
       alt: { default: null },
-      caption: { default: null }, // BARU
+      caption: { default: null },
       title: { default: null },
       width: { default: "90%" },
-      pixelWidth: { default: null }, // BARU
-      pixelHeight: { default: null }, // BARU
+      pixelWidth: { default: null },
+      pixelHeight: { default: null },
       height: { default: 'auto' },
       align: { default: "center" },
       srcset: { default: null },
@@ -117,7 +117,7 @@ export const ImageExtension = Image.extend({
 });
 
 // === STYLED COMPONENTS ===
-const ImageWrapper = styled(NodeViewWrapper)<{
+const ImageWrapper = styled(NodeViewWrapper) <{
   $selected?: boolean;
   $align?: string;
   $width?: string;
@@ -197,25 +197,37 @@ const Badge = styled.div<{ $active?: boolean; $type?: 'responsive' | 'featured' 
   cursor: pointer;
 `;
 
-const AltTextBadge = styled.div<{ $isHovered?: boolean }>`
-  position: absolute;
-  bottom: 12px;
-  left: 12px;
-  right: 12px;
-  max-width: calc(100% - 24px);
-  padding: 8px 12px;
-  border: 1px solid ${props => props.theme.colors.neutral300};
-  background-color: ${props => props.theme.colors.neutral0};
-  font-size: 12px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  overflow: hidden;
+const AltTextDisplay = styled.div`
+  text-align: center;
+  font-size: 0.85em;
+  color: #888;
+  margin-top: 0.25em;
+  padding: 0 8px;
+  font-style: italic;
+  cursor: pointer;
+  min-height: 1.2em;
+  &:hover { 
+    text-decoration: underline;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+  }
+`;
+
+const InlineInput = styled.input`
+  width: 100%;
+  border: 1px solid #ddd;
   border-radius: 4px;
-  backdrop-filter: blur(4px);
-  opacity: ${props => props.$isHovered ? 1 : 0.2};
-  transition: opacity 0.2s ease-in-out;
-  &:hover { opacity: 1; }
+  padding: 4px 8px;
+  font-size: 0.85em;
+  font-style: italic;
+  text-align: center;
+  background: white;
+  outline: none;
+  
+  &:focus {
+    border-color: ${props => props.theme.colors.primary500};
+    box-shadow: 0 0 0 2px ${props => props.theme.colors.primary100};
+  }
 `;
 
 const Toolbar = styled.div<{ $openedMore?: boolean }>`
@@ -235,7 +247,7 @@ const Toolbar = styled.div<{ $openedMore?: boolean }>`
   &:hover { opacity: 1; }
 `;
 
-const ToolbarButton = styled(Button)<{ $active?: boolean }>`
+const ToolbarButton = styled(Button) <{ $active?: boolean }>`
   width: 32px;
   height: 32px;
   padding: 0;
@@ -286,7 +298,12 @@ const CaptionText = styled.div`
   padding: 0 8px;
   font-style: italic;
   cursor: pointer;
-  &:hover { text-decoration: underline; }
+  min-height: 1.2em;
+  &:hover { 
+    text-decoration: underline;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+  }
 `;
 
 // === HELPER ===
@@ -311,8 +328,13 @@ export function TiptapImageComponent(props: NodeViewProps) {
   const imageRef = useRef<HTMLImageElement | null>(null);
   const [openedMore, setOpenedMore] = useState(false);
   const [mediaLibOpen, setMediaLibOpen] = useState(false);
-  const [isAltHovered, setIsAltHovered] = useState(false);
   const [renderedSize, setRenderedSize] = useState<{ width: number; height: number } | null>(null);
+
+  // State untuk inline editing
+  const [isEditingAlt, setIsEditingAlt] = useState(false);
+  const [isEditingCaption, setIsEditingCaption] = useState(false);
+  const [tempAlt, setTempAlt] = useState(node.attrs.alt || "");
+  const [tempCaption, setTempCaption] = useState(node.attrs.caption || "");
 
   // Normalize attrs
   useEffect(() => {
@@ -320,6 +342,12 @@ export function TiptapImageComponent(props: NodeViewProps) {
     const needsUpdate = Object.keys(normalizedAttrs).some(k => normalizedAttrs[k] !== node.attrs[k]);
     if (needsUpdate) updateAttributes(normalizedAttrs);
   }, [node.attrs, updateAttributes]);
+
+  // Update state ketika attrs berubah
+  useEffect(() => {
+    setTempAlt(node.attrs.alt || "");
+    setTempCaption(node.attrs.caption || "");
+  }, [node.attrs.alt, node.attrs.caption]);
 
   // Update rendered size
   useEffect(() => {
@@ -408,15 +436,51 @@ export function TiptapImageComponent(props: NodeViewProps) {
     updateAttributes({ isFeatured: newIsFeatured });
   };
 
-  // Edit alt & caption
-  const onEditAlt = () => {
-    const newAlt = prompt("Set alt text:", node.attrs.alt || "");
-    if (newAlt !== null) updateAttributes({ alt: newAlt });
+  // Edit alt & caption dengan inline input
+  const startEditingAlt = () => {
+    setTempAlt(node.attrs.alt || "");
+    setIsEditingAlt(true);
   };
 
-  const onEditCaption = () => {
-    const newCaption = prompt("Set caption:", node.attrs.caption || "");
-    if (newCaption !== null) updateAttributes({ caption: newCaption });
+  const saveAlt = () => {
+    updateAttributes({ alt: tempAlt });
+    setIsEditingAlt(false);
+  };
+
+  const cancelAlt = () => {
+    setTempAlt(node.attrs.alt || "");
+    setIsEditingAlt(false);
+  };
+
+  const handleAltKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      saveAlt();
+    } else if (e.key === 'Escape') {
+      cancelAlt();
+    }
+  };
+
+  const startEditingCaption = () => {
+    setTempCaption(node.attrs.caption || "");
+    setIsEditingCaption(true);
+  };
+
+  const saveCaption = () => {
+    updateAttributes({ caption: tempCaption });
+    setIsEditingCaption(false);
+  };
+
+  const cancelCaption = () => {
+    setTempCaption(node.attrs.caption || "");
+    setIsEditingCaption(false);
+  };
+
+  const handleCaptionKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      saveCaption();
+    } else if (e.key === 'Escape') {
+      cancelCaption();
+    }
   };
 
   // Pixel size dengan aspect ratio
@@ -484,17 +548,25 @@ export function TiptapImageComponent(props: NodeViewProps) {
             </BadgesContainer>
           )}
 
-          {/* Alt Badge */}
+          {/* Alt Text Display/Edit */}
           {editor?.isEditable && (
-            <AltTextBadge $isHovered={isAltHovered} onMouseEnter={() => setIsAltHovered(true)} onMouseLeave={() => setIsAltHovered(false)}>
-              <span style={{ color: alt ? "green" : "red" }}>{alt ? "Check" : "!"}</span>
-              <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                {alt ? `Alt: "${alt}"` : "Alt text missing"}
-              </span>
-              <button type="button" onClick={onEditAlt} style={{ border: 0, padding: "4px 8px", background: "transparent", textDecoration: "underline", color: "var(--primary-500)", cursor: "pointer", borderRadius: "3px", fontSize: "12px" }}>
-                Edit
-              </button>
-            </AltTextBadge>
+            <AltTextDisplay onClick={startEditingAlt}>
+              {isEditingAlt ? (
+                <InlineInput
+                  value={tempAlt}
+                  onChange={(e) => setTempAlt(e.target.value)}
+                  onBlur={saveAlt}
+                  onKeyDown={handleAltKeyDown}
+                  placeholder="Enter alt text..."
+                  autoFocus
+                />
+              ) : (
+                <>
+                  {alt ? `Alt: "${alt}"` : "Click to add alt text"}
+                  <Edit3 size={12} style={{ marginLeft: 4, opacity: 0.5 }} />
+                </>
+              )}
+            </AltTextDisplay>
           )}
 
           {/* Rendered Size */}
@@ -504,11 +576,36 @@ export function TiptapImageComponent(props: NodeViewProps) {
             </SizeIndicator>
           )}
 
-          {/* Caption */}
-          {caption && (
-            <CaptionText onClick={editor?.isEditable ? onEditCaption : undefined}>
+          {/* Caption Display/Edit */}
+          {editor?.isEditable && (
+            <CaptionText onClick={startEditingCaption}>
+              {isEditingCaption ? (
+                <InlineInput
+                  value={tempCaption}
+                  onChange={(e) => setTempCaption(e.target.value)}
+                  onBlur={saveCaption}
+                  onKeyDown={handleCaptionKeyDown}
+                  placeholder="Enter caption..."
+                  autoFocus
+                />
+              ) : (
+                <>
+                  {caption || "Click to add caption"}
+                  <Edit3 size={12} style={{ marginLeft: 4, opacity: 0.5 }} />
+                </>
+              )}
+            </CaptionText>
+          )}
+
+          {/* Non-editable display untuk pembaca */}
+          {!editor?.isEditable && alt && (
+            <AltTextDisplay>
+              Alt: {alt}
+            </AltTextDisplay>
+          )}
+          {!editor?.isEditable && caption && (
+            <CaptionText>
               {caption}
-              {editor?.isEditable && <Edit3 size={12} style={{ marginLeft: 4, opacity: 0.5 }} />}
             </CaptionText>
           )}
 
