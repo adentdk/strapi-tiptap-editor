@@ -104,6 +104,16 @@ const toolbarsMap = {
       default: mod.HeadingTooolbar,
     })),
   ),
+  TableToolbar: lazy(() =>
+    import("../toolbars/table").then((mod) => ({
+      default: mod.TableToolbar,
+    })),
+  ),
+  IframeToolbar: lazy(() =>
+    import("../toolbars/iframe").then((mod) => ({
+      default: mod.IframeToolbar,
+    })),
+  ), 
 };
 
 export type ToolbarButtonsType =
