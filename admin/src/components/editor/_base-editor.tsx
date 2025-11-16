@@ -5,6 +5,7 @@ import { forwardRef, useImperativeHandle } from "react";
 import { EditorProvider } from "./partials/editor-provider";
 import styled from "styled-components";
 import { TooltipProvider } from "../ui/tooltip";
+import { CustomComponentEditPopover } from "./extensions/custom-component/custom-component-edit-popover";
 
 export interface BaseEditorProps
   extends Omit<UseEditorOptions, "onUpdate" | "editable"> {
@@ -124,6 +125,7 @@ export const BaseEditor = forwardRef<Editor | null, BaseEditorProps>(
             >
               <EditorContentStyled editor={editor} />
               <LinkBubbleMenu />
+              <CustomComponentEditPopover />
             </ContentContainer>
           </EditorContainer>
         </EditorProvider>
