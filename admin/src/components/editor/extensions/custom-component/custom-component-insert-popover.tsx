@@ -107,7 +107,8 @@ export const CustomComponentInsertPopover = forwardRef((props: Props, ref) => {
       case 'customRelatedItem':
         props.command({
           type: 'customRelatedItem',
-          postIds: '',
+          itemId: '',
+          label: 'Related items',
           layout: 'list',
           maxItems: 3,
         });
@@ -116,10 +117,18 @@ export const CustomComponentInsertPopover = forwardRef((props: Props, ref) => {
       case 'customBanner':
         props.command({
           type: 'customBanner',
-          title: 'Special Offer',
-          description: 'Limited time only!',
-          variant: 'primary',
+          title: '',
+          content: '',
           action: null,
+        });
+        break;
+
+      case 'customEntity':
+        props.command({
+          type: 'customEntity',
+          entity_name: '',
+          entity_id: '',
+          custom_attrs: {},
         });
         break;
 

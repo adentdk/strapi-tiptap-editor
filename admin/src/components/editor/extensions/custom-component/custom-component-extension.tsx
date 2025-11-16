@@ -21,6 +21,7 @@ export const CustomComponent = Node.create({
       align: { default: undefined },
       fullWidth: { default: undefined },
 
+      label: { default: undefined },
       itemId: { default: undefined },
       layout: { default: undefined },
       maxItems: { default: undefined },
@@ -29,6 +30,10 @@ export const CustomComponent = Node.create({
       content: { default: undefined },
       variant: { default: undefined },
       action: { default: undefined },
+
+      entity_name: { default: undefined },
+      entity_id: { default: undefined },
+      custom_attrs: { default: undefined },
     };
   },
 
@@ -46,9 +51,10 @@ export const CustomComponent = Node.create({
         },
         items: ({ query }) => {
           const items = [
-            { type: 'customButton', label: 'Button', icon: 'Button', description: 'Interactive button' },
-            { type: 'customRelatedItem', label: 'Related Post', icon: 'Newspaper', description: 'Show related item' },
-            { type: 'customBanner', label: 'Banner', icon: 'Rectangle', description: 'banner' },
+            { type: 'customButton', label: 'Button', description: 'Interactive button' },
+            { type: 'customRelatedItem', label: 'Related Item', description: 'Show related item' },
+            { type: 'customBanner', label: 'Banner', description: 'Show Banner' },
+            { type: 'customEntity', label: 'Custom', description: 'Show custom related entity' },
           ];
           return query ? items.filter(i => i.label.toLowerCase().includes(query.toLowerCase())) : items;
         },

@@ -2,7 +2,7 @@
 import { useCustomComponentEdit } from './store';
 import { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
-import { CustomButtonAttributes, CustomComponentAttributes } from './types';
+import { CustomBannerAttributes, CustomButtonAttributes, CustomComponentAttributes, CustomEntityAttributes } from './types';
 import { Checkbox } from '@strapi/design-system';
 import { Label } from '../../../../components/ui/label';
 
@@ -128,58 +128,46 @@ export const CustomComponentEditPopover = () => {
   const { isOpen, attrs, close, update } = useCustomComponentEdit();
   const [form, setForm] = useState<CustomComponentAttributes | null>(null);
 
-
-  // STOP ALL EVENTS FROM BUBBLING TO EDITOR
   const stopPropagation = useCallback((e: React.SyntheticEvent) => {
     e.stopPropagation();
-    // e.preventDefault();
   }, []);
-
-  const handleChange = (key: string, value: any) => {
-    setForm((prev: any) => ({ ...prev, [key]: value }));
-  };
 
   const handleSubmit = () => {
     if (form) update(form);
   };
 
-  useEffect(() => {
-    if (!attrs) return;
+ useEffect(() => {
+  if (!attrs) return;
 
-    const clone = (obj: any): any => {
-      if (obj === null || typeof obj !== 'object') return obj;
-      if (Array.isArray(obj)) return obj.map(clone);
-      if (obj instanceof Object) {
-        return Object.fromEntries(
-          Object.entries(obj).map(([k, v]) => [k, clone(v)])
-        );
-      }
-      return obj;
-    };
+  const defaultAttrs: any = { ...attrs };
 
-    let defaultAttrs = clone(attrs);
+  if (attrs.type === 'customButton' && !attrs.buttons) {
+    defaultAttrs.buttons = [{ title: 'Click me', url: '', variant: 'primary', size: 'medium' }];
+    defaultAttrs.align = 'center';
+    defaultAttrs.fullWidth = false;
+  }
 
-    if (attrs.type === 'customButton' && !attrs.buttons) {
-      defaultAttrs.buttons = [{ title: 'Click me', url: '', variant: 'primary', size: 'medium' }];
-      defaultAttrs.align = 'center';
-      defaultAttrs.fullWidth = false;
-    }
+  if (attrs.type === 'customRelatedItem' && !attrs.layout) {
+    defaultAttrs.itemId = '';
+    defaultAttrs.label = 'Related Items';
+    defaultAttrs.layout = 'grid';
+    defaultAttrs.maxItems = 3;
+  }
 
-    if (attrs.type === 'customRelatedItem' && !attrs.layout) {
-      defaultAttrs.postIds = '';
-      defaultAttrs.layout = 'grid';
-      defaultAttrs.maxItems = 3;
-    }
+  if (attrs.type === 'customBanner' && !attrs.title) {
+    defaultAttrs.title = '';
+    defaultAttrs.content = '';
+    defaultAttrs.action = {};
+  }
 
-    if (attrs.type === 'customBanner' && !attrs.title) {
-      defaultAttrs.title = '';
-      defaultAttrs.content = '';
-      defaultAttrs.variant = 'primary';
-      defaultAttrs.action = null;
-    }
+  if (attrs.type === 'customEntity' && !attrs.custom_attrs) {
+    defaultAttrs.entity_name = 'banner';
+    defaultAttrs.entity_id = '0';
+    defaultAttrs.custom_attrs = {};
+  }
 
-    setForm(defaultAttrs);
-  }, [attrs]);
+  setForm(defaultAttrs);
+}, [attrs]);
 
   if (!isOpen || !attrs || !form) return null;
 
@@ -202,6 +190,7 @@ export const CustomComponentEditPopover = () => {
       </Header>
 
       <Body>
+        {/* ========== BUTTON ========== */}
         {form.type === 'customButton' && (
           <>
             <div>
@@ -304,37 +293,44 @@ export const CustomComponentEditPopover = () => {
                   }}
                   id="btn-full-width"
                 />
-                <CheckboxLabel htmlFor="btn-full-width">
-                  Full Width
-                </CheckboxLabel>
+                <CheckboxLabel htmlFor="btn-full-width">Full Width</CheckboxLabel>
               </CheckboxContainer>
             </div>
           </>
         )}
 
+        {/* ========== RELATED ITEM ========== */}
         {form.type === 'customRelatedItem' && (
           <>
             <div>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 500, marginBottom: 6, color: '#374151' }}>
-                Post IDs
-              </label>
+              <Label>Label</Label>
               <Input
                 type="text"
-                placeholder="1,2,3"
-                value={form.itemId ?? ""}
-                onChange={e => handleChange('itemId', e.target.value)}
+                placeholder="Related Items"
+                value={form.label ?? ""}
+                onChange={e => setForm(prev => ({ ...prev, label: e.target.value }) as any)}
                 onMouseDown={stopPropagation}
                 onClick={stopPropagation}
               />
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 500, marginBottom: 6, color: '#374151' }}>
-                Layout
-              </label>
+              <Label>Item IDs</Label>
+              <Input
+                type="text"
+                placeholder="1,2,3"
+                value={form.itemId ?? ""}
+                onChange={e => setForm(prev => ({ ...prev, itemId: e.target.value }) as any)}
+                onMouseDown={stopPropagation}
+                onClick={stopPropagation}
+              />
+            </div>
+
+            <div>
+              <Label>Layout</Label>
               <Select
                 value={form.layout ?? "list"}
-                onChange={e => handleChange('layout', e.target.value)}
+                onChange={e => setForm(prev => ({ ...prev, layout: e.target.value }) as any)}
                 onMouseDown={stopPropagation}
                 onClick={stopPropagation}
               >
@@ -344,15 +340,13 @@ export const CustomComponentEditPopover = () => {
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 500, marginBottom: 6, color: '#374151' }}>
-                Max Items
-              </label>
+              <Label>Max Items</Label>
               <Input
                 type="number"
                 min="1"
                 max="10"
                 value={form.maxItems ?? 3}
-                onChange={e => handleChange('maxItems', parseInt(e.target.value) || 3)}
+                onChange={e => setForm(prev => ({ ...prev, maxItems: parseInt(e.target.value) || 3 }) as any)}
                 onMouseDown={stopPropagation}
                 onClick={stopPropagation}
               />
@@ -360,6 +354,7 @@ export const CustomComponentEditPopover = () => {
           </>
         )}
 
+        {/* ========== BANNER ========== */}
         {form.type === 'customBanner' && (
           <>
             <div>
@@ -368,7 +363,7 @@ export const CustomComponentEditPopover = () => {
                 type="text"
                 placeholder="Banner title"
                 value={form.title ?? ""}
-                onChange={e => handleChange('title', e.target.value)}
+                onChange={e => setForm(prev => ({ ...prev, title: e.target.value }) as any)}
                 onMouseDown={stopPropagation}
                 onClick={stopPropagation}
                 autoFocus
@@ -380,7 +375,7 @@ export const CustomComponentEditPopover = () => {
               <Textarea
                 placeholder="Banner content..."
                 value={form.content ?? ""}
-                onChange={e => handleChange('content', e.target.value)}
+                onChange={e => setForm(prev => ({ ...prev, content: e.target.value }) as any)}
                 onMouseDown={stopPropagation}
                 onClick={stopPropagation}
               />
@@ -391,21 +386,21 @@ export const CustomComponentEditPopover = () => {
               <Input
                 placeholder="Button text"
                 value={form.action?.text || ''}
-                onChange={e => handleChange('action', { ...form.action, text: e.target.value })}
+                onChange={e => setForm(prev => ({ ...prev, action: { ...(prev as CustomBannerAttributes).action, text: e.target.value } }) as any)}
                 onMouseDown={stopPropagation}
                 onClick={stopPropagation}
               />
               <Input
                 placeholder="Button URL"
                 value={form.action?.url || ''}
-                onChange={e => handleChange('action', { ...form.action, url: e.target.value })}
+                onChange={e => setForm(prev => ({ ...prev, action: { ...(prev as CustomBannerAttributes).action, url: e.target.value } }) as any)}
                 onMouseDown={stopPropagation}
                 onClick={stopPropagation}
                 style={{ marginTop: 4 }}
               />
               {form.action && (
                 <button
-                  onClick={() => handleChange('action', null)}
+                  onClick={() => setForm(prev => ({ ...prev, action: null }) as any)}
                   onMouseDown={stopPropagation}
                   style={{ marginTop: 4, fontSize: 12, color: '#dc2626' }}
                 >
@@ -416,10 +411,90 @@ export const CustomComponentEditPopover = () => {
           </>
         )}
 
+        {/* ========== ENTITY ========== */}
+        {form.type === 'customEntity' && (
+          <>
+            <div>
+              <Label>Entity Name</Label>
+              <Input
+                placeholder="post"
+                value={form.entity_name}
+                onChange={e => setForm(prev => ({ ...prev, entity_name: e.target.value }) as any)}
+                onMouseDown={stopPropagation}
+                onClick={stopPropagation}
+              />
+            </div>
+
+            <div>
+              <Label>Entity ID</Label>
+              <Input
+                placeholder="123"
+                value={form.entity_id}
+                onChange={e => setForm(prev => ({ ...prev, entity_id: e.target.value }) as any)}
+                onMouseDown={stopPropagation}
+                onClick={stopPropagation}
+              />
+            </div>
+
+            <div>
+              <Label>Custom Properties (Key-Value)</Label>
+              {Object.entries(form.custom_attrs || {}).map(([key, value], i) => (
+                <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'center' }}>
+                  <Input
+                    placeholder="key"
+                    value={key}
+                    onChange={e => {
+                      const newObj = { ...form.custom_attrs };
+                      delete newObj[key];
+                      newObj[e.target.value] = value;
+                      setForm(prev => ({ ...prev, custom_attrs: newObj }) as any);
+                    }}
+                    onMouseDown={stopPropagation}
+                    onClick={stopPropagation}
+                  />
+                  <Input
+                    placeholder="value"
+                    value={value}
+                    onChange={e => {
+                      setForm(prev => ({
+                        ...prev,
+                        custom_attrs: { ...(prev as CustomEntityAttributes).custom_attrs, [key]: e.target.value },
+                      }) as any);
+                    }}
+                    onMouseDown={stopPropagation}
+                    onClick={stopPropagation}
+                  />
+                  <button
+                    onClick={() => {
+                      const newObj = { ...form.custom_attrs };
+                      delete newObj[key];
+                      setForm(prev => ({ ...prev, custom_attrs: newObj }) as any);
+                    }}
+                    onMouseDown={stopPropagation}
+                    style={{ padding: '0 8px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: 4 }}
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+              <button
+                onClick={() => {
+                  setForm(prev => ({
+                    ...prev,
+                    custom_attrs: { ...(prev as CustomEntityAttributes).custom_attrs, 'new_key': 'new_value' },
+                  }) as any);
+                }}
+                onMouseDown={stopPropagation}
+                style={{ marginTop: 8, fontSize: 12, color: '#3b82f6', background: 'none', border: '1px dashed #3b82f6', padding: '4px 8px', borderRadius: 4 }}
+              >
+                + Add Property
+              </button>
+            </div>
+          </>
+        )}
+
         <Actions>
-          <Btn onClick={close} onMouseDown={stopPropagation}>
-            Cancel
-          </Btn>
+          <Btn onClick={close} onMouseDown={stopPropagation}>Cancel</Btn>
           <Btn
             $primary
             onClick={handleSubmit}
@@ -427,7 +502,7 @@ export const CustomComponentEditPopover = () => {
             disabled={
               form.type === 'customButton' ? form.buttons.length === 0
                 : form.type === 'customBanner' ? !form.title
-                  : false
+                : false
             }
           >
             Update

@@ -29,7 +29,7 @@ const Toolbar = styled.div`
 const Badge = styled.div<{ $type: string }>`
   position: absolute;
   top: 8px;
-  left: 8px;
+  right: 8px;
   background: ${p => {
     switch (p.$type) {
       case 'customButton': return p.theme.colors.primary500;
@@ -94,7 +94,7 @@ export const CustomComponentRenderer = (props: any) => {
         return (
           <div style={{ border: '1px solid #e5e7eb', borderRadius: 8, padding: 16, background: 'white' }}>
             <h4 style={{ margin: '0 0 12px', fontSize: 16, fontWeight: 600 }}>
-              Related Items {attrs.itemId && `(${ids.length})`}
+              {attrs.label} {attrs.itemId && `(${ids.length})`}
             </h4>
             <div style={{ display: attrs.layout === 'grid' ? 'grid' : 'block', gap: 12, gridTemplateColumns: attrs.layout === 'grid' ? 'repeat(auto-fit, minmax(200px, 1fr))' : 'none' }}>
               {ids.slice(0, attrs.maxItems || 1).map((id: string, i: number) => (
@@ -137,6 +137,28 @@ export const CustomComponentRenderer = (props: any) => {
               </div>
             )}
           </div>
+        );
+
+      case 'customEntity':
+        return (
+          <span
+            style={{
+              background: '#e0f2fe',
+              color: '#0369a1',
+              padding: '2px 6px',
+              borderRadius: 4,
+              fontSize: 12,
+              fontFamily: 'monospace',
+              display: 'inline-block',
+            }}
+          >
+            Entity: {attrs.entity_name}#{attrs.entity_id}
+            {Object.keys(attrs.custom_attrs || {}).length > 0 && (
+              <span style={{ marginLeft: 8, opacity: 0.8 }}>
+                ({Object.keys(attrs.custom_attrs).length} props)
+              </span>
+            )}
+          </span>
         );
 
       default:

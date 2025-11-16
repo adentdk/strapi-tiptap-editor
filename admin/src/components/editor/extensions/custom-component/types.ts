@@ -1,5 +1,11 @@
 // src/tiptap/extensions/custom-component/types.ts
-export type CustomComponentType = 'customButton' | 'customRelatedItem' | 'customBanner';
+export type CustomComponentType = 'customButton' | 'customRelatedItem' | 'customBanner' | 'customEntity';
+
+export interface CustomEntityAttributes {
+  entity_name: string;
+  entity_id: string;
+  custom_attrs: Record<string, string>; // JSON object
+}
 
 export interface CustomButtonItem {
   title: string;
@@ -16,6 +22,7 @@ export interface CustomButtonAttributes {
 }
 
 export interface CustomRelatedPostAttributes {
+  label: string;
   itemId: string;
   layout: 'list' | 'grid';
   maxItems: number;
@@ -33,4 +40,5 @@ export interface CustomBannerAttributes {
 export type CustomComponentAttributes =
   | ({ type: 'customButton' } & CustomButtonAttributes)
   | ({ type: 'customRelatedItem' } & CustomRelatedPostAttributes)
-  | ({ type: 'customBanner' } & CustomBannerAttributes);
+  | ({ type: 'customBanner' } & CustomBannerAttributes)
+  | ({ type: 'customEntity' } & CustomEntityAttributes);
