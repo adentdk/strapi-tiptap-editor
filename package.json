@@ -1,5 +1,5 @@
 {
-  "version": "0.0.3",
+  "version": "0.0.4",
   "keywords": [],
   "type": "commonjs",
   "exports": {
@@ -69,6 +69,7 @@
     "@tiptap/extension-text": "^2.9.1",
     "@tiptap/extension-text-align": "^2.9.1",
     "@tiptap/extension-text-style": "^2.9.1",
+    "@tiptap/html": "^2.9.1",
     "@tiptap/pm": "^2.9.1",
     "@tiptap/react": "^2.9.1",
     "@tiptap/suggestion": "2.9.1",

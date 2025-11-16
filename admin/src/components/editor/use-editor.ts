@@ -44,7 +44,7 @@ export interface UseEditorOptions
   onBlur?: (content: Content) => void;
 }
 
-const createExtensions = (
+export const createExtensions = (
   options: Pick<UseEditorOptions, "placeholder">,
 ): Extensions => [
   Document,

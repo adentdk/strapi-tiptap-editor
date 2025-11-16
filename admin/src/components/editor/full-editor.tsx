@@ -51,6 +51,7 @@ function FullEditor({
     "Separator",
     "ImagePlaceholderToolbar",
     "SearchAndReplaceToolbar",
+    // "HTMLToolbar"
   ],
   extensions = [],
   ...restProps
