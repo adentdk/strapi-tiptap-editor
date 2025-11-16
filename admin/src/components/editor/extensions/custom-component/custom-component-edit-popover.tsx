@@ -2,6 +2,9 @@
 import { useCustomComponentEdit } from './store';
 import { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
+import { CustomButtonAttributes, CustomComponentAttributes } from './types';
+import { Checkbox } from '@strapi/design-system';
+import { Label } from '../../../../components/ui/label';
 
 const Popover = styled.div`
   position: fixed;
@@ -109,13 +112,22 @@ const Btn = styled.button<{ $primary?: boolean }>`
   }
 `;
 
+const CheckboxContainer = styled.div`
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const CheckboxLabel = styled(Label)`
+  font-size: 14px;
+  font-weight: 500;
+`;
+
 export const CustomComponentEditPopover = () => {
   const { isOpen, attrs, close, update } = useCustomComponentEdit();
-  const [form, setForm] = useState<any>(attrs);
+  const [form, setForm] = useState<CustomComponentAttributes | null>(null);
 
-  useEffect(() => {
-    if (attrs) setForm(attrs);
-  }, [attrs]);
 
   // STOP ALL EVENTS FROM BUBBLING TO EDITOR
   const stopPropagation = useCallback((e: React.SyntheticEvent) => {
@@ -130,6 +142,44 @@ export const CustomComponentEditPopover = () => {
   const handleSubmit = () => {
     if (form) update(form);
   };
+
+  useEffect(() => {
+    if (!attrs) return;
+
+    const clone = (obj: any): any => {
+      if (obj === null || typeof obj !== 'object') return obj;
+      if (Array.isArray(obj)) return obj.map(clone);
+      if (obj instanceof Object) {
+        return Object.fromEntries(
+          Object.entries(obj).map(([k, v]) => [k, clone(v)])
+        );
+      }
+      return obj;
+    };
+
+    let defaultAttrs = clone(attrs);
+
+    if (attrs.type === 'customButton' && !attrs.buttons) {
+      defaultAttrs.buttons = [{ title: 'Click me', url: '', variant: 'primary', size: 'medium' }];
+      defaultAttrs.align = 'center';
+      defaultAttrs.fullWidth = false;
+    }
+
+    if (attrs.type === 'customRelatedItem' && !attrs.layout) {
+      defaultAttrs.postIds = '';
+      defaultAttrs.layout = 'grid';
+      defaultAttrs.maxItems = 3;
+    }
+
+    if (attrs.type === 'customBanner' && !attrs.title) {
+      defaultAttrs.title = '';
+      defaultAttrs.content = '';
+      defaultAttrs.variant = 'primary';
+      defaultAttrs.action = null;
+    }
+
+    setForm(defaultAttrs);
+  }, [attrs]);
 
   if (!isOpen || !attrs || !form) return null;
 
@@ -152,72 +202,117 @@ export const CustomComponentEditPopover = () => {
       </Header>
 
       <Body>
-        {attrs.type === 'customButton' && (
+        {form.type === 'customButton' && (
           <>
             <div>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 500, marginBottom: 6, color: '#374151' }}>
-                Title *
-              </label>
-              <Input
-                type="text"
-                placeholder="Button text"
-                value={form.title}
-                onChange={e => handleChange('title', e.target.value)}
+              <Label>Buttons</Label>
+              {form.buttons.map((btn: any, i: number) => (
+                <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'center' }}>
+                  <Input
+                    placeholder="Text"
+                    value={btn.title}
+                    onChange={e => {
+                      setForm(prev => ({
+                        ...prev,
+                        buttons: (prev as CustomButtonAttributes).buttons.map((b, idx) =>
+                          idx === i ? { ...b, title: e.target.value } : b
+                        ),
+                      }) as any);
+                    }}
+                    onMouseDown={stopPropagation}
+                    onClick={stopPropagation}
+                  />
+                  <Input
+                    placeholder="URL"
+                    value={btn.url}
+                    onChange={e => {
+                      setForm(prev => ({
+                        ...prev,
+                        buttons: (prev as CustomButtonAttributes).buttons.map((b, idx) =>
+                          idx === i ? { ...b, url: e.target.value } : b
+                        ),
+                      }) as any);
+                    }}
+                    onMouseDown={stopPropagation}
+                    onClick={stopPropagation}
+                  />
+                  <Select
+                    value={btn.variant}
+                    onChange={e => {
+                      setForm(prev => ({
+                        ...prev,
+                        buttons: (prev as CustomButtonAttributes).buttons.map((b, idx) =>
+                          idx === i ? { ...b, variant: e.target.value as any } : b
+                        ),
+                      }) as any);
+                    }}
+                    onMouseDown={stopPropagation}
+                    onClick={stopPropagation}
+                  >
+                    <option value="primary">Primary</option>
+                    <option value="secondary">Secondary</option>
+                    <option value="outline">Outline</option>
+                  </Select>
+                  <button
+                    onClick={() => {
+                      setForm(prev => ({
+                        ...prev,
+                        buttons: (prev as CustomButtonAttributes).buttons.filter((_, idx) => idx !== i),
+                      }) as any);
+                    }}
+                    onMouseDown={stopPropagation}
+                    style={{ padding: '0 8px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: 4 }}
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+              <button
+                onClick={() => {
+                  setForm(prev => ({
+                    ...prev,
+                    buttons: [...(prev as CustomButtonAttributes).buttons, { title: 'Button', url: '', variant: 'primary', size: 'medium' }],
+                  }) as any);
+                }}
                 onMouseDown={stopPropagation}
-                onClick={stopPropagation}
-                autoFocus
-              />
+                style={{ marginTop: 8, fontSize: 12, color: '#3b82f6', background: 'none', border: '1px dashed #3b82f6', padding: '4px 8px', borderRadius: 4 }}
+              >
+                + Add Button
+              </button>
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 500, marginBottom: 6, color: '#374151' }}>
-                Variant
-              </label>
+              <Label>Alignment</Label>
               <Select
-                value={form.variant}
-                onChange={e => handleChange('variant', e.target.value)}
+                value={form.align}
+                onChange={e => setForm(prev => ({ ...prev, align: e.target.value }) as any)}
                 onMouseDown={stopPropagation}
                 onClick={stopPropagation}
               >
-                <option value="primary">Primary</option>
-                <option value="secondary">Secondary</option>
-                <option value="outline">Outline</option>
+                <option value="left">Left</option>
+                <option value="center">Center</option>
+                <option value="right">Right</option>
               </Select>
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 500, marginBottom: 6, color: '#374151' }}>
-                Size
-              </label>
-              <Select
-                value={form.size}
-                onChange={e => handleChange('size', e.target.value)}
-                onMouseDown={stopPropagation}
-                onClick={stopPropagation}
-              >
-                <option value="small">Small</option>
-                <option value="medium">Medium</option>
-                <option value="large">Large</option>
-              </Select>
-            </div>
-
-            <div>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 500, marginBottom: 6, color: '#374151' }}>
-                URL (optional)
-              </label>
-              <Input
-                type="url"
-                placeholder="https://example.com"
-                value={form.url || ''}
-                onChange={e => handleChange('url', e.target.value)}
-                onMouseDown={stopPropagation}
-                onClick={stopPropagation}
-              />
+              <CheckboxContainer>
+                <Checkbox
+                  checked={form.fullWidth}
+                  onCheckedChange={(checked: boolean) => {
+                    setForm(prev => ({ ...prev, fullWidth: checked }) as any);
+                  }}
+                  id="btn-full-width"
+                />
+                <CheckboxLabel htmlFor="btn-full-width">
+                  Full Width
+                </CheckboxLabel>
+              </CheckboxContainer>
             </div>
           </>
         )}
 
-        {attrs.type === 'customRelatedPost' && (
+        {form.type === 'customRelatedItem' && (
           <>
             <div>
               <label style={{ display: 'block', fontSize: 12, fontWeight: 500, marginBottom: 6, color: '#374151' }}>
@@ -226,8 +321,8 @@ export const CustomComponentEditPopover = () => {
               <Input
                 type="text"
                 placeholder="1,2,3"
-                value={form.postIds}
-                onChange={e => handleChange('postIds', e.target.value)}
+                value={form.itemId ?? ""}
+                onChange={e => handleChange('itemId', e.target.value)}
                 onMouseDown={stopPropagation}
                 onClick={stopPropagation}
               />
@@ -238,14 +333,13 @@ export const CustomComponentEditPopover = () => {
                 Layout
               </label>
               <Select
-                value={form.layout}
+                value={form.layout ?? "list"}
                 onChange={e => handleChange('layout', e.target.value)}
                 onMouseDown={stopPropagation}
                 onClick={stopPropagation}
               >
                 <option value="grid">Grid</option>
                 <option value="list">List</option>
-                <option value="carousel">Carousel</option>
               </Select>
             </div>
 
@@ -257,7 +351,7 @@ export const CustomComponentEditPopover = () => {
                 type="number"
                 min="1"
                 max="10"
-                value={form.maxItems}
+                value={form.maxItems ?? 3}
                 onChange={e => handleChange('maxItems', parseInt(e.target.value) || 3)}
                 onMouseDown={stopPropagation}
                 onClick={stopPropagation}
@@ -266,17 +360,15 @@ export const CustomComponentEditPopover = () => {
           </>
         )}
 
-        {attrs.type === 'customBanner' && (
+        {form.type === 'customBanner' && (
           <>
             <div>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 500, marginBottom: 6, color: '#374151' }}>
-                Title *
-              </label>
+              <Label>Title</Label>
               <Input
                 type="text"
                 placeholder="Banner title"
-                value={form.bannerTitle}
-                onChange={e => handleChange('bannerTitle', e.target.value)}
+                value={form.title ?? ""}
+                onChange={e => handleChange('title', e.target.value)}
                 onMouseDown={stopPropagation}
                 onClick={stopPropagation}
                 autoFocus
@@ -284,12 +376,10 @@ export const CustomComponentEditPopover = () => {
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 500, marginBottom: 6, color: '#374151' }}>
-                Content
-              </label>
+              <Label>Content</Label>
               <Textarea
                 placeholder="Banner content..."
-                value={form.content}
+                value={form.content ?? ""}
                 onChange={e => handleChange('content', e.target.value)}
                 onMouseDown={stopPropagation}
                 onClick={stopPropagation}
@@ -297,32 +387,31 @@ export const CustomComponentEditPopover = () => {
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 500, marginBottom: 6, color: '#374151' }}>
-                Theme
-              </label>
-              <Select
-                value={form.theme}
-                onChange={e => handleChange('theme', e.target.value)}
-                onMouseDown={stopPropagation}
-                onClick={stopPropagation}
-              >
-                <option value="light">Light</option>
-                <option value="dark">Dark</option>
-                <option value="primary">Primary</option>
-              </Select>
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <input
-                type="checkbox"
-                checked={form.closable}
-                onChange={e => handleChange('closable', e.target.checked)}
+              <Label>Action Button (optional)</Label>
+              <Input
+                placeholder="Button text"
+                value={form.action?.text || ''}
+                onChange={e => handleChange('action', { ...form.action, text: e.target.value })}
                 onMouseDown={stopPropagation}
                 onClick={stopPropagation}
               />
-              <label style={{ fontSize: 14, cursor: 'pointer' }} onMouseDown={stopPropagation}>
-                Show Close Button
-              </label>
+              <Input
+                placeholder="Button URL"
+                value={form.action?.url || ''}
+                onChange={e => handleChange('action', { ...form.action, url: e.target.value })}
+                onMouseDown={stopPropagation}
+                onClick={stopPropagation}
+                style={{ marginTop: 4 }}
+              />
+              {form.action && (
+                <button
+                  onClick={() => handleChange('action', null)}
+                  onMouseDown={stopPropagation}
+                  style={{ marginTop: 4, fontSize: 12, color: '#dc2626' }}
+                >
+                  Remove Action
+                </button>
+              )}
             </div>
           </>
         )}
@@ -336,9 +425,9 @@ export const CustomComponentEditPopover = () => {
             onClick={handleSubmit}
             onMouseDown={stopPropagation}
             disabled={
-              attrs.type === 'customButton' ? !form.title
-              : attrs.type === 'customBanner' ? !form.bannerTitle
-              : false
+              form.type === 'customButton' ? form.buttons.length === 0
+                : form.type === 'customBanner' ? !form.title
+                  : false
             }
           >
             Update

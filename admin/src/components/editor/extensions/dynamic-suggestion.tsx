@@ -51,7 +51,7 @@ interface CustomButtonAttributes {
 }
 
 interface CustomRelatedPostAttributes {
-  postIds: string;
+  itemId: string;
   layout: 'grid' | 'list' | 'carousel';
   maxItems: number;
 }
@@ -63,7 +63,7 @@ interface CustomBannerAttributes {
   closable: boolean;
 }
 
-type CustomComponentType = 'customButton' | 'customRelatedPost' | 'customBanner';
+type CustomComponentType = 'customButton' | 'customRelatedItem' | 'customBanner';
 
 interface CustomComponentProps {
   type: CustomComponentType;
@@ -334,7 +334,7 @@ const ComponentBadge = styled.div<{ $type: string }>`
   background-color: ${props => {
     switch (props.$type) {
       case 'customButton': return props.theme.colors.primary500;
-      case 'customRelatedPost': return props.theme.colors.success500;
+      case 'customRelatedItem': return props.theme.colors.success500;
       case 'customBanner': return props.theme.colors.warning500;
       default: return props.theme.colors.neutral500;
     }
@@ -409,9 +409,9 @@ function CustomComponentRenderer(props: any) {
           </div>
         );
 
-      case 'customRelatedPost':
-        const postIds = componentProps.postIds ? componentProps.postIds.split(',').map((id: string) => id.trim()) : [];
-        const displayIds = postIds.length > 0 ? postIds : ['1', '2', '3'];
+      case 'customRelatedItem':
+        const itemId = componentProps.itemId ? componentProps.itemId.split(',').map((id: string) => id.trim()) : [];
+        const displayIds = itemId.length > 0 ? itemId : ['1', '2', '3'];
 
         return (
           <div style={{
@@ -421,7 +421,7 @@ function CustomComponentRenderer(props: any) {
             backgroundColor: 'white'
           }}>
             <h4 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '600' }}>
-              Related Posts {componentProps.postIds && `(${postIds.length})`}
+              Related Posts {componentProps.itemId && `(${itemId.length})`}
             </h4>
             <div style={{
               display: componentProps.layout === 'grid' ? 'grid' : 'block',
@@ -535,7 +535,7 @@ export const CustomComponent = Node.create({
       size: { default: 'medium' },
       url: { default: '' },
       // Related Post attributes
-      postIds: { default: '' },
+      itemId: { default: '' },
       layout: { default: 'grid' },
       maxItems: { default: 3 },
       // Banner attributes
@@ -574,7 +574,7 @@ export const CustomComponent = Node.create({
       setCustomRelatedPost:
         (props: CustomRelatedPostAttributes) =>
           ({ commands }) => {
-            return commands.insertContent(renderCustomComponent({ type: 'customRelatedPost', ...props }));
+            return commands.insertContent(renderCustomComponent({ type: 'customRelatedItem', ...props }));
           },
       setCustomBanner:
         (props: CustomBannerAttributes) =>
@@ -621,7 +621,7 @@ export const CustomComponent = Node.create({
           icon: '🔘'
         },
         {
-          type: 'customRelatedPost' as CustomComponentType,
+          type: 'customRelatedItem' as CustomComponentType,
           label: 'Related Post',
           description: 'Show related articles',
           icon: '📰'
@@ -759,9 +759,9 @@ const CustomComponentSuggestion: React.FC<CustomComponentSuggestionProps> =
             url: ''
           });
           break;
-        case 'customRelatedPost':
+        case 'customRelatedItem':
           setFormData({
-            postIds: '',
+            itemId: '',
             layout: 'grid',
             maxItems: 3
           });
@@ -939,7 +939,7 @@ const CustomComponentSuggestion: React.FC<CustomComponentSuggestionProps> =
             </FormContainer>
           );
 
-        case 'customRelatedPost':
+        case 'customRelatedItem':
           return (
             <FormContainer>
               <BackButton onClick={backToSelection}>
@@ -952,8 +952,8 @@ const CustomComponentSuggestion: React.FC<CustomComponentSuggestionProps> =
                 <FormLabel>Post IDs</FormLabel>
                 <FormInput
                   type="text"
-                  value={formData.postIds || ''}
-                  onChange={(e) => handleFormChange('postIds', e.target.value)}
+                  value={formData.itemId || ''}
+                  onChange={(e) => handleFormChange('itemId', e.target.value)}
                   placeholder="1,2,3 (comma separated)"
                 />
               </FormGroup>

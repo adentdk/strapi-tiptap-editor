@@ -3,8 +3,9 @@ import { NodeViewWrapper, NodeViewContent } from '@tiptap/react';
 import { Edit3, Trash } from 'lucide-react';
 import { useCustomComponentEdit } from './store';
 import styled from 'styled-components';
+import { CustomComponentAttributes } from './types';
 
-const Wrapper = styled(NodeViewWrapper)<{ $selected?: boolean }>`
+const Wrapper = styled(NodeViewWrapper) <{ $selected?: boolean }>`
   position: relative;
   margin: 16px 0;
   border: 2px solid transparent;
@@ -32,7 +33,7 @@ const Badge = styled.div<{ $type: string }>`
   background: ${p => {
     switch (p.$type) {
       case 'customButton': return p.theme.colors.primary500;
-      case 'customRelatedPost': return p.theme.colors.success500;
+      case 'customRelatedItem': return p.theme.colors.success500;
       case 'customBanner': return p.theme.colors.warning500;
       default: return p.theme.colors.neutral500;
     }
@@ -55,35 +56,50 @@ export const CustomComponentRenderer = (props: any) => {
   };
 
   const renderPreview = () => {
-    const { type, ...attrs } = node.attrs;
-    switch (type) {
+    const attrs = node.attrs as CustomComponentAttributes;
+    switch (attrs.type) {
       case 'customButton':
         return (
           <div style={{
-            display: 'inline-flex',
-            padding: attrs.size === 'small' ? '6px 12px' : attrs.size === 'large' ? '12px 24px' : '8px 16px',
-            backgroundColor: attrs.variant === 'primary' ? '#3b82f6' : attrs.variant === 'secondary' ? '#6b7280' : 'transparent',
-            color: attrs.variant === 'outline' ? '#3b82f6' : 'white',
-            border: attrs.variant === 'outline' ? '1px solid #3b82f6' : 'none',
-            borderRadius: '6px',
-            fontSize: attrs.size === 'small' ? '12px' : attrs.size === 'large' ? '16px' : '14px',
-            fontWeight: 500,
+            display: 'flex',
+            justifyContent: attrs.align === 'left' ? 'flex-start' : attrs.align === 'right' ? 'flex-end' : 'center',
+            width: attrs.fullWidth ? '100%' : 'auto',
+            gap: 12,
+            flexWrap: 'wrap' as const,
           }}>
-            {attrs.title || 'Button'}
+            {attrs.buttons.map((btn: any, i: number) => (
+              <div
+                key={i}
+                style={{
+                  padding: btn.size === 'small' ? '6px 12px' : btn.size === 'large' ? '12px 24px' : '8px 16px',
+                  backgroundColor: btn.variant === 'primary' ? '#3b82f6' : btn.variant === 'secondary' ? '#6b7280' : 'transparent',
+                  color: btn.variant === 'outline' ? '#3b82f6' : 'white',
+                  border: btn.variant === 'outline' ? '1px solid #3b82f6' : 'none',
+                  borderRadius: 6,
+                  fontSize: btn.size === 'small' ? 12 : btn.size === 'large' ? 16 : 14,
+                  fontWeight: 500,
+                  textAlign: 'center' as const,
+                  minWidth: 80,
+                }}
+              >
+                {btn.title}
+              </div>
+            ))}
+            {attrs.buttons.length === 0 && <div style={{ opacity: 0.5 }}>No buttons</div>}
           </div>
         );
 
-      case 'customRelatedPost':
-        const ids = attrs.postIds ? attrs.postIds.split(',').map((s: string) => s.trim()) : ['1', '2', '3'];
+      case 'customRelatedItem':
+        const ids = attrs.itemId ? attrs.itemId.split(',').map((s: string) => s.trim()) : ['1', '2', '3'];
         return (
           <div style={{ border: '1px solid #e5e7eb', borderRadius: 8, padding: 16, background: 'white' }}>
             <h4 style={{ margin: '0 0 12px', fontSize: 16, fontWeight: 600 }}>
-              Related Posts {attrs.postIds && `(${ids.length})`}
+              Related Items {attrs.itemId && `(${ids.length})`}
             </h4>
             <div style={{ display: attrs.layout === 'grid' ? 'grid' : 'block', gap: 12, gridTemplateColumns: attrs.layout === 'grid' ? 'repeat(auto-fit, minmax(200px, 1fr))' : 'none' }}>
-              {ids.slice(0, attrs.maxItems || 3).map((id: string, i: number) => (
+              {ids.slice(0, attrs.maxItems || 1).map((id: string, i: number) => (
                 <div key={i} style={{ padding: 12, border: '1px solid #f3f4f6', borderRadius: 6, background: '#f9fafb' }}>
-                  Related post #{id}
+                  Related item #{id}
                 </div>
               ))}
             </div>
@@ -93,28 +109,38 @@ export const CustomComponentRenderer = (props: any) => {
       case 'customBanner':
         return (
           <div style={{
-            backgroundColor: attrs.theme === 'dark' ? '#1f2937' : attrs.theme === 'primary' ? '#3b82f6' : '#f3f4f6',
-            color: attrs.theme === 'dark' || attrs.theme === 'primary' ? 'white' : '#1f2937',
-            padding: 20,
-            borderRadius: 8,
-            textAlign: 'center',
-            position: 'relative',
+            padding: 24,
+            borderRadius: 12,
+            textAlign: 'center' as const,
+            position: 'relative' as const,
           }}>
-            <h3 style={{ margin: '0 0 8px', fontSize: 18, fontWeight: 600 }}>
-              {attrs.bannerTitle || 'Banner Title'}
+            <h3 style={{ margin: '0 0 8px', fontSize: 20, fontWeight: 600 }}>
+              {attrs.title || 'Title Here'}
             </h3>
-            <p style={{ margin: 0, opacity: 0.9 }}>{attrs.content || 'Content...'}</p>
-            {attrs.closable && (
-              <button style={{
-                position: 'absolute', top: 8, right: 8, background: 'none', border: 'none',
-                color: 'inherit', fontSize: 18, cursor: 'pointer'
-              }}>×</button>
+            <p style={{ margin: 0, opacity: 0.85, fontSize: 15 }}>
+              {attrs.content || 'Content here...'}
+            </p>
+            {attrs.action && (
+              <div style={{ marginTop: 16 }}>
+                <a
+                  href={attrs.action.url}
+                  style={{
+                    display: 'inline-block',
+                    padding: '10px 20px',
+                    borderRadius: 6,
+                    fontWeight: 500,
+                    textDecoration: 'none',
+                  }}
+                >
+                  {attrs.action.text}
+                </a>
+              </div>
             )}
           </div>
         );
 
       default:
-        return <div>Unknown: {type}</div>;
+        return <div>Unknown</div>;
     }
   };
 

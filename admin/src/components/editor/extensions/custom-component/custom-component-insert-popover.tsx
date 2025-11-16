@@ -66,7 +66,7 @@ export const CustomComponentInsertPopover = forwardRef((props: Props, ref) => {
 
   const selectItem = (index: number) => {
     const item = props.items[index];
-    if (item) props.command({ type: item.type });
+    if (item) handleSelectComponent(item.type);
   };
 
   useImperativeHandle(ref, () => ({
@@ -92,6 +92,40 @@ export const CustomComponentInsertPopover = forwardRef((props: Props, ref) => {
     // e.preventDefault();
   }, []);
 
+  const handleSelectComponent = useCallback((type: string) => {
+    // Saat command dipanggil, default:
+    switch (type) {
+      case 'customButton':
+        props.command({
+          type: 'customButton',
+          buttons: [{ title: 'Click me', url: '', variant: 'primary', size: 'medium' }],
+          align: 'center',
+          fullWidth: false,
+        });
+        break;
+
+      case 'customRelatedItem':
+        props.command({
+          type: 'customRelatedItem',
+          postIds: '',
+          layout: 'list',
+          maxItems: 3,
+        });
+        break;
+
+      case 'customBanner':
+        props.command({
+          type: 'customBanner',
+          title: 'Special Offer',
+          description: 'Limited time only!',
+          variant: 'primary',
+          action: null,
+        });
+        break;
+
+    }
+  }, [])
+
   return (
     <Container onMouseDown={stopPropagation}
       onClick={stopPropagation}
@@ -102,7 +136,7 @@ export const CustomComponentInsertPopover = forwardRef((props: Props, ref) => {
           <Item
             key={i}
             $selected={i === selectedIndex}
-            onClick={() => props.command({ type: item.type })}
+            onClick={() => handleSelectComponent(item.type)}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1 }}>
               <Info>
@@ -110,7 +144,7 @@ export const CustomComponentInsertPopover = forwardRef((props: Props, ref) => {
                 <Desc>{item.description}</Desc>
               </Info>
             </div>
-            <AddBtn onClick={e => { e.stopPropagation(); props.command({ type: item.type }); }}>
+            <AddBtn onClick={e => { e.stopPropagation(); handleSelectComponent(item.type); }}>
               Add
             </AddBtn>
           </Item>

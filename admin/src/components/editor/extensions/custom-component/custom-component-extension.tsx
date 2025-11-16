@@ -16,17 +16,19 @@ export const CustomComponent = Node.create({
   addAttributes() {
     return {
       type: { default: 'customButton' },
-      title: { default: '' },
-      variant: { default: 'primary' },
-      size: { default: 'medium' },
-      url: { default: '' },
-      postIds: { default: '' },
-      layout: { default: 'grid' },
-      maxItems: { default: 3 },
-      bannerTitle: { default: '' },
-      content: { default: '' },
-      theme: { default: 'light' },
-      closable: { default: false },
+
+      buttons: { default: undefined },
+      align: { default: undefined },
+      fullWidth: { default: undefined },
+
+      itemId: { default: undefined },
+      layout: { default: undefined },
+      maxItems: { default: undefined },
+
+      title: { default: undefined },
+      content: { default: undefined },
+      variant: { default: undefined },
+      action: { default: undefined },
     };
   },
 
@@ -45,8 +47,8 @@ export const CustomComponent = Node.create({
         items: ({ query }) => {
           const items = [
             { type: 'customButton', label: 'Button', icon: 'Button', description: 'Interactive button' },
-            { type: 'customRelatedPost', label: 'Related Post', icon: 'Newspaper', description: 'Show related posts' },
-            { type: 'customBanner', label: 'Banner', icon: 'Rectangle', description: 'Promotional banner' },
+            { type: 'customRelatedItem', label: 'Related Post', icon: 'Newspaper', description: 'Show related item' },
+            { type: 'customBanner', label: 'Banner', icon: 'Rectangle', description: 'banner' },
           ];
           return query ? items.filter(i => i.label.toLowerCase().includes(query.toLowerCase())) : items;
         },
