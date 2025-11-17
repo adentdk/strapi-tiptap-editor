@@ -114,11 +114,6 @@ const toolbarsMap = {
       default: mod.IframeToolbar,
     })),
   ),
-  HTMLToolbar: lazy(() =>
-    import("../toolbars/html-view").then((mod) => ({
-      default: mod.HTMLToolbar,
-    })),
-  ),
 };
 
 export type ToolbarButtonsType =

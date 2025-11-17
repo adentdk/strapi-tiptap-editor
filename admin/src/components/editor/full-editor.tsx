@@ -20,7 +20,7 @@ import {
   type ToolbarButtonsType,
 } from "./partials/toolbar-buttons";
 import { BaseEditor, type BaseEditorProps } from "./_base-editor";
-import { CustomComponent } from "./extensions/custom-component/custom-component-extension";
+import CustomComponent from "./extensions/custom-component/custom-component-extension";
 
 export type FullEditorProps = BaseEditorProps & {
   toolbars?: ToolbarButtonsType[];

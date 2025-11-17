@@ -7,7 +7,7 @@ import { CustomComponentInsertPopover } from './custom-component-insert-popover'
 
 import tippy from 'tippy.js';
 
-export const CustomComponent = Node.create({
+const CustomComponent = Node.create({
   name: 'customComponent',
   group: 'block',
   atom: true,
@@ -36,9 +36,54 @@ export const CustomComponent = Node.create({
       custom_attrs: { default: undefined },
     };
   },
+  parseDOM: [  // Tambah ini juga, biar parsing HTML aman
+    {
+      tag: 'div[data-node-type="customComponent"]',
+      getAttrs(dom: any) {
+        return {
+          type: dom.getAttribute('data-component-type'),
+          // ... attrs lain
+        };
+      },
+    },
+  ],
+  // INI YANG PALING PENTING BUAT type: "json"
 
+
+  parseHTML() {
+    return [
+      {
+        tag: 'div',
+      }
+    ];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return [
+      'div',
+      { style: 'margin: 1em 0; text-align: center;' }
+    ];
+
+  },
+  // INI YANG HARUS SELALU ADA & RETURN ARRAY YANG VALID
+  toDOM(node: any) {
+    return [
+      'div', {
+        'data-custom-component': 'true',
+        'data-type': node.attrs.type || 'customButton',
+        class: 'custom-component-nodeview', // biar bisa di-style
+        // jangan kasih contenteditable: false di sini, biar Tiptap handle
+      },
+      0, // 0 = content slot (wajib untuk atom node)
+    ];
+  },
   addNodeView() {
-    return ReactNodeViewRenderer(CustomComponentRenderer);
+    console.log('🔄 NodeView DILOAD!'); // Debug
+    try {
+      return ReactNodeViewRenderer(CustomComponentRenderer);
+    } catch (error) {
+      return ReactNodeViewRenderer(() => <div></div>)
+    }
   },
 
   addProseMirrorPlugins() {
@@ -91,3 +136,5 @@ export const CustomComponent = Node.create({
     ];
   },
 });
+
+export default CustomComponent

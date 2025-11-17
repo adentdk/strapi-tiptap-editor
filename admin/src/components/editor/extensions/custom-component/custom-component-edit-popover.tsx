@@ -125,7 +125,11 @@ const CheckboxLabel = styled(Label)`
 `;
 
 export const CustomComponentEditPopover = () => {
-  const { isOpen, attrs, close, update } = useCustomComponentEdit();
+  const attrs = useCustomComponentEdit((s) => s.attrs);
+  const isOpen = useCustomComponentEdit((s) => s.isOpen);
+  const update = useCustomComponentEdit((s) => s.update);
+  const close = useCustomComponentEdit((s) => s.close);
+
   const [form, setForm] = useState<CustomComponentAttributes | null>(null);
 
   const stopPropagation = useCallback((e: React.SyntheticEvent) => {
@@ -137,7 +141,10 @@ export const CustomComponentEditPopover = () => {
   };
 
  useEffect(() => {
-  if (!attrs) return;
+  if (!attrs) {
+    setForm(null)
+    return;
+  }
 
   const defaultAttrs: any = { ...attrs };
 

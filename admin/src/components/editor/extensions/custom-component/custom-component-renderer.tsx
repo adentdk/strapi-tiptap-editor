@@ -4,6 +4,8 @@ import { Edit3, Trash } from 'lucide-react';
 import { useCustomComponentEdit } from './store';
 import styled from 'styled-components';
 import { CustomComponentAttributes } from './types';
+import { useEffect } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
 
 const Wrapper = styled(NodeViewWrapper) <{ $selected?: boolean }>`
   position: relative;
@@ -48,15 +50,50 @@ const Badge = styled.div<{ $type: string }>`
 
 export const CustomComponentRenderer = (props: any) => {
   const { node, editor, getPos, deleteNode, selected } = props;
-  const { open } = useCustomComponentEdit();
+  const open = useCustomComponentEdit(s => s.open);
+  const close = useCustomComponentEdit(s => s.close);
 
   const handleEdit = () => {
-    if (!editor.isEditable) return;
+    if (!editor.isEditable || editor.isDestroyed) return;
     open(editor, getPos(), node.attrs);
   };
 
+  useEffect(() => {
+    return () => {
+      close();
+    };
+  }, [close]);
+
+
+  useEffect(() => {
+    return () => {
+      if (editor.isDestroyed) return;
+      try {
+        deleteNode?.();
+      } catch (e) {
+        // ignore
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      console.log('🧹 Renderer UNMOUNT — Cleanup');
+      // Force ProseMirror ignore node ini pas destroy
+      if (editor && !editor.isDestroyed) {
+        try {
+          editor.view?.dom?.removeChild?.(node.dom); // Manual cleanup DOM
+        } catch (e) {
+          console.warn('Cleanup gagal, ignore:', e);
+        }
+      }
+    };
+  }, [editor, node]);
+
+
   const renderPreview = () => {
     const attrs = node.attrs as CustomComponentAttributes;
+    if (editor && editor.isDestroyed) return;
     switch (attrs.type) {
       case 'customButton':
         return (
@@ -167,23 +204,23 @@ export const CustomComponentRenderer = (props: any) => {
   };
 
   return (
-    <Wrapper $selected={selected}>
-      <Badge $type={node.attrs.type}>
-        {node.attrs.type.replace('custom', '')}
-      </Badge>
-      <NodeViewContent>
+    <ErrorBoundary fallback={<></>} onError={() => { }}>
+      <Wrapper $selected={selected}>
+        <Badge $type={node.attrs.type}>
+          {node.attrs.type.replace('custom', '')}
+        </Badge>
         {renderPreview()}
-      </NodeViewContent>
-      {editor.isEditable && (
-        <Toolbar>
-          <button onClick={handleEdit} style={{ width: 28, height: 28, border: '1px solid #ddd', borderRadius: 4, background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Edit3 size={14} />
-          </button>
-          <button onClick={deleteNode} style={{ width: 28, height: 28, border: '1px solid #ddd', borderRadius: 4, background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Trash size={14} />
-          </button>
-        </Toolbar>
-      )}
-    </Wrapper>
+        {editor.isEditable && (
+          <Toolbar>
+            <button onClick={handleEdit} style={{ width: 28, height: 28, border: '1px solid #ddd', borderRadius: 4, background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Edit3 size={14} />
+            </button>
+            <button onClick={deleteNode} style={{ width: 28, height: 28, border: '1px solid #ddd', borderRadius: 4, background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Trash size={14} />
+            </button>
+          </Toolbar>
+        )}
+      </Wrapper>
+    </ErrorBoundary>
   );
 };
