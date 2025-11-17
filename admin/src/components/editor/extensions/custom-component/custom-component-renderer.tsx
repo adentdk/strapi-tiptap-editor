@@ -50,8 +50,7 @@ const Badge = styled.div<{ $type: string }>`
 
 export const CustomComponentRenderer = (props: any) => {
   const { node, editor, getPos, deleteNode, selected } = props;
-  const open = useCustomComponentEdit(s => s.open);
-  const close = useCustomComponentEdit(s => s.close);
+  const { open, close } = useCustomComponentEdit();
 
   const handleEdit = () => {
     if (!editor.isEditable || editor.isDestroyed) return;

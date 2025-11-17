@@ -125,10 +125,12 @@ const CheckboxLabel = styled(Label)`
 `;
 
 export const CustomComponentEditPopover = () => {
-  const attrs = useCustomComponentEdit((s) => s.attrs);
-  const isOpen = useCustomComponentEdit((s) => s.isOpen);
-  const update = useCustomComponentEdit((s) => s.update);
-  const close = useCustomComponentEdit((s) => s.close);
+  const {
+    attrs,
+    isOpen,
+    update,
+    close,
+  } = useCustomComponentEdit();
 
   const [form, setForm] = useState<CustomComponentAttributes | null>(null);
 
@@ -140,41 +142,41 @@ export const CustomComponentEditPopover = () => {
     if (form) update(form);
   };
 
- useEffect(() => {
-  if (!attrs) {
-    setForm(null)
-    return;
-  }
+  useEffect(() => {
+    if (!attrs) {
+      setForm(null)
+      return;
+    }
 
-  const defaultAttrs: any = { ...attrs };
+    const defaultAttrs: any = { ...attrs };
 
-  if (attrs.type === 'customButton' && !attrs.buttons) {
-    defaultAttrs.buttons = [{ title: 'Click me', url: '', variant: 'primary', size: 'medium' }];
-    defaultAttrs.align = 'center';
-    defaultAttrs.fullWidth = false;
-  }
+    if (attrs.type === 'customButton' && !attrs.buttons) {
+      defaultAttrs.buttons = [{ title: 'Click me', url: '', variant: 'primary', size: 'medium' }];
+      defaultAttrs.align = 'center';
+      defaultAttrs.fullWidth = false;
+    }
 
-  if (attrs.type === 'customRelatedItem' && !attrs.layout) {
-    defaultAttrs.itemId = '';
-    defaultAttrs.label = 'Related Items';
-    defaultAttrs.layout = 'grid';
-    defaultAttrs.maxItems = 3;
-  }
+    if (attrs.type === 'customRelatedItem' && !attrs.layout) {
+      defaultAttrs.itemId = '';
+      defaultAttrs.label = 'Related Items';
+      defaultAttrs.layout = 'grid';
+      defaultAttrs.maxItems = 3;
+    }
 
-  if (attrs.type === 'customBanner' && !attrs.title) {
-    defaultAttrs.title = '';
-    defaultAttrs.content = '';
-    defaultAttrs.action = {};
-  }
+    if (attrs.type === 'customBanner' && !attrs.title) {
+      defaultAttrs.title = '';
+      defaultAttrs.content = '';
+      defaultAttrs.action = {};
+    }
 
-  if (attrs.type === 'customEntity' && !attrs.custom_attrs) {
-    defaultAttrs.entity_name = 'banner';
-    defaultAttrs.entity_id = '0';
-    defaultAttrs.custom_attrs = {};
-  }
+    if (attrs.type === 'customEntity' && !attrs.custom_attrs) {
+      defaultAttrs.entity_name = 'banner';
+      defaultAttrs.entity_id = '0';
+      defaultAttrs.custom_attrs = {};
+    }
 
-  setForm(defaultAttrs);
-}, [attrs]);
+    setForm(defaultAttrs);
+  }, [attrs]);
 
   if (!isOpen || !attrs || !form) return null;
 
@@ -509,7 +511,7 @@ export const CustomComponentEditPopover = () => {
             disabled={
               form.type === 'customButton' ? form.buttons.length === 0
                 : form.type === 'customBanner' ? !form.title
-                : false
+                  : false
             }
           >
             Update

@@ -6,7 +6,7 @@ import { TiptapJSONInputProps } from "../types";
 import { Field, Flex } from '@strapi/design-system';
 import styled from "styled-components";
 import { GlobalStyling } from "./GlobalStyling";
-import { ErrorBoundary } from "react-error-boundary";
+import { CustomComponentProvider } from "./editor/extensions/custom-component/store";
 
 const Container = styled(Flex)`
   flex-direction: column;
@@ -78,12 +78,7 @@ const SimpleEditorInput = React.forwardRef<{ focus: () => void }, TiptapJSONInpu
 
           <GlobalStyling />
 
-          <ErrorBoundary
-            fallback={<></>} // kosongin aja
-            onError={(error) => {
-              if (error.message.includes('toDOM')) return;
-              console.error(error);
-            }}>
+          <CustomComponentProvider>
             <EditorContainer>
               <SimpleEditor
                 value={value}
@@ -92,7 +87,7 @@ const SimpleEditorInput = React.forwardRef<{ focus: () => void }, TiptapJSONInpu
                 placeholder={placeholder}
               />
             </EditorContainer>
-          </ErrorBoundary>
+          </CustomComponentProvider>
 
           <Field.Hint />
           <Field.Error />
