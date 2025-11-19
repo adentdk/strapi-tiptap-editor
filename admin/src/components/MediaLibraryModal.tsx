@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { safelyResetPointerEvents } from "../utils/dom";
 
 export interface MediaFile {
+  id: number
   url: string;
   alt: string;
   caption: string;
@@ -38,6 +39,7 @@ export const MediaLibraryModal = memo(({
 
     selectedFiles.forEach(file => {
       const formattedFile: MediaFile = {
+        id: file.id,
         url: file.url.startsWith('http') ? file.url : `${window.strapi?.backendURL}${file.url}`,
         alt: file.alternativeText || file.name,
         caption: file.caption || file.name,

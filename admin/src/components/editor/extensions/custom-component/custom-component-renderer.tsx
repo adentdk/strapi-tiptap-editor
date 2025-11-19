@@ -5,7 +5,6 @@ import { useCustomComponentEdit } from './store';
 import styled from 'styled-components';
 import { CustomComponentAttributes } from './types';
 import { useEffect } from 'react';
-import { ErrorBoundary } from 'react-error-boundary';
 
 const Wrapper = styled(NodeViewWrapper) <{ $selected?: boolean }>`
   position: relative;
@@ -203,23 +202,21 @@ export const CustomComponentRenderer = (props: any) => {
   };
 
   return (
-    <ErrorBoundary fallback={<></>} onError={() => { }}>
-      <Wrapper $selected={selected}>
-        <Badge $type={node.attrs.type}>
-          {node.attrs.type.replace('custom', '')}
-        </Badge>
-        {renderPreview()}
-        {editor.isEditable && (
-          <Toolbar>
-            <button onClick={handleEdit} style={{ width: 28, height: 28, border: '1px solid #ddd', borderRadius: 4, background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Edit3 size={14} />
-            </button>
-            <button onClick={deleteNode} style={{ width: 28, height: 28, border: '1px solid #ddd', borderRadius: 4, background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Trash size={14} />
-            </button>
-          </Toolbar>
-        )}
-      </Wrapper>
-    </ErrorBoundary>
+    <Wrapper $selected={selected}>
+      <Badge $type={node.attrs.type}>
+        {node.attrs.type.replace('custom', '')}
+      </Badge>
+      {renderPreview()}
+      {editor.isEditable && (
+        <Toolbar>
+          <button onClick={handleEdit} style={{ width: 28, height: 28, border: '1px solid #ddd', borderRadius: 4, background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Edit3 size={14} />
+          </button>
+          <button onClick={deleteNode} style={{ width: 28, height: 28, border: '1px solid #ddd', borderRadius: 4, background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Trash size={14} />
+          </button>
+        </Toolbar>
+      )}
+    </Wrapper>
   );
 };

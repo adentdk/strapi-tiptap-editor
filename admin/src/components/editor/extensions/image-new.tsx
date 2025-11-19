@@ -56,8 +56,6 @@ export const ImageExtension = Image.extend({
     };
   },
 
-  addNodeView: () => ReactNodeViewRenderer(TiptapImageComponent),
-
   parseHTML() {
     return [
       {
@@ -528,8 +526,8 @@ export function TiptapImageComponent(props: NodeViewProps) {
 
     if (!originalW || !originalH) return;
 
-    let newW = width || originalW;
-    let newH = height || originalH;
+    let newW = width ?? originalW;
+    let newH = height ?? originalH;
 
     if (width !== undefined && width !== null) {
       newH = Math.round((originalH / originalW) * width);
@@ -726,7 +724,7 @@ export function TiptapImageComponent(props: NodeViewProps) {
                   )}
 
                   {/* Pixel Size (Fixed Mode) */}
-                  {!useResponsive && (
+                  {!useResponsive && pixelWidth && (
                     <>
                       <div style={{ padding: "8px 12px 4px", fontWeight: 600, fontSize: "12px", color: "var(--neutral-600)" }}>
                         Pixel Width
