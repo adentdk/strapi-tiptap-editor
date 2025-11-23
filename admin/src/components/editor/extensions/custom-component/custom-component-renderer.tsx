@@ -35,7 +35,6 @@ const Badge = styled.div<{ $type: string }>`
     switch (p.$type) {
       case 'customButton': return p.theme.colors.primary500;
       case 'customRelatedItem': return p.theme.colors.success500;
-      case 'customBanner': return p.theme.colors.warning500;
       default: return p.theme.colors.neutral500;
     }
   }};
@@ -102,24 +101,48 @@ export const CustomComponentRenderer = (props: any) => {
             gap: 12,
             flexWrap: 'wrap' as const,
           }}>
-            {attrs.buttons.map((btn: any, i: number) => (
-              <div
-                key={i}
-                style={{
-                  padding: btn.size === 'small' ? '6px 12px' : btn.size === 'large' ? '12px 24px' : '8px 16px',
-                  backgroundColor: btn.variant === 'primary' ? '#3b82f6' : btn.variant === 'secondary' ? '#6b7280' : 'transparent',
-                  color: btn.variant === 'outline' ? '#3b82f6' : 'white',
-                  border: btn.variant === 'outline' ? '1px solid #3b82f6' : 'none',
-                  borderRadius: 6,
-                  fontSize: btn.size === 'small' ? 12 : btn.size === 'large' ? 16 : 14,
-                  fontWeight: 500,
-                  textAlign: 'center' as const,
-                  minWidth: 80,
-                }}
-              >
-                {btn.title}
-              </div>
-            ))}
+            {attrs.buttons.map((btn: any, i: number) => {
+              const buttonStyle = {
+                padding: btn.size === 'small' ? '6px 12px' : btn.size === 'large' ? '12px 24px' : '8px 16px',
+                backgroundColor: btn.variant === 'primary' ? '#3b82f6' :
+                  btn.variant === 'secondary' ? '#6b7280' :
+                    btn.variant === 'outline' ? 'transparent' :
+                      'transparent',
+                color: btn.variant === 'outline' ? '#3b82f6' :
+                  btn.variant === 'ghost' ? '#3b82f6' :
+                    'white',
+                border: btn.variant === 'outline' ? '1px solid #3b82f6' :
+                  btn.variant === 'ghost' ? 'none' :
+                    'none',
+                borderRadius: 6,
+                fontSize: btn.size === 'small' ? 12 : btn.size === 'large' ? 16 : 14,
+                fontWeight: 500,
+                textAlign: 'center' as const,
+                minWidth: 80,
+                cursor: 'pointer',
+                ...(btn.variant === 'ghost' && {
+                  backgroundColor: 'transparent',
+                  color: '#3b82f6',
+                  textDecoration: 'underline'
+                })
+              };
+
+              return (
+                <button
+                  key={i}
+                  className={btn.class || ''}
+                  style={buttonStyle}
+                  {...Object.entries(btn.attributes || {}).reduce((acc, [key, value]) => {
+                    acc[key] = value;
+                    return acc;
+                  }, {} as Record<string, any>)}
+                >
+                  {btn.arrow === 'left' && '← '}
+                  {btn.title}
+                  {btn.arrow === 'right' && ' →'}
+                </button>
+              );
+            })}
             {attrs.buttons.length === 0 && <div style={{ opacity: 0.5 }}>No buttons</div>}
           </div>
         );
@@ -138,39 +161,6 @@ export const CustomComponentRenderer = (props: any) => {
                 </div>
               ))}
             </div>
-          </div>
-        );
-
-      case 'customBanner':
-        return (
-          <div style={{
-            padding: 24,
-            borderRadius: 12,
-            textAlign: 'center' as const,
-            position: 'relative' as const,
-          }}>
-            <h3 style={{ margin: '0 0 8px', fontSize: 20, fontWeight: 600 }}>
-              {attrs.title || 'Title Here'}
-            </h3>
-            <p style={{ margin: 0, opacity: 0.85, fontSize: 15 }}>
-              {attrs.content || 'Content here...'}
-            </p>
-            {attrs.action && (
-              <div style={{ marginTop: 16 }}>
-                <a
-                  href={attrs.action.url}
-                  style={{
-                    display: 'inline-block',
-                    padding: '10px 20px',
-                    borderRadius: 6,
-                    fontWeight: 500,
-                    textDecoration: 'none',
-                  }}
-                >
-                  {attrs.action.text}
-                </a>
-              </div>
-            )}
           </div>
         );
 

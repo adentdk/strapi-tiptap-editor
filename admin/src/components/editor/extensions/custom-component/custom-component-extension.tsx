@@ -26,11 +26,6 @@ const CustomComponent = Node.create({
       layout: { default: undefined },
       maxItems: { default: undefined },
 
-      title: { default: undefined },
-      content: { default: undefined },
-      variant: { default: undefined },
-      action: { default: undefined },
-
       entity_name: { default: undefined },
       entity_id: { default: undefined },
       custom_attrs: { default: undefined },
@@ -98,7 +93,6 @@ const CustomComponent = Node.create({
           const items = [
             { type: 'customButton', label: 'Button', description: 'Interactive button' },
             { type: 'customRelatedItem', label: 'Related Item', description: 'Show related item' },
-            { type: 'customBanner', label: 'Banner', description: 'Show Banner' },
             { type: 'customEntity', label: 'Custom', description: 'Show custom related entity' },
           ];
           return query ? items.filter(i => i.label.toLowerCase().includes(query.toLowerCase())) : items;

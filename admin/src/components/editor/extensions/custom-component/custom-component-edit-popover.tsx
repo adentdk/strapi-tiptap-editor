@@ -2,7 +2,7 @@
 import { useCustomComponentEdit } from './store';
 import { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
-import { CustomBannerAttributes, CustomButtonAttributes, CustomComponentAttributes, CustomEntityAttributes } from './types';
+import { CustomButtonAttributes, CustomComponentAttributes, CustomEntityAttributes } from './types';
 import { Checkbox } from '@strapi/design-system';
 import { Label } from '../../../../components/ui/label';
 
@@ -163,12 +163,6 @@ export const CustomComponentEditPopover = () => {
       defaultAttrs.maxItems = 3;
     }
 
-    if (attrs.type === 'customBanner' && !attrs.title) {
-      defaultAttrs.title = '';
-      defaultAttrs.content = '';
-      defaultAttrs.action = {};
-    }
-
     if (attrs.type === 'customEntity' && !attrs.custom_attrs) {
       defaultAttrs.entity_name = 'banner';
       defaultAttrs.entity_id = '0';
@@ -205,52 +199,210 @@ export const CustomComponentEditPopover = () => {
             <div>
               <Label>Buttons</Label>
               {form.buttons.map((btn: any, i: number) => (
-                <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'center' }}>
-                  <Input
-                    placeholder="Text"
-                    value={btn.title}
-                    onChange={e => {
-                      setForm(prev => ({
-                        ...prev,
-                        buttons: (prev as CustomButtonAttributes).buttons.map((b, idx) =>
-                          idx === i ? { ...b, title: e.target.value } : b
-                        ),
-                      }) as any);
-                    }}
-                    onMouseDown={stopPropagation}
-                    onClick={stopPropagation}
-                  />
-                  <Input
-                    placeholder="URL"
-                    value={btn.url}
-                    onChange={e => {
-                      setForm(prev => ({
-                        ...prev,
-                        buttons: (prev as CustomButtonAttributes).buttons.map((b, idx) =>
-                          idx === i ? { ...b, url: e.target.value } : b
-                        ),
-                      }) as any);
-                    }}
-                    onMouseDown={stopPropagation}
-                    onClick={stopPropagation}
-                  />
-                  <Select
-                    value={btn.variant}
-                    onChange={e => {
-                      setForm(prev => ({
-                        ...prev,
-                        buttons: (prev as CustomButtonAttributes).buttons.map((b, idx) =>
-                          idx === i ? { ...b, variant: e.target.value as any } : b
-                        ),
-                      }) as any);
-                    }}
-                    onMouseDown={stopPropagation}
-                    onClick={stopPropagation}
-                  >
-                    <option value="primary">Primary</option>
-                    <option value="secondary">Secondary</option>
-                    <option value="outline">Outline</option>
-                  </Select>
+                <div key={i} style={{ border: '1px solid #e5e7eb', borderRadius: 8, padding: 12, marginBottom: 12 }}>
+                  <div style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'center' }}>
+                    <Input
+                      placeholder="Text"
+                      value={btn.title}
+                      onChange={e => {
+                        setForm(prev => ({
+                          ...prev,
+                          buttons: (prev as CustomButtonAttributes).buttons.map((b, idx) =>
+                            idx === i ? { ...b, title: e.target.value } : b
+                          ),
+                        }) as any);
+                      }}
+                      onMouseDown={stopPropagation}
+                      onClick={stopPropagation}
+                    />
+                    <Input
+                      placeholder="URL"
+                      value={btn.url}
+                      onChange={e => {
+                        setForm(prev => ({
+                          ...prev,
+                          buttons: (prev as CustomButtonAttributes).buttons.map((b, idx) =>
+                            idx === i ? { ...b, url: e.target.value } : b
+                          ),
+                        }) as any);
+                      }}
+                      onMouseDown={stopPropagation}
+                      onClick={stopPropagation}
+                    />
+                  </div>
+
+                  <div style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'center' }}>
+                    <Select
+                      value={btn.variant}
+                      onChange={e => {
+                        setForm(prev => ({
+                          ...prev,
+                          buttons: (prev as CustomButtonAttributes).buttons.map((b, idx) =>
+                            idx === i ? { ...b, variant: e.target.value as any } : b
+                          ),
+                        }) as any);
+                      }}
+                      onMouseDown={stopPropagation}
+                      onClick={stopPropagation}
+                    >
+                      <option value="primary">Primary</option>
+                      <option value="secondary">Secondary</option>
+                      <option value="outline">Outline</option>
+                      <option value="ghost">Ghost</option>
+                    </Select>
+
+                    <Select
+                      value={btn.size}
+                      onChange={e => {
+                        setForm(prev => ({
+                          ...prev,
+                          buttons: (prev as CustomButtonAttributes).buttons.map((b, idx) =>
+                            idx === i ? { ...b, size: e.target.value as any } : b
+                          ),
+                        }) as any);
+                      }}
+                      onMouseDown={stopPropagation}
+                      onClick={stopPropagation}
+                    >
+                      <option value="small">Small</option>
+                      <option value="medium">Medium</option>
+                      <option value="large">Large</option>
+                    </Select>
+
+                    <Select
+                      value={btn.arrow}
+                      onChange={e => {
+                        setForm(prev => ({
+                          ...prev,
+                          buttons: (prev as CustomButtonAttributes).buttons.map((b, idx) =>
+                            idx === i ? { ...b, arrow: e.target.value as any } : b
+                          ),
+                        }) as any);
+                      }}
+                      onMouseDown={stopPropagation}
+                      onClick={stopPropagation}
+                    >
+                      <option value="none">No Arrow</option>
+                      <option value="left">Left Arrow</option>
+                      <option value="right">Right Arrow</option>
+                    </Select>
+                  </div>
+
+                  <div style={{ marginBottom: 8 }}>
+                    <Label>Custom Class</Label>
+                    <Input
+                      placeholder="btn-custom my-button"
+                      value={btn.class || ''}
+                      onChange={e => {
+                        setForm(prev => ({
+                          ...prev,
+                          buttons: (prev as CustomButtonAttributes).buttons.map((b, idx) =>
+                            idx === i ? { ...b, class: e.target.value } : b
+                          ),
+                        }) as any);
+                      }}
+                      onMouseDown={stopPropagation}
+                      onClick={stopPropagation}
+                    />
+                  </div>
+
+                  <div style={{ marginBottom: 8 }}>
+                    <Label>Data Attributes</Label>
+                    {Object.entries(btn.attributes || {}).map(([key, value], j) => (
+                      <div key={j} style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'center' }}>
+                        <Input
+                          placeholder="key"
+                          value={key}
+                          onChange={e => {
+                            const newDataAttrs = { ...btn.attributes };
+                            delete newDataAttrs[key];
+                            newDataAttrs[e.target.value] = value;
+                            setForm(prev => ({
+                              ...prev,
+                              buttons: (prev as CustomButtonAttributes).buttons.map((b, idx) =>
+                                idx === i ? { ...b, attributes: newDataAttrs } : b
+                              ),
+                            }) as any);
+                          }}
+                          onMouseDown={stopPropagation}
+                          onClick={stopPropagation}
+                        />
+                        <Input
+                          placeholder="value"
+                          value={value as string}
+                          onChange={e => {
+                            setForm(prev => ({
+                              ...prev,
+                              buttons: (prev as CustomButtonAttributes).buttons.map((b, idx) =>
+                                idx === i ? {
+                                  ...b,
+                                  attributes: {
+                                    ...b.attributes,
+                                    [key]: e.target.value
+                                  }
+                                } : b
+                              ),
+                            }) as any);
+                          }}
+                          onMouseDown={stopPropagation}
+                          onClick={stopPropagation}
+                        />
+                        <button
+                          onClick={() => {
+                            const newDataAttrs = { ...btn.attributes };
+                            delete newDataAttrs[key];
+                            setForm(prev => ({
+                              ...prev,
+                              buttons: (prev as CustomButtonAttributes).buttons.map((b, idx) =>
+                                idx === i ? { ...b, attributes: newDataAttrs } : b
+                              ),
+                            }) as any);
+                          }}
+                          onMouseDown={stopPropagation}
+                          style={{
+                            padding: '0 8px',
+                            background: '#fee2e2',
+                            color: '#dc2626',
+                            border: 'none',
+                            borderRadius: 4,
+                            height: '36px',
+                            minWidth: '36px'
+                          }}
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                    <button
+                      onClick={() => {
+                        setForm(prev => ({
+                          ...prev,
+                          buttons: (prev as CustomButtonAttributes).buttons.map((b, idx) =>
+                            idx === i ? {
+                              ...b,
+                              attributes: {
+                                ...b.attributes,
+                                'data-key': 'value'
+                              }
+                            } : b
+                          ),
+                        }) as any);
+                      }}
+                      onMouseDown={stopPropagation}
+                      style={{
+                        marginTop: 8,
+                        fontSize: 12,
+                        color: '#3b82f6',
+                        background: 'none',
+                        border: '1px dashed #3b82f6',
+                        padding: '4px 8px',
+                        borderRadius: 4
+                      }}
+                    >
+                      + Add Data Attribute
+                    </button>
+                  </div>
+
                   <button
                     onClick={() => {
                       setForm(prev => ({
@@ -259,9 +411,16 @@ export const CustomComponentEditPopover = () => {
                       }) as any);
                     }}
                     onMouseDown={stopPropagation}
-                    style={{ padding: '0 8px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: 4 }}
+                    style={{
+                      padding: '4px 8px',
+                      background: '#fee2e2',
+                      color: '#dc2626',
+                      border: 'none',
+                      borderRadius: 4,
+                      fontSize: 12
+                    }}
                   >
-                    ×
+                    Hapus Button
                   </button>
                 </div>
               ))}
@@ -269,13 +428,30 @@ export const CustomComponentEditPopover = () => {
                 onClick={() => {
                   setForm(prev => ({
                     ...prev,
-                    buttons: [...(prev as CustomButtonAttributes).buttons, { title: 'Button', url: '', variant: 'primary', size: 'medium' }],
+                    buttons: [...(prev as CustomButtonAttributes).buttons, {
+                      title: 'Button',
+                      url: '',
+                      variant: 'primary',
+                      size: 'medium',
+                      arrow: 'none',
+                      attributes: {},
+                      class: ''
+                    }],
                   }) as any);
                 }}
                 onMouseDown={stopPropagation}
-                style={{ marginTop: 8, fontSize: 12, color: '#3b82f6', background: 'none', border: '1px dashed #3b82f6', padding: '4px 8px', borderRadius: 4 }}
+                style={{
+                  marginTop: 8,
+                  fontSize: 12,
+                  color: '#3b82f6',
+                  background: 'none',
+                  border: '1px dashed #3b82f6',
+                  padding: '8px 12px',
+                  borderRadius: 4,
+                  width: '100%'
+                }}
               >
-                + Add Button
+                + Tambah Button Baru
               </button>
             </div>
 
@@ -363,62 +539,6 @@ export const CustomComponentEditPopover = () => {
           </>
         )}
 
-        {/* ========== BANNER ========== */}
-        {form.type === 'customBanner' && (
-          <>
-            <div>
-              <Label>Title</Label>
-              <Input
-                type="text"
-                placeholder="Banner title"
-                value={form.title ?? ""}
-                onChange={e => setForm(prev => ({ ...prev, title: e.target.value }) as any)}
-                onMouseDown={stopPropagation}
-                onClick={stopPropagation}
-                autoFocus
-              />
-            </div>
-
-            <div>
-              <Label>Content</Label>
-              <Textarea
-                placeholder="Banner content..."
-                value={form.content ?? ""}
-                onChange={e => setForm(prev => ({ ...prev, content: e.target.value }) as any)}
-                onMouseDown={stopPropagation}
-                onClick={stopPropagation}
-              />
-            </div>
-
-            <div>
-              <Label>Action Button (optional)</Label>
-              <Input
-                placeholder="Button text"
-                value={form.action?.text || ''}
-                onChange={e => setForm(prev => ({ ...prev, action: { ...(prev as CustomBannerAttributes).action, text: e.target.value } }) as any)}
-                onMouseDown={stopPropagation}
-                onClick={stopPropagation}
-              />
-              <Input
-                placeholder="Button URL"
-                value={form.action?.url || ''}
-                onChange={e => setForm(prev => ({ ...prev, action: { ...(prev as CustomBannerAttributes).action, url: e.target.value } }) as any)}
-                onMouseDown={stopPropagation}
-                onClick={stopPropagation}
-                style={{ marginTop: 4 }}
-              />
-              {form.action && (
-                <button
-                  onClick={() => setForm(prev => ({ ...prev, action: null }) as any)}
-                  onMouseDown={stopPropagation}
-                  style={{ marginTop: 4, fontSize: 12, color: '#dc2626' }}
-                >
-                  Remove Action
-                </button>
-              )}
-            </div>
-          </>
-        )}
 
         {/* ========== ENTITY ========== */}
         {form.type === 'customEntity' && (
@@ -510,8 +630,7 @@ export const CustomComponentEditPopover = () => {
             onMouseDown={stopPropagation}
             disabled={
               form.type === 'customButton' ? form.buttons.length === 0
-                : form.type === 'customBanner' ? !form.title
-                  : false
+                : false
             }
           >
             Update

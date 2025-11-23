@@ -114,15 +114,6 @@ export const CustomComponentInsertPopover = forwardRef((props: Props, ref) => {
         });
         break;
 
-      case 'customBanner':
-        props.command({
-          type: 'customBanner',
-          title: '',
-          content: '',
-          action: null,
-        });
-        break;
-
       case 'customEntity':
         props.command({
           type: 'customEntity',
