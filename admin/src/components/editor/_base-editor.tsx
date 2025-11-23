@@ -92,6 +92,24 @@ export const BaseEditor = forwardRef<Editor | null, BaseEditorProps>(
   ) => {
     const editor = useEditor({
       ...options,
+      editorProps: {
+        ...options?.editorProps,
+        handlePaste: (view, event, slice) => {
+          const clipboardData = event.clipboardData
+          if (!clipboardData) return false
+          const plainText = clipboardData.getData('text/plain')
+          if (plainText) {
+            view.dispatch(
+              view.state.tr.replaceSelectionWith(
+                view.state.schema.text(plainText),
+                false
+              )
+            )
+            return true
+          }
+          return false
+        },
+      },
       onUpdate: onChange,
       value,
       editable: !disabled,
@@ -107,7 +125,7 @@ export const BaseEditor = forwardRef<Editor | null, BaseEditorProps>(
     return (
       <TooltipProvider>
         <EditorProvider editor={editor}>
-          <EditorContainer 
+          <EditorContainer
             $hasToolbar={!!toolbar}
             className={className}
           >
@@ -123,7 +141,22 @@ export const BaseEditor = forwardRef<Editor | null, BaseEditorProps>(
                 editor?.chain().focus().run();
               }}
             >
-              <EditorContentStyled editor={editor} />
+              <EditorContentStyled
+                editor={editor}
+
+              // ={(view, event) => {
+              //   event.preventDefault()
+
+              //   const text = event.clipboardData?.getData("text/plain") ?? ""
+              //   const { state, dispatch } = view
+
+              //   dispatch(
+              //     state.tr.insertText(text, state.selection.from, state.selection.to)
+              //   )
+
+              //   return true // stop default paste
+              // }}
+              />
               <LinkBubbleMenu />
               <CustomComponentEditPopover />
             </ContentContainer>
