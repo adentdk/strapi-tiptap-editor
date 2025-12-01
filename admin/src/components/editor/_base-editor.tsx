@@ -94,21 +94,7 @@ export const BaseEditor = forwardRef<Editor | null, BaseEditorProps>(
       ...options,
       editorProps: {
         ...options?.editorProps,
-        handlePaste: (view, event, slice) => {
-          const clipboardData = event.clipboardData
-          if (!clipboardData) return false
-          const plainText = clipboardData.getData('text/plain')
-          if (plainText) {
-            view.dispatch(
-              view.state.tr.replaceSelectionWith(
-                view.state.schema.text(plainText),
-                false
-              )
-            )
-            return true
-          }
-          return false
-        },
+
       },
       onUpdate: onChange,
       value,

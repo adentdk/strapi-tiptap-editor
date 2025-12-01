@@ -144,7 +144,7 @@ export const useEditor = ({
       ...editorProps,
       attributes: {
         ...editorAttributes,
-        class: cn("prose focus:outline-none", (editorAttributes as any).class),
+        class: cn("prose dark:prose-invert focus:outline-none", (editorAttributes as any).class),
       },
     },
     onUpdate: ({ editor }) => handleUpdate(editor),
