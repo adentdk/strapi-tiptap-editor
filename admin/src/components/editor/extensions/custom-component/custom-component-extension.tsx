@@ -15,7 +15,7 @@ const CustomComponent = Node.create({
 
   addAttributes() {
     return {
-      type: { default: 'customButton' },
+      type: { default: undefined },
 
       buttons: { default: undefined },
       align: { default: undefined },
@@ -65,15 +65,14 @@ const CustomComponent = Node.create({
     return [
       'div', {
         'data-custom-component': 'true',
-        'data-type': node.attrs.type || 'customButton',
-        class: 'custom-component-nodeview', // biar bisa di-style
-        // jangan kasih contenteditable: false di sini, biar Tiptap handle
+        'data-type': node.attrs.type || 'unknown',
+        class: 'custom-component-nodeview',
       },
-      0, // 0 = content slot (wajib untuk atom node)
+      0,
     ];
   },
   addNodeView() {
-    console.log('🔄 NodeView DILOAD!'); // Debug
+    console.log('🔄 NodeView DILOAD!');
     try {
       return ReactNodeViewRenderer(CustomComponentRenderer);
     } catch (error) {
