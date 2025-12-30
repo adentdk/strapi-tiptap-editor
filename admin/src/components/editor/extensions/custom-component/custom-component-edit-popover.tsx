@@ -182,7 +182,7 @@ export const CustomComponentEditPopover = () => {
       onKeyDown={stopPropagation}
     >
       <Header>
-        <span>Edit {attrs.type.replace('custom', '').replace(/([A-Z])/g, ' $1').trim()}</span>
+        <span>Edit {attrs?.type?.replace('custom', '')?.replace(/([A-Z])/g, ' $1').trim()}</span>
         <button
           onClick={close}
           onMouseDown={stopPropagation}

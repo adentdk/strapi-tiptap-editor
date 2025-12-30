@@ -49,7 +49,7 @@ const getRegex = (
   caseSensitive: boolean,
 ): RegExp => {
   const escapedString = disableRegex
-    ? searchString.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&")
+    ? searchString?.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&")
     : searchString;
   return new RegExp(escapedString, caseSensitive ? "gu" : "gui");
 };

@@ -197,8 +197,8 @@ export const CustomComponentRenderer = (props: any) => {
 
   return (
     <Wrapper $selected={selected}>
-      <Badge $type={node.attrs.type}>
-        {node.attrs.type.replace('custom', '')}
+      <Badge $type={node?.attrs?.type}>
+        {node?.attrs?.type?.replace('custom', '')}
       </Badge>
       {renderPreview()}
       {editor.isEditable && (
