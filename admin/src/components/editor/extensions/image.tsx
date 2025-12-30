@@ -521,10 +521,9 @@ export function TiptapImageComponent(props: NodeViewProps) {
     }
   };
 
-  // Pixel size dengan aspect ratio
   const updatePixelSize = (width?: number | null, height?: number | null) => {
-    const originalW = node.attrs.originalWidth || node.attrs.pixelWidth;
-    const originalH = node.attrs.originalHeight || node.attrs.pixelHeight;
+    const originalW = node.attrs.pixelWidth || node.attrs.originalWidth;
+    const originalH = node.attrs.pixelHeight || node.attrs.originalHeight;
 
     if (!originalW || !originalH) return;
 
@@ -742,6 +741,28 @@ export function TiptapImageComponent(props: NodeViewProps) {
                           </SizePresetButton>
                         ))}
                       </SizePresetGrid>
+
+                      {/* Custom Input */}
+                      <div style={{ display: 'flex', gap: '4px', padding: '4px 12px 8px' }}>
+                        <InlineInput
+                          type="number"
+                          placeholder="Width px"
+                          value={pixelWidth || ''}
+                          onChange={e => {
+                            const w = e.target.value ? parseInt(e.target.value) : undefined;
+                            updatePixelSize(w, undefined);
+                          }}
+                        />
+                        <InlineInput
+                          type="number"
+                          placeholder="Height px"
+                          value={pixelHeight || ''}
+                          onChange={e => {
+                            const h = e.target.value ? parseInt(e.target.value) : undefined;
+                            updatePixelSize(undefined, h);
+                          }}
+                        />
+                      </div>
                       <div style={{ padding: "0 12px 8px", fontSize: "11px", color: "var(--neutral-500)" }}>
                         Current: {pixelWidth} × {pixelHeight}
                       </div>

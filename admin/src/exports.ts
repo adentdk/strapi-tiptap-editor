@@ -1,8 +1,6 @@
-import cloneDeep from 'lodash/cloneDeep';
-
 import { defaultTheme } from './theme';
 
-const clonedDefaultTheme = cloneDeep(defaultTheme);
+const clonedDefaultTheme = { ...defaultTheme };
 
 export { clonedDefaultTheme as defaultTheme };
 
