@@ -333,7 +333,6 @@ const CaptionText = styled.div`
 // === HELPER ===
 const normalizeImageAttributes = (attrs: any) => {
   const normalized = { ...attrs };
-  console.log(normalized)
   if (attrs.src && !attrs.width && !attrs.align) {
     normalized.width = "90%";
     normalized.align = "center";
