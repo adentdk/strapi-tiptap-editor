@@ -148,13 +148,13 @@ const EditorLayout = ({ toolbar, className }: { toolbar?: React.ReactNode, class
           if (!isCodeMode) editor?.chain().focus().run();
         }}
       >
-        {!isCodeMode ? (
-          <>
-            <EditorContentStyled editor={editor} />
-            <LinkBubbleMenu />
-            <CustomComponentEditPopover />
-          </>
-        ) : (
+        <div style={{ display: isCodeMode ? 'none' : 'block', height: '100%' }}>
+          <EditorContentStyled editor={editor} />
+          <LinkBubbleMenu />
+          <CustomComponentEditPopover />
+        </div>
+
+        {isCodeMode && (
           <CodeTextarea
             value={codeContent}
             onChange={handleTextareaChange}
