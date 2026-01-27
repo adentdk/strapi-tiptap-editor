@@ -4,8 +4,8 @@ import type { Editor } from "@tiptap/react";
 
 export interface EditorContextProps {
   editor: Editor;
-  isCodeMode: boolean;
-  setIsCodeMode: (isCodeMode: boolean) => void;
+  isCodeModalOpen: boolean;
+  setIsCodeModalOpen: (isOpen: boolean) => void;
 }
 
 export const EditorContext = createContext<EditorContextProps | null>(null);
@@ -16,10 +16,10 @@ interface EditorProviderProps {
 }
 
 export const EditorProvider = ({ editor, children }: EditorProviderProps) => {
-  const [isCodeMode, setIsCodeMode] = useState(false);
+  const [isCodeModalOpen, setIsCodeModalOpen] = useState(false);
 
   return (
-    <EditorContext.Provider value={{ editor, isCodeMode, setIsCodeMode }}>
+    <EditorContext.Provider value={{ editor, isCodeModalOpen, setIsCodeModalOpen }}>
       {children}
     </EditorContext.Provider>
   );

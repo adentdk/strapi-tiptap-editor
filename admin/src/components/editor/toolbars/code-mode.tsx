@@ -18,7 +18,7 @@ const TooltipContent = styled.div`
 
 const CodeModeToolbar = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
   ({ className, onClick, children, ...props }, ref) => {
-    const { isCodeMode, setIsCodeMode } = useEditorContext();
+    const { isCodeModalOpen, setIsCodeModalOpen } = useEditorContext();
     return (
       <ToolbarButton
         tooltip={
@@ -29,9 +29,9 @@ const CodeModeToolbar = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
           </Fragment>
         }
         aria-label="Toggle code mode"
-        isActive={isCodeMode}
+        isActive={isCodeModalOpen}
         onClick={(e) => {
-          setIsCodeMode(!isCodeMode);
+          setIsCodeModalOpen(!isCodeModalOpen);
           onClick?.(e);
         }}
         ref={ref}

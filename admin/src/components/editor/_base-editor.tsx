@@ -6,6 +6,7 @@ import { EditorProvider, useEditorContext } from "./partials/editor-provider";
 import styled from "styled-components";
 import { TooltipProvider } from "../ui/tooltip";
 import { CustomComponentEditPopover } from "./extensions/custom-component/custom-component-edit-popover";
+import { CodeModeModal } from "./toolbars/code-mode-modal";
 
 export interface BaseEditorProps
   extends Omit<UseEditorOptions, "onUpdate" | "editable"> {
@@ -101,34 +102,10 @@ const CodeTextarea = styled.textarea`
 `;
 
 const EditorLayout = ({ toolbar, className }: { toolbar?: React.ReactNode, className?: string }) => {
-  const { editor, isCodeMode } = useEditorContext();
-  const [codeContent, setCodeContent] = useState("");
-  const isFirstRender = useRef(true);
+  const { editor, isCodeModalOpen, setIsCodeModalOpen } = useEditorContext();
 
-  useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-
-    if (isCodeMode) {
-      setCodeContent(editor.getHTML());
-    } else {
-      // When switching back to visual, validation or cleanup could happen here
-      if (codeContent) {
-        // We utilize command to ensure history tracking if possible, or just setContent
-        editor.commands.setContent(codeContent);
-      }
-    }
-  }, [isCodeMode, editor]);
-
-  const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setCodeContent(e.target.value);
-  };
-
-  const handleTextareaBlur = () => {
-    // Sync to editor on blur to ensure changes are captured seamlessly
-    editor.commands.setContent(codeContent);
+  const handleSaveCode = (content: string) => {
+    editor.commands.setContent(content);
   };
 
   return (
@@ -145,23 +122,19 @@ const EditorLayout = ({ toolbar, className }: { toolbar?: React.ReactNode, class
       ) : null}
       <ContentContainer
         onClick={() => {
-          if (!isCodeMode) editor?.chain().focus().run();
+          editor?.chain().focus().run();
         }}
       >
-        <div style={{ display: isCodeMode ? 'none' : 'block', height: '100%' }}>
-          <EditorContentStyled editor={editor} />
-          <LinkBubbleMenu />
-          <CustomComponentEditPopover />
-        </div>
+        <EditorContentStyled editor={editor} />
+        <LinkBubbleMenu />
+        <CustomComponentEditPopover />
 
-        {isCodeMode && (
-          <CodeTextarea
-            value={codeContent}
-            onChange={handleTextareaChange}
-            onBlur={handleTextareaBlur}
-            spellCheck={false}
-          />
-        )}
+        <CodeModeModal
+          isOpen={isCodeModalOpen}
+          onClose={() => setIsCodeModalOpen(false)}
+          onSave={handleSaveCode}
+          initialContent={editor?.getHTML() || ""}
+        />
       </ContentContainer>
     </EditorContainer>
   );
