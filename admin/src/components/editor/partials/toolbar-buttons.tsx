@@ -114,6 +114,11 @@ const toolbarsMap = {
       default: mod.IframeToolbar,
     })),
   ),
+  CodeModeToolbar: lazy(() =>
+    import("../toolbars/code-mode").then((mod) => ({
+      default: mod.CodeModeToolbar,
+    })),
+  ),
 };
 
 export type ToolbarButtonsType =

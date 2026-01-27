@@ -1,8 +1,8 @@
 import { type Content, Editor, EditorContent } from "@tiptap/react";
 import { LinkBubbleMenu } from "./partials/link-bubble-menu";
 import { useEditor, type UseEditorOptions } from "./use-editor";
-import { forwardRef, useImperativeHandle } from "react";
-import { EditorProvider } from "./partials/editor-provider";
+import { forwardRef, useImperativeHandle, useState, useEffect, useRef } from "react";
+import { EditorProvider, useEditorContext } from "./partials/editor-provider";
 import styled from "styled-components";
 import { TooltipProvider } from "../ui/tooltip";
 import { CustomComponentEditPopover } from "./extensions/custom-component/custom-component-edit-popover";
@@ -85,6 +85,88 @@ const EditorContentStyled = styled(EditorContent)`
   border: none;
 `;
 
+const CodeTextarea = styled.textarea`
+  flex: 1;
+  width: 100%;
+  min-height: 200px;
+  border: none;
+  resize: none;
+  outline: none;
+  padding: 16px;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  background-color: ${props => props.theme.colors.neutral0};
+  color: ${props => props.theme.colors.neutral800};
+`;
+
+const EditorLayout = ({ toolbar, className }: { toolbar?: React.ReactNode, className?: string }) => {
+  const { editor, isCodeMode } = useEditorContext();
+  const [codeContent, setCodeContent] = useState("");
+  const isFirstRender = useRef(true);
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    if (isCodeMode) {
+      setCodeContent(editor.getHTML());
+    } else {
+      // When switching back to visual, validation or cleanup could happen here
+      if (codeContent) {
+        // We utilize command to ensure history tracking if possible, or just setContent
+        editor.commands.setContent(codeContent);
+      }
+    }
+  }, [isCodeMode, editor]);
+
+  const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setCodeContent(e.target.value);
+  };
+
+  const handleTextareaBlur = () => {
+    // Sync to editor on blur to ensure changes are captured seamlessly
+    editor.commands.setContent(codeContent);
+  };
+
+  return (
+    <EditorContainer
+      $hasToolbar={!!toolbar}
+      className={className}
+    >
+      {typeof toolbar !== "undefined" ? (
+        <ToolbarContainer>
+          <ToolbarContent>
+            {toolbar}
+          </ToolbarContent>
+        </ToolbarContainer>
+      ) : null}
+      <ContentContainer
+        onClick={() => {
+          if (!isCodeMode) editor?.chain().focus().run();
+        }}
+      >
+        {!isCodeMode ? (
+          <>
+            <EditorContentStyled editor={editor} />
+            <LinkBubbleMenu />
+            <CustomComponentEditPopover />
+          </>
+        ) : (
+          <CodeTextarea
+            value={codeContent}
+            onChange={handleTextareaChange}
+            onBlur={handleTextareaBlur}
+            spellCheck={false}
+          />
+        )}
+      </ContentContainer>
+    </EditorContainer>
+  );
+};
+
 export const BaseEditor = forwardRef<Editor | null, BaseEditorProps>(
   (
     { toolbar, onChange, value, className, disabled = false, ...options },
@@ -111,42 +193,7 @@ export const BaseEditor = forwardRef<Editor | null, BaseEditorProps>(
     return (
       <TooltipProvider>
         <EditorProvider editor={editor}>
-          <EditorContainer
-            $hasToolbar={!!toolbar}
-            className={className}
-          >
-            {typeof toolbar !== "undefined" ? (
-              <ToolbarContainer>
-                <ToolbarContent>
-                  {toolbar}
-                </ToolbarContent>
-              </ToolbarContainer>
-            ) : null}
-            <ContentContainer
-              onClick={() => {
-                editor?.chain().focus().run();
-              }}
-            >
-              <EditorContentStyled
-                editor={editor}
-
-              // ={(view, event) => {
-              //   event.preventDefault()
-
-              //   const text = event.clipboardData?.getData("text/plain") ?? ""
-              //   const { state, dispatch } = view
-
-              //   dispatch(
-              //     state.tr.insertText(text, state.selection.from, state.selection.to)
-              //   )
-
-              //   return true // stop default paste
-              // }}
-              />
-              <LinkBubbleMenu />
-              <CustomComponentEditPopover />
-            </ContentContainer>
-          </EditorContainer>
+          <EditorLayout toolbar={toolbar} className={className} />
         </EditorProvider>
       </TooltipProvider>
     );

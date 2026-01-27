@@ -48,7 +48,15 @@ const CustomComponent = Node.create({
   parseHTML() {
     return [
       {
-        tag: 'div',
+        tag: 'div[data-custom-component="true"]',
+        getAttrs: (dom: string | HTMLElement) => {
+          if (typeof dom === 'string') return {};
+          const type = dom.getAttribute('data-type');
+
+          return {
+            type,
+          };
+        },
       }
     ];
   },
@@ -56,9 +64,12 @@ const CustomComponent = Node.create({
   renderHTML({ HTMLAttributes }) {
     return [
       'div',
-      { style: 'margin: 1em 0; text-align: center;' }
+      {
+        'data-custom-component': 'true',
+        'data-type': HTMLAttributes.type,
+      },
+      0
     ];
-
   },
   // INI YANG HARUS SELALU ADA & RETURN ARRAY YANG VALID
   toDOM(node: any) {

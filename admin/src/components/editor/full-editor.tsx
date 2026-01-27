@@ -42,6 +42,7 @@ function FullEditor({
     "IframeToolbar",
     "CodeBlockToolbar",
     "CodeToolbar",
+    "CodeModeToolbar",
     "BulletListToolbar",
     "OrderedListToolbar",
     "Separator",
