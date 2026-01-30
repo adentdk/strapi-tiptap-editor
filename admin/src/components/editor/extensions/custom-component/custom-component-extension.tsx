@@ -31,19 +31,44 @@ const CustomComponent = Node.create({
       custom_attrs: { default: undefined },
     };
   },
-  parseDOM: [  // Tambah ini juga, biar parsing HTML aman
+  parseDOM: [
     {
-      tag: 'div[data-node-type="customComponent"]',
-      getAttrs(dom: any) {
-        return {
-          type: dom.getAttribute('data-component-type'),
-          // ... attrs lain
+      tag: 'div[data-custom-component="true"]',
+      getAttrs: (dom: any) => {
+        const attrs: any = {
+          type: dom.getAttribute('data-type'),
+          align: dom.getAttribute('data-align') || undefined,
+          fullWidth: dom.getAttribute('data-full-width') === 'true',
+          label: dom.getAttribute('data-label') || undefined,
+          itemId: dom.getAttribute('data-item-id') || undefined,
+          layout: dom.getAttribute('data-layout') || undefined,
+          maxItems: dom.getAttribute('data-max-items') ? parseInt(dom.getAttribute('data-max-items'), 10) : undefined,
+          entity_name: dom.getAttribute('data-entity-name') || undefined,
+          entity_id: dom.getAttribute('data-entity-id') || undefined,
         };
+
+        const buttonsAttr = dom.getAttribute('data-buttons');
+        if (buttonsAttr) {
+          try {
+            attrs.buttons = JSON.parse(buttonsAttr);
+          } catch (e) {
+            console.error('Failed to parse buttons attribute', e);
+          }
+        }
+
+        const customAttrsAttr = dom.getAttribute('data-custom-attrs');
+        if (customAttrsAttr) {
+          try {
+            attrs.custom_attrs = JSON.parse(customAttrsAttr);
+          } catch (e) {
+            console.error('Failed to parse custom_attrs attribute', e);
+          }
+        }
+
+        return attrs;
       },
     },
   ],
-  // INI YANG PALING PENTING BUAT type: "json"
-
 
   parseHTML() {
     return [
@@ -51,35 +76,85 @@ const CustomComponent = Node.create({
         tag: 'div[data-custom-component="true"]',
         getAttrs: (dom: string | HTMLElement) => {
           if (typeof dom === 'string') return {};
-          const type = dom.getAttribute('data-type');
 
-          return {
-            type,
+          const attrs: any = {
+            type: dom.getAttribute('data-type'),
+            align: dom.getAttribute('data-align') || undefined,
+            fullWidth: dom.getAttribute('data-full-width') === 'true',
+            label: dom.getAttribute('data-label') || undefined,
+            itemId: dom.getAttribute('data-item-id') || undefined,
+            layout: dom.getAttribute('data-layout') || undefined,
+            maxItems: dom.getAttribute('data-max-items') ? parseInt(dom.getAttribute('data-max-items') || "3", 10) : undefined,
+            entity_name: dom.getAttribute('data-entity-name') || undefined,
+            entity_id: dom.getAttribute('data-entity-id') || undefined,
           };
+
+          const buttonsAttr = dom.getAttribute('data-buttons');
+          if (buttonsAttr) {
+            try {
+              attrs.buttons = JSON.parse(buttonsAttr);
+            } catch (e) {
+              console.error('Failed to parse buttons attribute', e);
+            }
+          }
+
+          const customAttrsAttr = dom.getAttribute('data-custom-attrs');
+          if (customAttrsAttr) {
+            try {
+              attrs.custom_attrs = JSON.parse(customAttrsAttr);
+            } catch (e) {
+              console.error('Failed to parse custom_attrs attribute', e);
+            }
+          }
+
+          return attrs;
         },
       }
     ];
   },
 
   renderHTML({ HTMLAttributes }) {
+    const { type, buttons, align, fullWidth, label, itemId, layout, maxItems, entity_name, entity_id, custom_attrs } = HTMLAttributes;
+
     return [
       'div',
       {
         'data-custom-component': 'true',
-        'data-type': HTMLAttributes.type,
+        'data-type': type,
+        'data-align': align,
+        'data-full-width': fullWidth,
+        'data-label': label,
+        'data-item-id': itemId,
+        'data-layout': layout,
+        'data-max-items': maxItems,
+        'data-entity-name': entity_name,
+        'data-entity-id': entity_id,
+        'data-buttons': buttons ? JSON.stringify(buttons) : undefined,
+        'data-custom-attrs': custom_attrs ? JSON.stringify(custom_attrs) : undefined,
+        class: 'custom-component-nodeview',
       },
-      0
     ];
   },
-  // INI YANG HARUS SELALU ADA & RETURN ARRAY YANG VALID
+
   toDOM(node: any) {
+    const { type, buttons, align, fullWidth, label, itemId, layout, maxItems, entity_name, entity_id, custom_attrs } = node.attrs;
+
     return [
       'div', {
         'data-custom-component': 'true',
-        'data-type': node.attrs.type || 'unknown',
+        'data-type': type || 'unknown',
+        'data-align': align,
+        'data-full-width': fullWidth,
+        'data-label': label,
+        'data-item-id': itemId,
+        'data-layout': layout,
+        'data-max-items': maxItems,
+        'data-entity-name': entity_name,
+        'data-entity-id': entity_id,
+        'data-buttons': buttons ? JSON.stringify(buttons) : undefined,
+        'data-custom-attrs': custom_attrs ? JSON.stringify(custom_attrs) : undefined,
         class: 'custom-component-nodeview',
       },
-      0,
     ];
   },
   addNodeView() {
