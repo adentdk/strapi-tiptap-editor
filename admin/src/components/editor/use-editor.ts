@@ -47,37 +47,37 @@ export interface UseEditorOptions
 export const createExtensions = (
   options: Pick<UseEditorOptions, "placeholder">,
 ): Extensions => [
-  Document,
-  Blockquote,
-  Bulletlist,
-  OrderedList,
-  ListItem,
-  CodeBlock,
-  HardBreak,
-  Heading.configure({
-    levels: [1, 2, 3, 4],
-  }),
-  Paragraph,
-  HorizontalRule,
-  Text,
-  Bold,
-  Code,
-  Italic,
-  Strike,
-  Dropcursor,
-  Gapcursor,
-  History.configure({
-    depth: 50,
-  }),
-  ResetMarksOnEnter,
-  TextAlign.configure({
-    types: ["heading", "paragraph"],
-  }),
-  TextStyle,
-  Placeholder.configure({
-    placeholder: options.placeholder,
-  }),
-];
+    Document,
+    Blockquote,
+    Bulletlist,
+    OrderedList,
+    ListItem,
+    CodeBlock,
+    HardBreak,
+    Heading.configure({
+      levels: [1, 2, 3, 4],
+    }),
+    Paragraph,
+    HorizontalRule,
+    Text,
+    Bold,
+    Code,
+    Italic,
+    Strike,
+    Dropcursor,
+    Gapcursor,
+    History.configure({
+      depth: 50,
+    }),
+    ResetMarksOnEnter,
+    TextAlign.configure({
+      types: ["heading", "paragraph"],
+    }),
+    TextStyle,
+    Placeholder.configure({
+      placeholder: options.placeholder,
+    }),
+  ];
 
 const getOutput = (
   editor: Editor,
